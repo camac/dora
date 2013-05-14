@@ -1,0 +1,8 @@
+<noteinfo noteid='382' unid='B6019B64DB57E233CA257B1D001448FB' sequence='19'>
+<created><datetime dst='true'>20130225T144134,03+11</datetime></created>
+<modified><datetime dst='true'>20130404T105017,77+11</datetime></modified>
+<revised><datetime dst='true'>20130404T105017,76+11</datetime></revised>
+<lastaccessed><datetime dst='true'>20130404T105017,77+11</datetime></lastaccessed>
+<addedtofile><datetime dst='true'>20130225T144134,04+11</datetime></addedtofile></noteinfo>
+<updatedby><name>CN=Cameron Gregor/O=JORD Engineers</name></updatedby>
+<wassignedby><name>CN=Cameron Gregor/O=JORD Engineers</name></wassignedby>

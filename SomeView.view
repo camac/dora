@@ -1,0 +1,48 @@
+<?xml version='1.0' encoding='utf-8'?>
+<note class='view' xmlns='http://www.lotus.com/dxl' version='9.0' replicaid='##MASTERREPLICAID##'>
+<noteinfo noteid='382' unid='B6019B64DB57E233CA257B1D001448FB' sequence='19'>
+<created><datetime dst='true'>20130225T144134,03+11</datetime></created>
+<modified><datetime dst='true'>20130404T105017,77+11</datetime></modified>
+<revised><datetime dst='true'>20130404T105017,76+11</datetime></revised>
+<lastaccessed><datetime dst='true'>20130404T105017,77+11</datetime></lastaccessed>
+<addedtofile><datetime dst='true'>20130225T144134,04+11</datetime></addedtofile></noteinfo>
+<updatedby><name>CN=Cameron Gregor/O=JORD Engineers</name></updatedby>
+<wassignedby><name>CN=Cameron Gregor/O=JORD Engineers</name></wassignedby>
+<item name='$FormatNote' summary='true'>
+<rawitemdata type='4'>
+AQAYJ1uCZDsWRd/PIAAXciXK
+</rawitemdata></item>
+<item name='$FormulaClass' sign='true'><text>1</text></item>
+<item name='$TITLE' sign='true'><text>(BOM\Lookup)|BOMLookup</text></item>
+<item name='$Index' sign='true'><text/></item>
+<item name='$Formula' summary='true' sign='true'><formula compiled='true'>
+XAAFACQAHwADAAgACQAEAEJPTVJldklEJENvbmZsaWN0JFJFRgAEAAQAAAAgAAUABABGb3JtAQAD
+AEJPTQAKAgQAbAAeARwCAwAHABIADAAJTDFTM1M0UzZTN1M=
+</formula></item>
+<item name='$Collation' summary='true'>
+<rawitemdata type='2'>
+FQABAABEgGYAAAAIAEJPTVJldklE
+</rawitemdata></item>
+<item name='$VIEWFORMAT' summary='true' sign='true'>
+<rawitemdata type='5'>
+AQABABIAiTwAAFZDAQQIAAgAAAAAAGAABQEACIAAAgEBAAAAAAACAAAAQk9NUmV2SURCb21SZXZJ
+RCYAAQAAAAEBAAkBAAAKAQEOCgAAPwCtKwMAAQABAAAAAAAAAAAAV0MGAAAIAAAAAAAAAAAAAAAA
+AAAAAAAAxAAAAAAA//8AAAAAAAAAAAAAAAAAAEIAAAAAAAEA////AAEA7+/vAAEAAAAAAAAAAAAA
+AAAAAQD///8AAQDh4eEAAAABAAAAAAABAICAgAABAAAAAAAAAAgAAAAAAAEAWEMASIADAAAAAAAB
+AgICAQEBAQcEAwAAAAAAAAAAIC8vOllDAgEBAAAAAQAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAEA
+AAAAAAAAAAAAAAAAAAAAAAAuLCQA
+</rawitemdata></item>
+<item name='$Fonts' sign='true'><textlist><text>5</text><text>38</text><text
+>Arial</text><text>6</text><text>38</text><text>Arial</text></textlist></item>
+<item name='$Comment' sign='true'><text>By BOMRevID</text></item>
+<item name='$DesignerVersion'><text>8.5.2</text></item>
+<item name='$V5ACTIONS' sign='true'>
+<rawitemdata type='1'>
+i/8oAAEABSZBcmlhbAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAL0c1wAAAAEAAAAAAGUDAAAA
+AAAABQEBCRMAAQB5/2wAAQBjm7cAAQAAAAAAAQD///8AAQDAwMAAAAAZAAMAAAAAAAAAAwAAAAAA
+AAAAAAAAAAAAADlAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAABx/y4AAAAAAAMAEwAMAAAAAAAAAAAAAAAAAAAAAAAAAAAAVmlld0Ryb3AuZ2lm/P86AAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAA==
+</rawitemdata></item>
+<item name='$Flags'><text>Y</text></item></note>
+
