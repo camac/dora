@@ -86,6 +86,8 @@ sub addFiltersToGitConfig {
   print "\nEnter Choice: ";
 
   my $setUpGitConfig = <STDIN>;
+  chomp($setUpGitConfig);
+
   my @args = ();
 
   exit 0 if $setUpGitConfig =~ /^q/i;
@@ -224,6 +226,7 @@ sub updateGitAttributes {
 
   print "1. Add All Associations\n";
   print "2. Remove all associations\n";
+  print "3. Skip this step\n";
 
   print "\nEnter Choice: ";
 
