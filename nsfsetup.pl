@@ -105,6 +105,9 @@ sub addFiltersToGitConfig {
     @args = ('config','--local','filter.nsf.smudge',$smudgeScript);
     system('git',@args);
 
+    @args = ('config','--local','filter.nsf.required','true');
+    system('git',@args);
+
     print "\nAdded git filters\n";
 
   } elsif ($setUpGitConfig eq "2") {
