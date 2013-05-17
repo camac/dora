@@ -36,10 +36,12 @@ while (<>) {
       # don't want in the Repository
 
       # Replace Replica ID with nothing
-      $_ =~ s:replicaid='[A-Z0-9]+'::;
+      $_ =~ s:\s+replicaid='[A-Z0-9]+'::;
 
-      # Replace the Version attribute of the note element
-      $_ =~ s:version='[\.\d]+'::;
+      # Replace the Version attribute of the note element, if the line matches '<note '
+      if (m:^<note\s:) {
+        $_ =~ s:\s+version='[\.\d]+'::;
+      }
 
       # Remove the Updated by line
       $_ =~ s:<updatedby><name>.*</name></updatedby>::;
@@ -52,5 +54,9 @@ while (<>) {
       }
     }
 
+}
+
+if ($inNoteInfo) {
+  exit 1;
 }
 
