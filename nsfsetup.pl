@@ -22,6 +22,7 @@ sub specifyScriptDir {
   print "Where have you put the GitFiltersForNSF scripts: \n\n";
   print "1. In the default directory under my HOME path accessibly by " . $scriptDir . "\n";
   print "2. I have placed them in a directory that is on the PATH environment variable\n";
+  print "3. In a sub directory of this repository\n";
   #print "3. I have placed them in a directory that will not be on the PATH environment variable\n";
 
   print "\nEnter Choice: ";
