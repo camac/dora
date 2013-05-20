@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="WINDOWS-1252"?><jardesc>
+    <jar path="C:/DominoGit/GitFiltersForNSF/deploy/GitFiltersForNSF.jar"/>
+    <options buildIfNeeded="true" compress="true" descriptionLocation="/GitFiltersForNSF/deploy/GitFiltersForNSF.jardesc" exportErrors="true" exportWarnings="true" includeDirectoryEntries="false" overwrite="false" saveDescription="true" storeRefactorings="false" useSourceFolders="false"/>
+    <storedRefactorings deprecationInfo="true" structuralOnly="false"/>
+    <selectedProjects/>
+    <manifest generateManifest="true" mainClassHandleIdentifier="=GitFiltersForNSF/src&lt;com.gregorbyte.GitFiltersForNSF{Clean.java[Clean" manifestLocation="/GitFiltersForNSF/Manifest.mf" manifestVersion="1.0" reuseManifest="false" saveManifest="true" usesManifest="true">
+        <sealing sealJar="false">
+            <packagesToSeal/>
+            <packagesToUnSeal/>
+        </sealing>
+    </manifest>
+    <selectedElements exportClassFiles="true" exportJavaFiles="true" exportOutputFolder="false">
+        <file path="/GitFiltersForNSF/.gitignore"/>
+        <file path="/GitFiltersForNSF/nsfsetup.pl"/>
+        <file path="/GitFiltersForNSF/nsfclean.pl"/>
+        <javaElement handleIdentifier="=GitFiltersForNSF/src"/>
+        <file path="/GitFiltersForNSF/nsfsmudge.pl"/>
+        <file path="/GitFiltersForNSF/xslclean.pl"/>
+        <file path="/GitFiltersForNSF/Manifest.mf"/>
+        <file path="/GitFiltersForNSF/Readme.md"/>
+        <file path="/GitFiltersForNSF/.project"/>
+        <file path="/GitFiltersForNSF/.gitattributes"/>
+        <file path="/GitFiltersForNSF/.classpath"/>
+        <javaElement handleIdentifier="=GitFiltersForNSF/resources"/>
+    </selectedElements>
+    <fatjar builder="org.eclipse.jdt.ui.plain_jar_builder" launchConfig=""/>
+</jardesc>
