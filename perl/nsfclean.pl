@@ -6,7 +6,8 @@
 # <revised><datetime dst='true'>20130404T105017,76+11</datetime></revised>
 # <lastaccessed><datetime dst='true'>20130404T105017,77+11</datetime></lastaccessed>
 # <addedtofile><datetime dst='true'>20130225T144134,04+11</datetime></addedtofile></noteinfo>
-# <updatedby><name>CN=Cameron Gregor/O=JORD Engineers</name></updatedby>
+# <updatedby><name>CN=Cameron Gregor/O=JORD Engineers</name>
+# <name>CN=Some Other Guy/O=JORD Engineers</name></updatedby>
 # <wassignedby><name>CN=Cameron Gregor/O=JORD Engineers</name></wassignedby>
 
 my $inNoteInfo = 0;
@@ -14,13 +15,25 @@ my $inNoteInfo = 0;
 while (<>) {
 
     # Test to see if the current line is the start of the Note info
-    # If so we replace the line by <noteinf>
+    # If so we replace the line by <noteinfo>
     # Note: this code could do with some improvement. It currently is only a weak test where the line starts with <noteinfo. 
     #       It does not cover the case where the closing tag is on the same line
+
+    # Watch for the start of noteinfo
     if (s:^<noteinfo.*:<noteinfo>:) {
       print $_;
       $inNoteInfo = 1;
-    }    
+    }
+
+    # watch for start of updated by
+    if (m%^.*<updatedby(?:(?!updatedby).)+$%) {
+      print "udpatedby start:\n";
+    }
+
+    if (m:(?!<updatedby>).*</updatedby>:) {
+      print "udpdateby finish:\n";
+    }
+
 
     if ($inNoteInfo) {
 
