@@ -9,6 +9,9 @@ I have yet to test for eGit for Domino Designer however I don't see a reason why
 
 * How to hide any updates from Git Status which are Meta Information only
 * How to deal with Merge Conflict
+* Remove the noteinfo element
+* Remove the replicaid attribute from the note element
+* Remove the version attribute from the note element
 * Diff filter to ignore NoteInfo and check in standard values for 
 * Clean Filter for checking in values
   * Sequence Number
@@ -37,6 +40,7 @@ This project has been tested using the following setup
 
 GitHub for Windows
   - Git Version 1.8.1.msysgit.1
+  - Java version ???
   - Perl Version v5.8.8 built for msys
 
 Step 1 - Choose where you will keep the scripts
