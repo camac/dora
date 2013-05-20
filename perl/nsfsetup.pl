@@ -95,8 +95,8 @@ sub addFiltersToGitConfig {
 
   if ($setUpGitConfig eq "1" || $setUpGitConfig eq "") {
 
-    my $cleanScript   = $scriptDir . 'nsfclean.pl';
-    my $smudgeScript  = $scriptDir . 'nsfsmudge.pl';
+    my $cleanScript   = 'java -jar ' . $scriptDir . 'GitFiltersForNSF.jar';
+    my $smudgeScript  = $cleanScript;
 
     #TODO check the return status of these system commands
 

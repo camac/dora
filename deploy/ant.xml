@@ -11,5 +11,13 @@
             </manifest>
             <fileset dir="C:/DominoGit/GitFiltersForNSF/bin"/>
         </jar>
+        <jar destfile="C:/DominoGit/GitFiltersForNSF/deploy/GitFiltersForNSF.jar" filesetmanifest="mergewithoutmain">
+            <manifest>
+                <attribute name="Built-By" value="${user.name}"/>
+                <attribute name="Main-Class" value="com.gregorbyte.GitFiltersForNSF.Clean"/>
+                <attribute name="Class-Path" value="."/>
+            </manifest>
+            <fileset dir="C:/DominoGit/GitFiltersForNSF/bin"/>
+        </jar>
     </target>
 </project>

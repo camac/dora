@@ -21,17 +21,24 @@ public class Clean {
     // Global value so it can be ref'd by the tree-adapter
     static 	Document document;
      
-
     public static void main(String[] argv) {    	    
     
-    	boolean useStdIn = false;
-    	boolean useRes	= false;
+    	boolean useStdIn 	= true;
+    	boolean useRes		= true;
     	
-    	if (argv.length == 0) {
-    		useRes 		= true;
-    		useStdIn	= true; 
-    	} else if (argv.length != 2) {
-            System.err.println("Usage: java Clean stylesheet xmlfile");
+    	/*
+    	 * If no arguments supplied, then use Standard Input and Bundled xsl
+    	 * If 1 argument supplied then use that is the input file
+    	 * IF 2 arguments supplied then use first as file and second as xsl
+    	 */
+    	
+    	if (argv.length == 1) { 
+    		useStdIn = false;
+    	} else if (argv.length == 2) {
+    		useStdIn 	= false;
+    		useRes 		= false;
+    	} else if (argv.length != 0) {
+            System.err.println("Usage: java Clean xmlfile [xsl]");
             System.exit(1);
         }
 
@@ -47,7 +54,7 @@ public class Clean {
             if (useStdIn) {
             	document = builder.parse(System.in);
             } else {
-                File datafile = new File(argv[1]);
+                File datafile = new File(argv[0]);
                 document = builder.parse(datafile);            	
             }
             
@@ -57,7 +64,7 @@ public class Clean {
             	InputStream xslStream = Clean.class.getClass().getResourceAsStream("/com/gregorbyte/GitFiltersForNSF/xsl/nsfclean.xsl");
                 stylesource = new StreamSource(xslStream);
             } else {
-                File stylesheet = new File(argv[0]);
+                File stylesheet = new File(argv[1]);
                 stylesource = new StreamSource(stylesheet);            	
             }
 

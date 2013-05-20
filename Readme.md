@@ -57,3 +57,27 @@ $ cd ~
 /c/Users/cgregor
 git clone https://github.com/camac/GitNSFFilters
 
+
+Here is a Testing Script for Demonstration purposes
+
+User 1
+1. Create a new NSF File -> New Application
+1. Team -> Set up Source Control and create new ODP
+1. Add some Folders, views, script libraries etc
+1. git init
+1. Configure git repo for GitFiltersForNSF
+1. git add .
+1. git commit -m "First Commit"
+1. git push origin master
+
+User 2
+1. git clone <remote-repo-location>
+1. Open Java Perspective
+1. Import -> Existing Project
+1. Team -> Create new nsf
+1. Tools -> Recompile all lotusscript
+1. Open a view and save
+1. git status
+1. git add .
+1. git status
+
