@@ -12,7 +12,7 @@
 <rawitemdata type='4'>
 AQAYJ1uCZDsWRd/PIAAXciXK
 </rawitemdata></item>
-<item name='$FormulaClass' sign='true'><text>1</text></item>
+<item name='$FormulaClass' sign='true' version='48'><text>1</text></item>
 <item name='$TITLE' sign='true'><text>(BOM\Lookup)|BOMLookup</text></item>
 <item name='$Index' sign='true'><text/></item>
 <item name='$Formula' summary='true' sign='true'><formula compiled='true'>
