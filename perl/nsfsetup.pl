@@ -234,7 +234,7 @@ sub updateGitAttributes {
 
   print "\nEnter Choice: ";
 
-  my @exts = ('view','form','page','fa','ja','lsa','folder','column','field','outline','subform');
+  my @exts = ('view','form','page','fa','ja','lsa','folder','column','field','outline','subform','lsdb');
   my @file = ('AboutDocument','UsingDocument','IconNote');
 
   my $addAssoc = <>;
