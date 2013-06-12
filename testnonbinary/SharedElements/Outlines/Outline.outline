@@ -1,0 +1,17 @@
+<?xml version='1.0' encoding='utf-8'?>
+<outline name='Outline' xmlns='http://www.lotus.com/dxl' version='9.0' replicaid='CA257B87002B87E8'
+ publicaccess='false' designerversion='8.5.3'>
+<noteinfo noteid='1d2' unid='FB1ACABCA144A4DBCA257B870030A817' sequence='3'>
+<created><datetime>20130611T185127,59+10</datetime></created>
+<modified><datetime>20130611T185319,31+10</datetime></modified>
+<revised><datetime>20130611T185319,30+10</datetime></revised>
+<lastaccessed><datetime>20130611T185319,31+10</datetime></lastaccessed>
+<addedtofile><datetime>20130611T185127,81+10</datetime></addedtofile></noteinfo>
+<updatedby><name>CN=Cameron Gregor/O=JORD Engineers</name></updatedby>
+<outlineentry label='View' type='namedelementlink'><namedelementlink type='view'
+ name='View'/></outlineentry>
+<outlineentry label='Folder' type='namedelementlink'><namedelementlink type='folder'
+ name='Folder'/></outlineentry>
+<outlineentry label='Navigator' type='namedelementlink'><namedelementlink
+ type='navigator' name='Navigator'/></outlineentry></outline>
+

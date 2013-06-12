@@ -1,0 +1,25 @@
+<?xml version='1.0' encoding='utf-8'?>
+<databasescript xmlns='http://www.lotus.com/dxl' version='9.0' replicaid='CA257B87002B87E8'
+ designerversion='8.5.3'>
+<noteinfo noteid='1a2' unid='0CED4D7FACBE330BCA257B87002FD63C' sequence='3'>
+<created><datetime>20130611T184230,36+10</datetime></created>
+<modified><datetime>20130611T184250,88+10</datetime></modified>
+<revised><datetime>20130611T184250,87+10</datetime></revised>
+<lastaccessed><datetime>20130611T184250,88+10</datetime></lastaccessed>
+<addedtofile><datetime>20130611T184230,52+10</datetime></addedtofile></noteinfo>
+<updatedby><name>CN=Cameron Gregor/O=JORD Engineers</name></updatedby>
+<wassignedby><name>CN=Cameron Gregor/O=JORD Engineers</name></wassignedby><code
+ event='options'><lotusscript>%REM
+	Database Script Database Script
+	Created Jun 12, 2013 by Cameron Gregor/JORD Engineers
+	Description: Comments for Database Script
+%END REM
+Option Declare
+
+
+</lotusscript></code><code event='postopen'><lotusscript>Sub Postopen(Source As Notesuidatabase)
+	
+	Print "Git Example Database is Open for Business"
+	
+End Sub</lotusscript></code></databasescript>
+

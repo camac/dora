@@ -1,0 +1,12 @@
+<?xml version='1.0' encoding='utf-8'?>
+<dataconnection name='conn' xmlns='http://www.lotus.com/dxl' version='9.0'
+ replicaid='CA257B87002B87E8' nocompose='true' designerversion='8.5.3' class='rdbms'
+ type='odbc2' datasource='somesource' objecttype='table' blockkeyfieldupdates='true'>
+<noteinfo noteid='212' unid='700DA9F798726614CA257B8700340AF3' sequence='7'>
+<created><datetime>20130611T192826,75+10</datetime></created>
+<modified><datetime>20130611T192837,68+10</datetime></modified>
+<revised><datetime>20130611T192837,67+10</datetime></revised>
+<lastaccessed><datetime>20130611T192837,68+10</datetime></lastaccessed>
+<addedtofile><datetime>20130611T192826,72+10</datetime></addedtofile></noteinfo>
+<updatedby><name>CN=Cameron Gregor/O=JORD Engineers</name></updatedby></dataconnection>
+

@@ -1,0 +1,15 @@
+<?xml version='1.0' encoding='utf-8'?>
+<helpaboutdocument xmlns='http://www.lotus.com/dxl' version='9.0' replicaid='CA257B87002B87E8'
+ publicaccess='false' designerversion='8.5.3' default='true' renderpassthrough='true'>
+<noteinfo noteid='166' unid='9F570946F7BDEB3DCA257B87002D6298' sequence='2'>
+<created><datetime>20130611T181543,60+10</datetime></created>
+<modified><datetime>20130611T181550,96+10</datetime></modified>
+<revised><datetime>20130611T181550,95+10</datetime></revised>
+<lastaccessed><datetime>20130611T181550,96+10</datetime></lastaccessed>
+<addedtofile><datetime>20130611T181543,78+10</datetime></addedtofile></noteinfo>
+<updatedby><name>CN=Cameron Gregor/O=JORD Engineers</name></updatedby>
+<wassignedby><name>CN=Cameron Gregor/O=JORD Engineers</name></wassignedby>
+<body><richtext>
+<pardef id='1'/>
+<par def='1'>Example About Doc</par></richtext></body></helpaboutdocument>
+

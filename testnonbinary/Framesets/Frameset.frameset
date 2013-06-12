@@ -1,0 +1,15 @@
+<?xml version='1.0' encoding='utf-8'?>
+<frameset name='Frameset' xmlns='http://www.lotus.com/dxl' version='9.0' replicaid='CA257B87002B87E8'
+ publicaccess='false' designerversion='8.5.3' columns='20% 80%' spacing='0px'
+ borderwidth='11px' bordercolor='none'>
+<noteinfo noteid='186' unid='D8D73933DFFE8E45CA257B87002F0DED' sequence='6'>
+<created><datetime>20130611T183357,57+10</datetime></created>
+<modified><datetime>20130611T183511,05+10</datetime></modified>
+<revised><datetime>20130611T183511,04+10</datetime></revised>
+<lastaccessed><datetime>20130611T183511,05+10</datetime></lastaccessed>
+<addedtofile><datetime>20130611T183357,63+10</datetime></addedtofile></noteinfo>
+<updatedby><name>CN=Cameron Gregor/O=JORD Engineers</name></updatedby>
+<wassignedby><name>CN=Cameron Gregor/O=JORD Engineers</name></wassignedby>
+<frame name='frameLeft'><namedelementlink type='page' name='Page'/></frame>
+<frame><namedelementlink type='view' name='View'/></frame></frameset>
+

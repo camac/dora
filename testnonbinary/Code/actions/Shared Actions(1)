@@ -1,0 +1,12 @@
+<?xml version='1.0' encoding='utf-8'?>
+<sharedactions xmlns='http://www.lotus.com/dxl' version='9.0' replicaid='CA257B87002B87E8'
+ hide='v3 v4strict' designerversion='8.5.3'>
+<noteinfo noteid='20e' unid='27A69D5EE3FEE80BCA257B870032D2ED' sequence='1'>
+<created><datetime>20130611T191507,97+10</datetime></created>
+<modified><datetime>20130611T191508,10+10</datetime></modified>
+<revised><datetime>20130611T191508,09+10</datetime></revised>
+<lastaccessed><datetime>20130611T191508,10+10</datetime></lastaccessed>
+<addedtofile><datetime>20130611T191508,10+10</datetime></addedtofile></noteinfo>
+<updatedby><name>CN=Cameron Gregor/O=JORD Engineers</name></updatedby>
+<wassignedby><name>CN=Cameron Gregor/O=JORD Engineers</name></wassignedby></sharedactions>
+

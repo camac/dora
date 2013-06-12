@@ -1,0 +1,36 @@
+<?xml version='1.0' encoding='utf-8'?>
+<agent name='JavaAgent' xmlns='http://www.lotus.com/dxl' version='9.0' replicaid='CA257B87002B87E8'
+ hide='v3' publicaccess='false' designerversion='8.5.3'>
+<noteinfo noteid='1e6' unid='9AB8A6C6D5501AE3CA257B870030E365' sequence='2'>
+<created><datetime>20130611T185359,41+10</datetime></created>
+<modified><datetime>20130611T185401,43+10</datetime></modified>
+<revised><datetime>20130611T185401,42+10</datetime></revised>
+<lastaccessed><datetime>20130611T185401,43+10</datetime></lastaccessed>
+<addedtofile><datetime>20130611T185359,98+10</datetime></addedtofile></noteinfo>
+<updatedby><name>CN=Cameron Gregor/O=JORD Engineers</name></updatedby>
+<wassignedby><name>CN=Cameron Gregor/O=JORD Engineers</name></wassignedby>
+<designchange><datetime>20130612T102628,91+10</datetime></designchange>
+<trigger type='actionsmenu'/>
+<documentset type='selected'/><code event='action'><javaproject class='JavaAgent.class'
+ codepath='c:\Program Files (x86)\IBM\Notes\Data'><java name='JavaAgent.java'>import lotus.domino.*;
+
+public class JavaAgent extends AgentBase {
+
+    public void NotesMain() {
+
+      try {
+          Session session = getSession();
+          AgentContext agentContext = session.getAgentContext();
+
+          // (Your code goes here)
+
+      } catch(Exception e) {
+          e.printStackTrace();
+       }
+   }
+}</java></javaproject></code>
+<rundata processeddocs='0' exitcode='0'>
+<agentmodified><datetime>20130612T102628,92+10</datetime></agentmodified></rundata>
+<item name='$JavaCompilerSource'><text>1.3</text></item>
+<item name='$JavaCompilerTarget'><text>1.2</text></item></agent>
+

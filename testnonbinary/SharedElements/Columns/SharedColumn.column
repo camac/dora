@@ -1,0 +1,15 @@
+<?xml version='1.0' encoding='utf-8'?>
+<sharedcolumn name='SharedColumn' xmlns='http://www.lotus.com/dxl' version='9.0'
+ replicaid='CA257B87002B87E8' noreplace='true' designerversion='8.5.3'>
+<noteinfo noteid='19e' unid='B2DC5EA7C5A76874CA257B88000139AE' sequence='4'>
+<created><datetime>20130612T101323,02+10</datetime></created>
+<modified><datetime>20130611T184145,19+10</datetime></modified>
+<revised><datetime>20130611T184145,18+10</datetime></revised>
+<lastaccessed><datetime>20130611T184145,19+10</datetime></lastaccessed>
+<addedtofile><datetime>20130611T184056,42+10</datetime></addedtofile></noteinfo>
+<updatedby><name>CN=Cameron Gregor/O=JORD Engineers</name></updatedby>
+<wassignedby><name>CN=Cameron Gregor/O=JORD Engineers</name></wassignedby>
+<column hidedetailrows='false' itemname='$0' width='10' resizable='true' separatemultiplevalues='false'
+ sortnoaccent='true' sortnocase='true' showaslinks='false'><columnheader title='Size'><font
+ size='9pt' style='bold'/></columnheader><code event='value'><formula>@DocLength</formula></code></column></sharedcolumn>
+

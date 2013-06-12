@@ -1,0 +1,22 @@
+<?xml version='1.0' encoding='utf-8'?>
+<page name='Page' xmlns='http://www.lotus.com/dxl' version='9.0' replicaid='CA257B87002B87E8'
+ publicaccess='false' designerversion='8.5.3' renderpassthrough='true'>
+<noteinfo noteid='18a' unid='34A9C1FE7E33F2AACA257B87002F104A' sequence='3'>
+<created><datetime>20130611T183403,62+10</datetime></created>
+<modified><datetime>20130611T185310,28+10</datetime></modified>
+<revised><datetime>20130611T185310,27+10</datetime></revised>
+<lastaccessed><datetime>20130611T185310,28+10</datetime></lastaccessed>
+<addedtofile><datetime>20130611T183403,93+10</datetime></addedtofile></noteinfo>
+<updatedby><name>CN=Cameron Gregor/O=JORD Engineers</name></updatedby>
+<wassignedby><name>CN=Cameron Gregor/O=JORD Engineers</name></wassignedby>
+<body><richtext>
+<pardef id='1'/>
+<par def='1'>I'm a Page</par>
+<par def='1'/>
+<par def='1'><embeddedoutline outline='Outline' showtwistie='true' widthtype='fitwindow'
+ heighttype='fixed' height='1in'><title><layout labelalign='topleft' labelhoffset='0'
+ labelvoffset='0'/></title><toplevel><layout labelalign='topleft' imagealign='topleft'
+ labelhoffset='0.2000in' labelvoffset='0'/></toplevel><sublevel><layout labelalign='topleft'
+ entryhoffset='0.2000in' imagealign='topleft' labelhoffset='0.2000in' labelvoffset='0'/></sublevel></embeddedoutline></par></richtext></body>
+<item name='$$ScriptName' summary='false' sign='true'><text>Page</text></item></page>
+

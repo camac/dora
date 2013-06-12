@@ -1,0 +1,17 @@
+<?xml version='1.0' encoding='utf-8'?>
+<sharedfield name='Field' xmlns='http://www.lotus.com/dxl' version='9.0' replicaid='CA257B87002B87E8'
+ designerversion='8.5.3'>
+<noteinfo noteid='19a' unid='3C5DA54619421331CA257B87002FA5D7' sequence='2'>
+<created><datetime>20130611T184026,47+10</datetime></created>
+<modified><datetime>20130611T184036,43+10</datetime></modified>
+<revised><datetime>20130611T184036,42+10</datetime></revised>
+<lastaccessed><datetime>20130611T184036,43+10</datetime></lastaccessed>
+<addedtofile><datetime>20130611T184026,72+10</datetime></addedtofile></noteinfo>
+<updatedby><name>CN=Cameron Gregor/O=JORD Engineers</name></updatedby>
+<wassignedby><name>CN=Cameron Gregor/O=JORD Engineers</name></wassignedby><field
+ type='text' kind='editable' name='Field'><code event='defaultvalue'><formula
+>@Now</formula></code></field>
+<item name='$HTMLCode' sign='true'>
+<rawitemdata type='1'>
+</rawitemdata></item></sharedfield>
+

@@ -81,3 +81,27 @@ User 2
 1. git add .
 1. git status
 
+
+Running Tests
+----------------
+
+To view an example of what happens using certain filters you can run a test like so
+
+xsltproc stylesheet file
+
+so to run the form.xsl filter 
+
+xsltproc xsl/form.xsl testdata/Form/Form.view
+
+When installed, the actual filter will have a hyphen for the filename. The hyphen tells the xsltproc program to use <<stdin>>
+xsltproc xsl/form.xsl -
+
+
+Vim Tip
+when viewing an xml file that does not have the extension .xml, you can use
+:set filetype=xml
+and it will do pretty xml colours!
+
+
+
+

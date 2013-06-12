@@ -1,0 +1,17 @@
+<?xml version='1.0' encoding='utf-8'?>
+<agent name='LotusScriptAgent' xmlns='http://www.lotus.com/dxl' version='9.0'
+ replicaid='CA257B87002B87E8' hide='v3' publicaccess='false' designerversion='8.5.3'>
+<noteinfo noteid='1de' unid='B660ABFFC85462EECA257B870030DA7D' sequence='3'>
+<created><datetime>20130611T185336,61+10</datetime></created>
+<modified><datetime>20130611T185350,44+10</datetime></modified>
+<revised><datetime>20130611T185350,43+10</datetime></revised>
+<lastaccessed><datetime>20130611T185350,44+10</datetime></lastaccessed>
+<addedtofile><datetime>20130611T185336,73+10</datetime></addedtofile></noteinfo>
+<updatedby><name>CN=Cameron Gregor/O=JORD Engineers</name></updatedby>
+<wassignedby><name>CN=Cameron Gregor/O=JORD Engineers</name></wassignedby>
+<designchange><datetime>20130612T102618,22+10</datetime></designchange>
+<trigger type='actionsmenu'/>
+<documentset type='selected'/>
+<rundata processeddocs='0' exitcode='0'>
+<agentmodified><datetime>20130612T102604,51+10</datetime></agentmodified></rundata></agent>
+
