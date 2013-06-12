@@ -5,13 +5,15 @@ use strict;
 package GitFiltersForNSF;
 
 our $scriptDir = '~/GitFiltersForNSF/';
+our $xslDir = '~/GitFiltersForNSF/xsl/';
 
 introduction();
 checkInGitRepo();
 specifyScriptDir();
 addFiltersToGitConfig();
-setSigner();
+#setSigner();
 updateGitAttributes();
+updateGitIgnore();
 finish();
 
 
@@ -20,10 +22,8 @@ sub specifyScriptDir {
   # Check the location of the GitFiltersForNSF folder
   print "********** Script Location ************\n\n";
   print "Where have you put the GitFiltersForNSF scripts: \n\n";
-  print "1. In the default directory under my HOME path accessibly by " . $scriptDir . "\n";
-  print "2. I have placed them in a directory that is on the PATH environment variable\n";
-  print "3. In the xsl/ directory in the root of this repository\n";
-  #print "3. I have placed them in a directory that will not be on the PATH environment variable\n";
+  print "1. In the default directory under my HOME path accessibly by " . $xslDir . "\n";
+  print "2. In the xsl/ directory in the root of this repository\n";
 
   print "\nEnter Choice: ";
 
@@ -32,14 +32,9 @@ sub specifyScriptDir {
 
   exit 0 if $opt =~ m/^q/i;
 
-    if ($opt eq "3") {
-
-      print "Sorry this option is not supported yet!\n";
-      exit 0;
-
-    } elsif ($opt eq "2") {
+    if ($opt eq "2") {
       print "You chose 2\n";
-      $scriptDir = "";
+      $scriptDir = "xsl/";
     } elsif ($opt eq "1" || $opt eq "") {
       print "You chose 1\n";
     } else {
@@ -95,7 +90,7 @@ sub addFiltersToGitConfig {
 
   if ($setUpGitConfig eq "1" || $setUpGitConfig eq "") {
 
-    my $cleanScript   = 'xsltproc ' . $scriptDir . ' -';
+    my $cleanScript   = 'xsltproc ' . $scriptDir . 'transform.xsl -';
     my $smudgeScript  = $cleanScript;
 
     #TODO check the return status of these system commands
@@ -119,6 +114,9 @@ sub addFiltersToGitConfig {
     system('git',@args);
 
     @args = ('config','--local','--unset','filter.nsf.smudge');
+    system('git',@args);
+
+    @args = ('config','--local','--unset','filter.nsf.required');
     system('git',@args);
 
     print "\nRemoved Git Filters\n";
@@ -266,6 +264,48 @@ sub updateGitAttributes {
   }
 
 }
+
+sub updateGitIgnore {
+
+  print "\n********* Initialise Git Ignore File r *************\n\n";
+
+  print "This step will update the .gitignore file in the root of the current repository.\n";
+  print "It will ignore some files.\n\n";
+
+  print "1. Add Git Ignore entries\n";
+  print "2. Skip this step\n";
+
+  print "\nEnter Choice: ";
+
+  my @ents = ('nsf/.classpath','nsf/.project','nsf/plugin.xml','nsf/.settings','database.properties','IconNote');
+
+  my $addAssoc = <>;
+  chomp($addAssoc);
+
+  exit 0 if $addAssoc =~ /^q/i;
+
+  if ($addAssoc eq "1" || $addAssoc eq "") {
+
+    # Add to gitattributes file
+    open (GITATTR, '>>.gitignore');
+
+    foreach (@ents) {
+      print GITATTR "$_\n";
+    }
+
+    close (GITATTR);
+
+  } elsif ($addAssoc eq "2") {
+
+    #TODO Remove associations from the .gitattributes file
+
+    print "\n\nNothing Done Here still need to code this\n\n";
+
+  }
+
+}
+
+
 
 sub introduction {
 
