@@ -26,7 +26,7 @@ our $setupTargetDirectory = "$homeDir/bin";
 our $setupTargetFilename  = "Setup.pl";
 our $setupTarget          = "$setupTargetDirectory/$setupTargetFilename";
 
-our $xslSourceFilename    = "../xsl/transform.xsl";
+our $xslSourceFilename    = "xsl/transform.xsl";
 our $xslSource            = "$installScriptDir/$xslSourceFilename";
 
 our $xslTargetDirectory  = "$homeDir/GitFilters";

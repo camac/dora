@@ -7,27 +7,17 @@ package GitFiltersForNSF;
 
 our $useColours = 1;
 our $verbose    = 0;
-our $scriptDir  = '~/GitFiltersForNSF/';
-our $xslDir     = '~/GitFiltersForNSF/xsl/';
+
+our $homeDir    = $ENV{"HOME"};
+our $scriptDir  = "$homeDir/bin";
+our $xslDir     = "$homeDir/GitFilters";
+our $gitDir     = "";
+
+our $cfgStartMark   = "# GitNSF Start";
+our $cfgFinishMark  = "# GitNSF Finish";
 
 use File::Basename;
-my $dirname = dirname(__FILE__);
-
-print $dirname;
-
-exit 0;
-
-processArgs();
-
-introduction();
-setupNewNSFFolder();
-checkInGitRepo();
-specifyScriptDir();
-addFiltersToGitConfig();
-#setSigner();
-updateGitAttributes();
-updateGitIgnore();
-finish();
+my $setupScriptDirname = dirname(__FILE__);
 
 sub mycls {
 
@@ -145,6 +135,8 @@ sub checkInGitRepo {
 
   if ($verbose) { print "\nChecking if we are in a git repository: "};
 
+  $gitDir = "";
+
   my @args = ('rev-parse','--git-dir');
   system('git',@args);
 
@@ -158,6 +150,8 @@ sub checkInGitRepo {
     if ($result != 0) {
       printf "\nNot in a Git Repo command exited with value %d\n", $result;
       exit -1;
+    } else {
+      $gitDir = `git rev-parse --git-dir`;
     }
 
   }  
@@ -364,10 +358,20 @@ sub updateGitAttributes {
 
   exit 0 if $addAssoc =~ /^q/i;
 
+    # Remove the existing entries for both install and uninstall
+  if ($addAssoc eq "1" || $addAssoc eq "2") {
+
+    my @sedargs = ('-i', "/$cfgStartMark/,/$cfgFinishMark/d", $gitattrfile);
+    system('sed', @sedargs);
+
+  }
+
   if ($addAssoc eq "1" || $addAssoc eq "") {
 
     # Add any of the patterns that were not found
     open (GITATTR, ">>$gitattrfile") or die "Can't Open .gitattributes file for appending: $!";
+
+    print GITATTR "\n$cfgStartMark\n\n";
 
     foreach (@exts) {
 
@@ -376,23 +380,11 @@ sub updateGitAttributes {
 
     }
 
+    print GITATTR "\n$cfgFinishMark\n\n";
+
     close (GITATTR);
 
-    system("sort -u $gitattrfile > $tmpattrfile");
-    system("mv $tmpattrfile $gitattrfile");
-
-
-  } elsif ($addAssoc eq "2") {
-    
-    foreach (@exts) {
-
-      my $pattern = "/$_ filter=nsf/d";
-      my @sedargs = ('-i', $pattern, $gitattrfile);
-      system('sed', @sedargs);      
-
-    }
-
-  }
+  } 
 
 }
 
@@ -418,26 +410,29 @@ sub updateGitIgnore {
 
   exit 0 if $addAssoc =~ /^q/i;
 
+  # Remove the existing entries for both install and uninstall
+  if ($addAssoc eq "1" || $addAssoc eq "2") {
+
+    my @sedargs = ('-i', "/$cfgStartMark/,/$cfgFinishMark/d", $gitignorefile);
+    system('sed', @sedargs);
+
+  }
+
+  # If Installation, then Add the new entries
   if ($addAssoc eq "1" || $addAssoc eq "") {
 
     # Add to gitattributes file
     open (GITATTR, ">>$gitignorefile");
 
-    print GITATTR "\n# GitNSF Start\n";
+    print GITATTR "\n$cfgStartMark\n\n";
 
     foreach (@ents) {
       print GITATTR "$_\n";
     }
 
-    print GITATTR "# GitNSF End\n";
-
+    print GITATTR "\n$cfgFinishMark\n\n";
 
     close (GITATTR);
-
-  } elsif ($addAssoc eq "2") {
-
-    my @sedargs = ('-i', "/# GitNSF Start/,/#GitNSF End/d", $gitignorefile);
-    system('sed', @sedargs);
 
   } 
 
@@ -445,33 +440,58 @@ sub updateGitIgnore {
 
 
 
-sub introduction {
 
-  print "\n===================================\n";
-  print " Git Filters for NSF setup script\n";
-  print "-----------------------------------\n\n";
+sub installRemoveOption {
 
-  print "This script will set up the Git Filters for NSF for the current Git Repository\n";
-  print "The script will do the following:\n\n";
+  my ($num, $text, $enabled, $installed) = @_;
 
-  print " * Add the 'nsf' clean and smudge filters to the local Git config file .gitconfig\n";
-  print " * Associate the 'nsf' filter with form view page files etc. in .gitattributes\n";
-  print " * Add your default signer as another variable in .gitconfig 'nsf.signer'\n";
+  # Set up install or remove color
+  if ($useColours) {
+    if ($enabled) {
+      if ($installed) {
+        print Term::ANSIColor::color("bold red");
+      } else {
+        print Term::ANSIColor::color("bold green");
+      }
+    }
+  }
 
-  print "\nOption 1 is the default choice for all questions. Enter q to quit at any point.\n\n";
+  # Print option number
+  print "$num. ";
 
-  print "Press Enter to begin: ";
+  # Print the Action
+  if (!$enabled) {
+    print "n/a     ";
+  } elsif ($installed) {
+    print "Remove  ";
+  } else {   
+    print "Install ";
+  }
 
-  my $opt = <>;
+  if ($useColours) {   
+    if (!$enabled) {
+      print Term::ANSIColor::color("reset");
+    } else {
+      print Term::ANSIColor::color("bold white");
+    }  
+  };
 
-  exit 0 if $opt =~ m/^q/i;
+  # Print the text of the menu option
+  print $text;
+
+  # Reset the colours
+  if ($useColours) {  
+    print Term::ANSIColor::color("reset");
+  };
+
+  print "\n";
+
 }
 
 sub finish {
 
   heading("Setup Complete");
   print "Details of action performed\n\n";
-
 
   print "You can check the result of the setup using the following commands:\n\n";
   print "Check the git config:\n";
@@ -511,3 +531,71 @@ sub processArgs {
   }
 
 }
+
+
+sub menu {
+
+  mycls();
+
+  print "\n===================================\n";
+  print " NSF Git Repo Configuration\n";
+  print "-----------------------------------\n\n";
+
+  if ($gitDir eq "") {
+    print "You are currently not in a git repository.";
+  } else {
+    print $gitDir;
+  }
+
+  print " * Add the 'nsf' clean and smudge filters to the local Git config file .gitconfig\n";
+  print " * Associate the 'nsf' filter with form view page files etc. in .gitattributes\n";
+  print " * Add your default signer as another variable in .gitconfig 'nsf.signer'\n\n";
+
+  installRemoveOption("1", "Setup Current Repository for Metadata Filters...", 0, 0);  
+  print "-----\n";
+  installRemoveOption("2", ".gitignore entries...", 1, 1);
+  installRemoveOption("3", "XSL file into this repository...", 1, 1);
+  installRemoveOption("4", "NSF filter into .git/config...", 1, 0);
+  installRemoveOption("5", ".gitattributes configuration for nsf filters...", 0, 1);
+  print "-----\n";
+  installRemoveOption("6", "Prepare a new Folder for an NSF repository...", 0, 1);
+
+  print "\nq. quit.\n\n";
+
+  print "Enter Choice: ";
+  my $opt = <>;
+  chomp($opt);
+
+  exit 0 if $opt =~ m/^q/i;
+
+  #TODO Check it is an enable option
+
+  if ($opt eq "1") {
+    #TODO FULL SETUP SCRIPT
+  } elsif ($opt eq "2") {
+    updateGitIgnore();    
+  } elsif ($opt eq "3") {
+    #updateXslFile();    
+  } elsif($opt eq "4") {
+    addFiltersToGitConfig();
+  } elsif($opt eq "5") {
+    updateGitAttributes();
+  } elsif($opt eq "6") {
+    setupNewNSFFolder();
+  }
+
+}
+
+sub main {
+
+  processArgs();
+
+  checkInGitRepo();
+
+  menu();
+
+  finish();
+
+}
+
+main();
