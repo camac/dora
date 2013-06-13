@@ -1,4 +1,4 @@
-Git Filters for NSF
+Git NSF ODP Helper
 ===================
 
 This project contains a set of git filters and scripts which assist when collaborating on a Domino Project.
@@ -200,6 +200,5 @@ git update-index --no-assume-unchanged nsf/Resources/IconNote
 
 
 Forms, System Actions showed up
-
 
 Filters fail in the merge conflict ...
