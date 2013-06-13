@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+<frameset xmlns="http://www.lotus.com/dxl" name="Frameset" publicaccess="false" columns="20% 80%" spacing="0px" borderwidth="11px" bordercolor="none">
+
+
+
+<frame name="frameLeft"><namedelementlink type="page" name="Page"/></frame>
+<frame><namedelementlink type="view" name="View"/></frame></frameset>

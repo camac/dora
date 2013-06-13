@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<view xmlns="http://www.lotus.com/dxl" name="View" showinmenu="false" publicaccess="false" default="true" unreadmarks="none" onopengoto="lastopened" onrefresh="displayindicator" headers="beveled" opencollapsed="false" showresponsehierarchy="true" showmargin="true" shrinkrows="false" extendlastcolumn="false" showhierarchies="false" unreadcolor="black" rowlinecount="1" headerlinecount="1" rowspacing="1" bgcolor="white" totalscolor="black" headerbgcolor="white" boldunreadrows="false" evaluateactions="false" allownewdocuments="false" allowcustomizations="false" hidemarginborder="false" marginwidth="0px" marginbgcolor="white" uniquekeys="false">
+
+
+<code event="selection"><formula>SELECT ((Form = "Form"))</formula></code>
+<actionbar bgcolor="#f0f0f0" bordercolor="black">
+<actionbuttonstyle bgcolor="#f0f0f0"/><font color="system"/><border style="solid" width="0px 0px 1px"/>
+<action title="New Example"><code event="click"><formula>@Command([Compose];"Form")</formula></code></action></actionbar>
+<column sort="ascending" hidedetailrows="false" itemname="Folder" width="10" resizable="true" separatemultiplevalues="true" sortnoaccent="true" sortnocase="true" showaslinks="false" categorized="true" twisties="true"><columnheader title="#"><font size="9pt" style="bold"/></columnheader></column>
+<column hidedetailrows="false" itemname="FileName" width="9" resizable="true" separatemultiplevalues="false" sortnoaccent="false" sortnocase="true" showaslinks="false"><columnheader><font size="9pt" style="bold"/></columnheader></column><sharedcolumnref name="SharedColumn">
+<column hidedetailrows="false" itemname="$2" width="10" resizable="true" separatemultiplevalues="false" sortnoaccent="true" sortnocase="true" showaslinks="false"><columnheader title="Size"><font size="9pt" style="bold"/></columnheader><code event="value"><formula>@DocLength</formula></code></column></sharedcolumnref>
+<item name="$SelQuery" sign="true">
+<rawitemdata type="f">
+gQYAAAAAif8QAAAAAAABAAQARm9ybQ==
+</rawitemdata></item></view>

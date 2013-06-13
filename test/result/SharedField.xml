@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<sharedfield xmlns="http://www.lotus.com/dxl" name="Field">
+
+
+<field type="text" kind="editable" name="Field"><code event="defaultvalue"><formula>@Now</formula></code></field>
+<item name="$HTMLCode" sign="true">
+<rawitemdata type="1">
+</rawitemdata></item></sharedfield>

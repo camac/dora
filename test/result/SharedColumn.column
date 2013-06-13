@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<sharedcolumn xmlns="http://www.lotus.com/dxl" name="SharedColumn" noreplace="true">
+
+
+
+<column hidedetailrows="false" itemname="$0" width="10" resizable="true" separatemultiplevalues="false" sortnoaccent="true" sortnocase="true" showaslinks="false"><columnheader title="Size"><font size="9pt" style="bold"/></columnheader><code event="value"><formula>@DocLength</formula></code></column></sharedcolumn>

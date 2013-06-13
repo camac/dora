@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<databasescript xmlns="http://www.lotus.com/dxl">
+
+
+<code event="options"><lotusscript>%REM
+	Database Script Database Script
+	Created Jun 12, 2013 by Cameron Gregor/JORD Engineers
+	Description: Comments for Database Script
+%END REM
+Option Declare
+
+
+</lotusscript></code><code event="postopen"><lotusscript>Sub Postopen(Source As Notesuidatabase)
+	
+	Print "Git Example Database is Open for Business"
+	
+End Sub</lotusscript></code></databasescript>

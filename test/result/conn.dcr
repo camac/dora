@@ -1,0 +1,4 @@
+<?xml version="1.0"?>
+<dataconnection xmlns="http://www.lotus.com/dxl" name="conn" nocompose="true" class="rdbms" type="odbc2" datasource="somesource" objecttype="table" blockkeyfieldupdates="true">
+
+</dataconnection>

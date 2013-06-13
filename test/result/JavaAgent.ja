@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<agent xmlns="http://www.lotus.com/dxl" name="JavaAgent" hide="v3" publicaccess="false">
+
+
+
+
+<trigger type="actionsmenu"/>
+<documentset type="selected"/><code event="action"><javaproject class="JavaAgent.class" codepath="c:\Program Files (x86)\IBM\Notes\Data"><java name="JavaAgent.java">import lotus.domino.*;
+
+public class JavaAgent extends AgentBase {
+
+    public void NotesMain() {
+
+      try {
+          Session session = getSession();
+          AgentContext agentContext = session.getAgentContext();
+
+          // (Your code goes here)
+
+      } catch(Exception e) {
+          e.printStackTrace();
+       }
+   }
+}</java></javaproject></code>
+
+<item name="$JavaCompilerSource"><text>1.3</text></item>
+<item name="$JavaCompilerTarget"><text>1.2</text></item></agent>

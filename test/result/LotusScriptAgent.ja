@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<agent xmlns="http://www.lotus.com/dxl" name="LotusScriptAgent" hide="v3" publicaccess="false">
+
+
+
+
+<trigger type="actionsmenu"/>
+<documentset type="selected"/>
+</agent>

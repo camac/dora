@@ -10,6 +10,13 @@ our $verbose    = 0;
 our $scriptDir  = '~/GitFiltersForNSF/';
 our $xslDir     = '~/GitFiltersForNSF/xsl/';
 
+use File::Basename;
+my $dirname = dirname(__FILE__);
+
+print $dirname;
+
+exit 0;
+
 processArgs();
 
 introduction();

@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<sharedactions xmlns="http://www.lotus.com/dxl" hide="v3 v4strict" maxid="5">
+
+
+
+<action title="SharedAction" id="1"><code event="click"><formula>@Prompt([Ok];"Shared Actions";"Don't work very well with Git")</formula></code></action>
+<action title="Close" hide="preview previewedit" id="2"><imageref name="action_stop.gif"/><code event="click"><formula>@Command([FileCloseWindow])</formula></code><code event="hidewhen" enabled="false"><formula>InvoicePrinted = 1</formula></code></action>
+<action title="Edit" hide="preview edit previewedit" id="3"><imageref name="page_edit.gif"/><code event="click"><formula>@Command([EditDocument])</formula></code><code event="hidewhen"><formula>status="Superseded" | navsqlflag != ""</formula></code></action>
+<action title="Save" hide="preview read" id="4"><imageref name="action_save.gif"/><code event="click"><formula>@Command([FileSave])</formula></code></action>
+<action title="Save &amp; Close" hide="preview read" id="5"><imageref name="action_save.gif"/><code event="click"><formula>@Command([FileSave]);
+@Command([FileCloseWindow])</formula></code></action></sharedactions>

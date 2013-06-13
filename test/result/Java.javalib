@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<scriptlibrary xmlns="http://www.lotus.com/dxl" name="Java" hide="v3 v4strict">
+
+
+<code event="library"><javaproject class="JavaAgent.class"><java name="Untitled.java">public class Untitled {
+	
+	
+	
+	
+}</java></javaproject></code>
+<item name="$JavaCompilerSource" sign="true"><text>1.3</text></item>
+<item name="$JavaCompilerTarget" sign="true"><text>1.2</text></item></scriptlibrary>

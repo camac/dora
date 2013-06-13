@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+<outline xmlns="http://www.lotus.com/dxl" name="Outline" publicaccess="false">
+
+
+<outlineentry label="View" type="namedelementlink"><namedelementlink type="view" name="View"/></outlineentry>
+<outlineentry label="Folder" type="namedelementlink"><namedelementlink type="folder" name="Folder"/></outlineentry>
+<outlineentry label="Navigator" type="namedelementlink"><namedelementlink type="navigator" name="Navigator"/></outlineentry></outline>

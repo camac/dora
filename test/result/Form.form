@@ -1,0 +1,96 @@
+<?xml version="1.0"?>
+<form xmlns="http://www.lotus.com/dxl" name="Form" publicaccess="false" renderpassthrough="true">
+
+
+
+<actionbar bgcolor="#f0f0f0" bordercolor="black">
+<actionbuttonstyle bgcolor="#f0f0f0"/><font color="system"/><border style="solid" width="0px 0px 1px"/>
+<sharedactionref id="2">
+<action title="Close" hide="preview previewedit"><imageref name="action_stop.gif"/><code event="click"><formula>@Command([FileCloseWindow])</formula></code><code event="hidewhen" enabled="false"><formula>InvoicePrinted = 1</formula></code></action></sharedactionref>
+<sharedactionref id="3">
+<action title="Edit" hide="preview edit previewedit"><imageref name="page_edit.gif"/><code event="click"><formula>@Command([EditDocument])</formula></code><code event="hidewhen"><formula>status="Superseded" | navsqlflag != ""</formula></code></action></sharedactionref>
+<sharedactionref id="4">
+<action title="Save" hide="preview read"><imageref name="action_save.gif"/><code event="click"><formula>@Command([FileSave])</formula></code></action></sharedactionref>
+<sharedactionref id="5">
+<action title="Save &amp; Close" hide="preview read"><imageref name="action_save.gif"/><code event="click"><formula>@Command([FileSave]);
+@Command([FileCloseWindow])</formula></code></action></sharedactionref>
+<action title="LotusScript Action"><code event="click"><lotusscript>Sub Click(Source As Button)
+	
+	Dim ws As New NotesUIWorkspace	
+	ws.CurrentDocument.FieldSetText "NumberField", "3"
+	
+End Sub</lotusscript></code></action>
+<action title="Script Library Action"><code event="options"><lotusscript>Use "ScriptLibrary"
+
+</lotusscript></code><code event="click"><lotusscript>Sub Click(Source As Button)
+	
+	Call mysub
+	
+End Sub</lotusscript></code></action>
+<action title="Formula Action"><code event="click"><formula>@SetField("TextField";"Mr Person")</formula></code></action></actionbar>
+<body><richtext>
+<pardef id="1"/>
+<par def="1"/>
+<table widthtype="fixedleft" refwidth="7.1542in"><tablecolumn width="2.1083in"/><tablecolumn width="5.0458in"/>
+<tablerow>
+<tablecell>
+<pardef id="3" keepwithnext="true" keeptogether="true"/>
+<par def="3">Folder</par></tablecell>
+<tablecell>
+<pardef id="4" keepwithnext="true" keeptogether="true"/>
+<par def="4"><field type="text" kind="editable" name="Folder"/><compositedata type="98" prevtype="65418" nexttype="222" afterparcount="7" containertype="65418" aftercontainercount="1" afterbegincount="3">
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def="3">Design Element Type</par></tablecell>
+<tablecell>
+<par def="4"><field type="text" kind="editable" name="DEType"/><compositedata type="98" prevtype="65418" nexttype="222" afterparcount="6" containertype="65418" aftercontainercount="1" afterbegincount="3">
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def="3">Example Name</par></tablecell>
+<tablecell>
+<par def="4"><field type="text" kind="editable" name="Name"/><compositedata type="98" prevtype="65418" nexttype="222" afterparcount="6" containertype="65418" aftercontainercount="1" afterbegincount="3">
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def="3">Example FileName</par></tablecell>
+<tablecell>
+<par def="4"><field type="text" kind="editable" name="FileName"/><compositedata type="98" prevtype="65418" nexttype="222" afterparcount="6" containertype="65418" aftercontainercount="1" afterbegincount="3">
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def="3">Has Metadata file</par></tablecell>
+<tablecell>
+<par def="4"><field borderstyle="inset" lookupeachchar="false" lookupaddressonrefresh="false" type="keyword" kind="editable" name="MetadataType"><keywords helperbutton="false" columns="1" ui="radiobutton"><textlist><text>None</text><text>Included</text><text>Seperate</text></textlist></keywords></field></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def="3">Has Config</par></tablecell>
+<tablecell>
+<par def="4"><field borderstyle="inset" lookupeachchar="false" lookupaddressonrefresh="false" type="keyword" kind="editable" name="ConfigType"><keywords helperbutton="false" columns="1" ui="radiobutton"><textlist><text>None</text><text>Seperate</text></textlist></keywords></field></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def="3">Comments</par></tablecell>
+<tablecell>
+<par def="4"><field type="text" kind="editable" name="Comments"/><compositedata type="98" prevtype="65418" nexttype="222" afterparcount="6" containertype="65418" aftercontainercount="1" afterbegincount="3">
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def="3">Text</par></tablecell>
+<tablecell>
+<par def="4"><field type="text" kind="editable" name="TextField"/><compositedata type="98" prevtype="65418" nexttype="222" afterparcount="6" containertype="65418" aftercontainercount="1" afterbegincount="3">
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def="3">Number</par></tablecell>
+<tablecell>
+<par def="4"><field type="number" kind="editable" name="NumberField"><numberformat format="general" digits="2" punctuated="false" parens="false" percent="false" bytes="false"/></field></par></tablecell></tablerow></table>
+<par def="1"/></richtext></body>
+<item name="$$ScriptName" summary="false" sign="true"><text>Form</text></item>
+<item name="NumberField" summary="false"><number>0</number></item></form>
