@@ -4,6 +4,9 @@
 #
 # Copies the GNF script to the ~/bin directory
 # Copies the XSL file to the ~/GitFilter/xsl directory
+# TODO Use FTP to download latest libxslt
+# TODO Unzip libxslt packages
+# TODO MD5 checksum the libxslt packages after download
 
 use strict;
 
@@ -52,8 +55,8 @@ our @libxsltBins  = (
 	'libxslt-1.1.26.win32/bin/libexslt.dll', 
 	'libxslt-1.1.26.win32/bin/libxslt.dll', 
 	'libxslt-1.1.26.win32/bin/xsltproc.exe', 
-	'zlib-1.2.5.win32/bin/minigzip.exe',
-	'zlib-1.2.5.win32/bin/zlib1.dll'
+	'zlib-1.2.5/bin/minigzip.exe',
+	'zlib-1.2.5/bin/zlib1.dll'
 );
 
 
