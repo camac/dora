@@ -1,13 +1,19 @@
 #!/bin/perl
 
 use strict;
+use Term::ANSIColor;
 
 package GitFiltersForNSF;
 
-our $scriptDir = '~/GitFiltersForNSF/';
-our $xslDir = '~/GitFiltersForNSF/xsl/';
+our $useColours = 1;
+our $verbose    = 0;
+our $scriptDir  = '~/GitFiltersForNSF/';
+our $xslDir     = '~/GitFiltersForNSF/xsl/';
+
+processArgs();
 
 introduction();
+setupNewNSFFolder();
 checkInGitRepo();
 specifyScriptDir();
 addFiltersToGitConfig();
@@ -16,14 +22,97 @@ updateGitAttributes();
 updateGitIgnore();
 finish();
 
+sub mycls {
+
+  system("clear");
+  
+}
+
+sub heading {
+
+  my $maxwidth  = 50;
+  my $fillerChar = "*";
+
+  # Get the Title from the sub arguments
+  my ($title) = @_;;
+
+  # Determine number of Asterixes either side
+  my $tlength = length($title);
+  my $totFillers = $maxwidth - $tlength - 4;
+  if ($totFillers < 0) { print "Error: Title too long... exiting";exit -1; };
+  my $fillers = int($totFillers / 2);
+
+  # Give me some space
+  print "\n";
+  mycls();
+
+  # If we are using colours, Set up the colour
+  if ($useColours) {
+    print Term::ANSIColor::color("bold white");
+    print Term::ANSIColor::color("on_blue");
+  }
+
+  # Print first asterixes
+  for (my $i = 0; $i < $fillers; $i++) { print $fillerChar; }
+
+  # print Heading with space either side
+  print " $title ";
+
+  # Print last asterixes
+  for (my $i = 0; $i < $fillers; $i++) { print $fillerChar; }
+  # Print an extra one if there was an odd number
+  if (($totFillers % 2) > 0) { print $fillerChar; }
+
+  # If we are using colours, reset them
+  if($useColours) {
+    print Term::ANSIColor::color("reset");
+  }
+
+  # Print new line
+  print "\n\n";
+
+}
+
+sub setupNewNSFFolder {
+  
+  # Ask for the Application name
+  heading("Setup New NSF Git Folder");
+
+  print "This step will create a new folder for an NSF\n\n";
+  print "What is the name of the Folder?\n\n";
+
+  my $opt = <>;
+  chomp($opt);
+
+  if ($opt =~ /[a-zA-Z]/) {
+
+    # Make the new Directory
+    mkdir($opt);
+
+    # Set up the NSF Folder
+    mkdir("$opt/nsf");
+    mkdir("$opt/xsl");
+
+    # TODO Initialise the GitIgnore file
+
+    # Initialise a Git Repository
+    chdir($opt);
+    my @args = ('init');
+    system('git',@args);
+
+  }
+  
+  chdir($opt);
+
+}
 
 sub specifyScriptDir {
 
   # Check the location of the GitFiltersForNSF folder
-  print "********** Script Location ************\n\n";
-  print "Where have you put the GitFiltersForNSF scripts: \n\n";
-  print "1. In the default directory under my HOME path accessibly by " . $xslDir . "\n";
-  print "2. In the xsl/ directory in the root of this repository\n";
+  heading("Location of XSL Files");
+  print "Where have you put the GitFiltersForNSF xsl files: \n\n";
+  print "1. In the xsl/ directory in the root of this repository\n";
+  print "2. In the default directory under my HOME path accessibly by " . $xslDir . "\n";
 
   print "\nEnter Choice: ";
 
@@ -33,10 +122,9 @@ sub specifyScriptDir {
   exit 0 if $opt =~ m/^q/i;
 
     if ($opt eq "2") {
-      print "You chose 2\n";
-      $scriptDir = "xsl/";
+
     } elsif ($opt eq "1" || $opt eq "") {
-      print "You chose 1\n";
+      $scriptDir = "xsl/";      
     } else {
       print "\nInvalid menu option\n";
       exit 0;
@@ -47,15 +135,17 @@ sub specifyScriptDir {
 sub checkInGitRepo {
 
   # make sure in we are in a Git Repo
+
+  if ($verbose) { print "\nChecking if we are in a git repository: "};
+
   my @args = ('rev-parse','--git-dir');
-  print "\nChecking if we are in a git repository: ";
   system('git',@args);
-  print "\n";
 
   if ($? == -1) {
-    print 'git rev-parse failed, please check Git is installed\n';
+    if ($verbose) { print 'git rev-parse failed, please run this operation from a Git Repository\n'; }
   } else {
 
+    # Must shift the result to get the error code
     my $result = $? >> 8;
 
     if ($result != 0) {
@@ -63,13 +153,13 @@ sub checkInGitRepo {
       exit -1;
     }
 
-  }
+  }  
 
 }
 
 sub addFiltersToGitConfig {
 
-  print "\n*********** Add NSF Filter to Git Config ************\n\n";
+  heading("Add NSF Filter to Git Config");
 
   print "This step will add a new filter to the local .gitconfig file\n";
   print "It does this by adding two entries filter.nsf.clean and filter.nsf.smudge\n";
@@ -91,7 +181,7 @@ sub addFiltersToGitConfig {
   if ($setUpGitConfig eq "1" || $setUpGitConfig eq "") {
 
     my $cleanScript   = 'xsltproc ' . $scriptDir . 'transform.xsl -';
-    my $smudgeScript  = $cleanScript;
+    my $smudgeScript  = 'cat';
 
     #TODO check the return status of these system commands
 
@@ -128,7 +218,7 @@ sub addFiltersToGitConfig {
 sub setSigner {
   
   # Ask for behaviour to do with wassignedby Tag
-  print "\n*********** Design Element Signer ***************\n\n";
+  heading("Design Element Signer");
 
   print "This step will configure the nsf filter to replace the <wassignedby> Note item\n";
   print "Please note this could be a bad idea from a security point of view.\n";
@@ -221,10 +311,17 @@ sub setSigner {
 
 sub updateGitAttributes {
 
-  print "\n********* Associate File Extensions with Filter *************\n\n";
+  my $gitattrfile = ".gitattributes";
+  my $tmpattrfile = ".gitattributestemp";
+
+  heading("Associate File Extensions with Filter");
 
   print "This step will update the .gitattributes of the current repository.\n";
+  print "WARNING: This function will sort and deduplicate your .gitattributes file.\n";
+  print "If you have comments or keep your .gitattributes in a particular order, this will destroy that order\n";
   print "It will associate certain files with the nsf filter that was configure in the .gitconfig file.\n\n";
+
+  checkInGitRepo();
 
   print "1. Add All Associations\n";
   print "2. Remove all associations\n";
@@ -232,34 +329,61 @@ sub updateGitAttributes {
 
   print "\nEnter Choice: ";
 
-  my @exts = ('view','form','page','fa','ja','lsa','folder','column','field','outline','subform','lsdb','metadata');
-  my @file = ('AboutDocument','UsingDocument','IconNote');
+  my @exts = (
+    '*.column',
+    '*.dcr',
+    '*.fa',
+    '*.field',
+    '*.folder',
+    '*.form',
+    '*.frameset',
+    '*.ja',
+    '*.lsa',
+    '*.lsdb',
+    '*.metadata',
+    '*.navigator',
+    '*.outline',
+    '*.page',
+    '*.subform',
+    '*.view',
+    'AboutDocument',
+    'database.properties',
+    'IconNote',
+    'Shared Action',
+    'UsingDocument' );
 
-  my $addAssoc = <>;
+  my $addAssoc = <STDIN>;  
   chomp($addAssoc);
 
   exit 0 if $addAssoc =~ /^q/i;
 
   if ($addAssoc eq "1" || $addAssoc eq "") {
 
-    # Add to gitattributes file
-    open (GITATTR, '>>.gitattributes');
+    # Add any of the patterns that were not found
+    open (GITATTR, ">>$gitattrfile") or die "Can't Open .gitattributes file for appending: $!";
 
     foreach (@exts) {
-      print GITATTR "*.$_ filter=nsf\n";
-    }
 
-    foreach (@file) {
-      print GITATTR "$_ filter=nsf\n";
+      my $pattern = "$_ filter=nsf\n";
+      print GITATTR $pattern;
+
     }
 
     close (GITATTR);
 
+    system("sort -u $gitattrfile > $tmpattrfile");
+    system("mv $tmpattrfile $gitattrfile");
+
+
   } elsif ($addAssoc eq "2") {
+    
+    foreach (@exts) {
 
-    #TODO Remove associations from the .gitattributes file
+      my $pattern = "/$_ filter=nsf/d";
+      my @sedargs = ('-i', $pattern, $gitattrfile);
+      system('sed', @sedargs);      
 
-    print "\n\nNothing Done Here still need to code this\n\n";
+    }
 
   }
 
@@ -267,19 +391,22 @@ sub updateGitAttributes {
 
 sub updateGitIgnore {
 
-  print "\n********* Initialise Git Ignore File r *************\n\n";
+  heading("Initialise Git Ignore File");
+
+  my $gitignorefile = ".gitignore";
 
   print "This step will update the .gitignore file in the root of the current repository.\n";
   print "It will ignore some files.\n\n";
 
   print "1. Add Git Ignore entries\n";
-  print "2. Skip this step\n";
+  print "2. Remove Git Ignore Entries\n";
+  print "3. Skip this step\n";
 
   print "\nEnter Choice: ";
 
   my @ents = ('nsf/.classpath','nsf/.project','nsf/plugin.xml','nsf/.settings','database.properties','IconNote');
 
-  my $addAssoc = <>;
+  my $addAssoc = <STDIN>;
   chomp($addAssoc);
 
   exit 0 if $addAssoc =~ /^q/i;
@@ -287,21 +414,25 @@ sub updateGitIgnore {
   if ($addAssoc eq "1" || $addAssoc eq "") {
 
     # Add to gitattributes file
-    open (GITATTR, '>>.gitignore');
+    open (GITATTR, ">>$gitignorefile");
+
+    print GITATTR "\n# GitNSF Start\n";
 
     foreach (@ents) {
       print GITATTR "$_\n";
     }
 
+    print GITATTR "# GitNSF End\n";
+
+
     close (GITATTR);
 
   } elsif ($addAssoc eq "2") {
 
-    #TODO Remove associations from the .gitattributes file
+    my @sedargs = ('-i', "/# GitNSF Start/,/#GitNSF End/d", $gitignorefile);
+    system('sed', @sedargs);
 
-    print "\n\nNothing Done Here still need to code this\n\n";
-
-  }
+  } 
 
 }
 
@@ -331,7 +462,7 @@ sub introduction {
 
 sub finish {
 
-  print "\n\n\n******** Setup Complete **********\n\n";
+  heading("Setup Complete");
   print "Details of action performed\n\n";
 
 
@@ -343,5 +474,33 @@ sub finish {
   print "grep nsf .gitattributes\n\n";
 
 
+
+}
+
+sub processArgs {
+
+  my $numArgs = $#ARGV + 1;
+
+  foreach my $argnum (0 .. $#ARGV) {
+    if ($ARGV[$argnum] eq '--no-color') {
+      $useColours = 0;
+    }
+
+    if ($ARGV[$argnum] eq '--update-attributes') {
+      updateGitAttributes();
+      exit 0;
+    }
+
+    if ($ARGV[$argnum] eq '--update-ignore') {
+      updateGitIgnore();
+      exit 0;
+    }
+
+    if ($ARGV[$argnum] eq '-v') {
+      $verbose = 1;
+    }
+
+    print "$ARGV[$argnum]\n";
+  }
 
 }
