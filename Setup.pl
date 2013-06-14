@@ -5,70 +5,76 @@ use Term::ANSIColor;
 
 package GitFiltersForNSF;
 
+# Program behaviour variables
 our $useColours = 1;
 our $verbose    = 0;
 
-our $homeDir    = $ENV{"HOME"};
-our $scriptDir  = "$homeDir/bin";
-our $xslDir     = "$homeDir/GitFilters";
-our $gitDir     = "";
+# Directory and File Locations
+our $homeDir      = $ENV{"HOME"};
+our $scriptDir    = "$homeDir/bin";
+our $xslSourceDir = "$homeDir/GitFilters";
+our $xslSource    = "$xslSourceDir/NonBinaryDxl.xsl";
+our $xslTargetDir = "xsl";
+our $xslTarget    = "$xslTargetDir/transform.xsl";
+  
+our $attrFile     = ".gitattributes";
+our $ignoreFile   = ".gitignore";
 
+#Filter values
+our $cleanFilter  = "xsltproc $xslTarget -";
+our $smudgeFilter = "cat";
+
+# Markers to be used in Config files
 our $cfgStartMark   = "# GitNSF Start";
 our $cfgFinishMark  = "# GitNSF Finish";
 
+# Variables for Checking repo setup
+our $gitDir       = "";
+our $gitRepoDir    = "";
+
+our $chkIgnore   = 0;
+our $chkAttr     = 0;
+our $chkFilter   = 0;
+our $chkXSL      = 0;
+
+# Entries for Git Ignore File
+our @ignoreEntries = (
+  'nsf/.classpath',
+  'nsf/.project',
+  'nsf/plugin.xml',
+  'nsf/.settings',
+  'database.properties',
+  'IconNote'
+);
+
+# Entries for Git Attributes File
+our @attrEntries = (
+  '*.column',
+  '*.dcr',
+  '*.fa',
+  '*.field',
+  '*.folder',
+  '*.form',
+  '*.frameset',
+  '*.ja',
+  '*.lsa',
+  '*.lsdb',
+  '*.metadata',
+  '*.navigator',
+  '*.outline',
+  '*.page',
+  '*.subform',
+  '*.view',
+  'AboutDocument',
+  'database.properties',
+  'IconNote',
+  'Shared Action',
+  'UsingDocument' 
+);
+
+
 use File::Basename;
 my $setupScriptDirname = dirname(__FILE__);
-
-sub mycls {
-
-  system("clear");
-  
-}
-
-sub heading {
-
-  my $maxwidth  = 50;
-  my $fillerChar = "*";
-
-  # Get the Title from the sub arguments
-  my ($title) = @_;;
-
-  # Determine number of Asterixes either side
-  my $tlength = length($title);
-  my $totFillers = $maxwidth - $tlength - 4;
-  if ($totFillers < 0) { print "Error: Title too long... exiting";exit -1; };
-  my $fillers = int($totFillers / 2);
-
-  # Give me some space
-  print "\n";
-  mycls();
-
-  # If we are using colours, Set up the colour
-  if ($useColours) {
-    print Term::ANSIColor::color("bold white");
-    print Term::ANSIColor::color("on_blue");
-  }
-
-  # Print first asterixes
-  for (my $i = 0; $i < $fillers; $i++) { print $fillerChar; }
-
-  # print Heading with space either side
-  print " $title ";
-
-  # Print last asterixes
-  for (my $i = 0; $i < $fillers; $i++) { print $fillerChar; }
-  # Print an extra one if there was an odd number
-  if (($totFillers % 2) > 0) { print $fillerChar; }
-
-  # If we are using colours, reset them
-  if($useColours) {
-    print Term::ANSIColor::color("reset");
-  }
-
-  # Print new line
-  print "\n\n";
-
-}
 
 sub setupNewNSFFolder {
   
@@ -103,39 +109,13 @@ sub setupNewNSFFolder {
 
 }
 
-sub specifyScriptDir {
-
-  # Check the location of the GitFiltersForNSF folder
-  heading("Location of XSL Files");
-  print "Where have you put the GitFiltersForNSF xsl files: \n\n";
-  print "1. In the xsl/ directory in the root of this repository\n";
-  print "2. In the default directory under my HOME path accessibly by " . $xslDir . "\n";
-
-  print "\nEnter Choice: ";
-
-  my $opt = <>; 
-  chomp($opt);
-
-  exit 0 if $opt =~ m/^q/i;
-
-    if ($opt eq "2") {
-
-    } elsif ($opt eq "1" || $opt eq "") {
-      $scriptDir = "xsl/";      
-    } else {
-      print "\nInvalid menu option\n";
-      exit 0;
-    }
-
-}
-
 sub checkInGitRepo {
 
   # make sure in we are in a Git Repo
-
   if ($verbose) { print "\nChecking if we are in a git repository: "};
 
-  $gitDir = "";
+  $gitDir     = "";
+  $gitRepoDir  = "";
 
   my @args = ('rev-parse','--git-dir');
   system('git',@args);
@@ -151,14 +131,17 @@ sub checkInGitRepo {
       printf "\nNot in a Git Repo command exited with value %d\n", $result;
       exit -1;
     } else {
-      $gitDir = `git rev-parse --git-dir`;
+
+      $gitDir      = `git rev-parse --git-dir`;
+      $gitRepoDir  = `git rev-parse --show-toplevel`;
+
     }
 
   }  
 
 }
 
-sub addFiltersToGitConfig {
+sub installFilter {
 
   heading("Add NSF Filter to Git Config");
 
@@ -166,52 +149,118 @@ sub addFiltersToGitConfig {
   print "It does this by adding two entries filter.nsf.clean and filter.nsf.smudge\n";
   print "These entries point to the location of 2 corresponding perl scripts in the GitFiltersForNSF directory\n\n"; 
 
-  print "1. Add the nsf filter to local .gitconfig\n";
-  print "2. Remove nsf filter from local .gitconfig\n";
-  print "3. Skip this step\n";
+  #TODO check the return status of these system commands
+  return 0 if !confirmContinue();
 
-  print "\nEnter Choice: ";
+  my @args = ('config','--local','filter.nsf.clean',$cleanFilter);
+  system('git',@args);
 
-  my $setUpGitConfig = <STDIN>;
-  chomp($setUpGitConfig);
+  @args = ('config','--local','filter.nsf.smudge',$smudgeFilter);
+  system('git',@args);
 
-  my @args = ();
+  @args = ('config','--local','filter.nsf.required','true');
+  system('git',@args);
 
-  exit 0 if $setUpGitConfig =~ /^q/i;
+  print "\nAdded git filters\n";
 
-  if ($setUpGitConfig eq "1" || $setUpGitConfig eq "") {
+}
 
-    my $cleanScript   = 'xsltproc ' . $scriptDir . 'transform.xsl -';
-    my $smudgeScript  = 'cat';
+sub uninstallFilter {
 
-    #TODO check the return status of these system commands
+  my ($silent) = @_;
 
-    @args = ('config','--local','filter.nsf.clean',$cleanScript);
-    system('git',@args);
+  if (!$silent) {
+    heading("Uninstall NSF Filter from Git Config");
+    print "Uninstall Filter\n";
+    return 0 if !confirmContinue();
+  }
+  
+  my @args = ('config','--local','--unset','filter.nsf.clean');
+  system('git',@args);
 
-    @args = ('config','--local','filter.nsf.smudge',$smudgeScript);
-    system('git',@args);
+  @args = ('config','--local','--unset','filter.nsf.smudge');
+  system('git',@args);
 
-    @args = ('config','--local','filter.nsf.required','true');
-    system('git',@args);
+  @args = ('config','--local','--unset','filter.nsf.required');
+  system('git',@args);
 
-    print "\nAdded git filters\n";
+  print "\nRemoved Git Filters\n";
 
-  } elsif ($setUpGitConfig eq "2") {
+}
 
-    #TODO Check the return status of these system commands
+sub checkFilter {
 
-    @args = ('config','--local','--unset','filter.nsf.clean');
-    system('git',@args);
+  my $currClean     = `git config --local --get filter.nsf.clean`;
+  my $currSmudge    = `git config --local --get filter.nsf.smudge`;
+  my $currRequired  = `git config --local --get filter.nsf.required`;
 
-    @args = ('config','--local','--unset','filter.nsf.smudge');
-    system('git',@args);
+  chomp($currClean, $currSmudge, $currRequired);
 
-    @args = ('config','--local','--unset','filter.nsf.required');
-    system('git',@args);
+  return 0 if ($currClean ne $cleanFilter);
+  return 0 if ($currSmudge ne $smudgeFilter);
+  return 0 if ($currRequired ne "true");
 
-    print "\nRemoved Git Filters\n";
+  return 1;
+  
+}
 
+sub installXSL {
+
+  my ($silent) = @_;
+
+  heading("Install XSL Transformation file");
+
+  print "Install XSL\n";
+
+  return 0 if !confirmContinue();
+
+  if (-e $xslSource) {
+
+    if (!-d $xslTargetDir) {    
+      mkdir $xslTargetDir;
+    }
+
+    use File::Copy;
+    copy($xslSource, $xslTarget) or warn "Failed to copy $xslTarget: $!\n";
+
+    printFileResult($xslTarget,"copied",1);
+
+  } else {
+
+    printf("$xslSource could not be found");
+
+  }
+
+}
+
+sub uninstallXSL {
+
+  my ($silent) = @_;
+
+  if (!$silent) {
+    heading("Uninstall XSL Transformation File");
+    print "Uninstall XSL File\n";
+    return 0 if !confirmContinue();
+  }
+
+  if (-e $xslTarget) {
+
+    unlink($xslTarget) or warn "Failed to remove $xslTarget: $!\n";
+
+    printFileResult($xslTarget, "Removed", -1);
+
+  } else {
+    print "$xslTarget is already removed\n";
+  }
+
+}
+
+sub checkXSL {
+
+  if (-e $xslTarget) {
+    return 1;
+  } else {
+    return 0;
   }
 
 }
@@ -238,7 +287,6 @@ sub setSigner {
   if ($useSigner eq "2") {
 
     print "\nThe NotesName will be saved in format 'CN=<Common Name>/O=<Organisation>' in the local .gitconfig under the entry 'nsf.signer'\n";
-
 
     print "\nPlease type the Common Name : ";
     my $signerCN = <STDIN>;
@@ -310,10 +358,8 @@ sub setSigner {
 
 }
 
-sub updateGitAttributes {
+sub installAttr {
 
-  my $gitattrfile = ".gitattributes";
-  my $tmpattrfile = ".gitattributestemp";
 
   heading("Associate File Extensions with Filter");
 
@@ -322,111 +368,91 @@ sub updateGitAttributes {
   print "If you have comments or keep your .gitattributes in a particular order, this will destroy that order\n";
   print "It will associate certain files with the nsf filter that was configure in the .gitconfig file.\n\n";
 
-  checkInGitRepo();
+  return 0 if !confirmContinue();
 
-  print "1. Add All Associations\n";
-  print "2. Remove all associations\n";
-  print "3. Skip this step\n";
+  #Uninstall Previous Entries
+  uninstallAttr(1);
 
-  print "\nEnter Choice: ";
+  # Open the Attributes file for Appending
+  open (GITATTR, ">>$attrFile") or die "Can't Open $attrFile file for appending: $!";
 
-  my @exts = (
-    '*.column',
-    '*.dcr',
-    '*.fa',
-    '*.field',
-    '*.folder',
-    '*.form',
-    '*.frameset',
-    '*.ja',
-    '*.lsa',
-    '*.lsdb',
-    '*.metadata',
-    '*.navigator',
-    '*.outline',
-    '*.page',
-    '*.subform',
-    '*.view',
-    'AboutDocument',
-    'database.properties',
-    'IconNote',
-    'Shared Action',
-    'UsingDocument' );
+  # print our section start marker
+  print GITATTR "\n$cfgStartMark\n\n";
 
-  my $addAssoc = <STDIN>;  
-  chomp($addAssoc);
+  # Add all the entries
+  foreach (@attrEntries) {
 
-  exit 0 if $addAssoc =~ /^q/i;
-
-    # Remove the existing entries for both install and uninstall
-  if ($addAssoc eq "1" || $addAssoc eq "2") {
-
-    my @sedargs = ('-i', "/$cfgStartMark/,/$cfgFinishMark/d", $gitattrfile);
-    system('sed', @sedargs);
+    my $pattern = "$_ filter=nsf\n";
+    print GITATTR $pattern;
 
   }
 
-  if ($addAssoc eq "1" || $addAssoc eq "") {
+  # print our Section finish marker
+  print GITATTR "\n$cfgFinishMark\n\n";
 
-    # Add any of the patterns that were not found
-    open (GITATTR, ">>$gitattrfile") or die "Can't Open .gitattributes file for appending: $!";
+  # close the file
+  close (GITATTR);
 
-    print GITATTR "\n$cfgStartMark\n\n";
-
-    foreach (@exts) {
-
-      my $pattern = "$_ filter=nsf\n";
-      print GITATTR $pattern;
-
-    }
-
-    print GITATTR "\n$cfgFinishMark\n\n";
-
-    close (GITATTR);
-
-  } 
+  print "\nGit Attributes entries are now installed\n\n";
 
 }
 
-sub updateGitIgnore {
+sub uninstallAttr {
+
+  my ($silent) = @_;
+
+  if (!$silent) {
+    heading("Uninstall Git Attributes entries");
+    print "Uninstall Attributes\n";
+    return 0 if !confirmContinue();
+  }
+
+  # tell sed to remove all lines between our Section start/finish markers in the attributes file
+  my @sedargs = ('-i', "/$cfgStartMark/,/$cfgFinishMark/d", $attrFile);  
+  system('sed', @sedargs);
+  
+}
+
+sub checkAttr {
+
+  open (GITATTR, "<$attrFile");
+  my @fileLines = <GITATTR>;
+  close GITATTR;
+
+  foreach (@attrEntries) {
+
+    my $pattern = "$_ filter=nsf";
+
+    my @matchedLines = grep /\Q$pattern\E/,@fileLines;
+
+    if (!@matchedLines) {
+      return 0;
+    }
+    
+  }
+
+  return 1;
+
+}
+
+sub installIgnore {
 
   heading("Initialise Git Ignore File");
-
-  my $gitignorefile = ".gitignore";
 
   print "This step will update the .gitignore file in the root of the current repository.\n";
   print "It will ignore some files.\n\n";
 
-  print "1. Add Git Ignore entries\n";
-  print "2. Remove Git Ignore Entries\n";
-  print "3. Skip this step\n";
+  return 0 if !confirmContinue();
 
-  print "\nEnter Choice: ";
-
-  my @ents = ('nsf/.classpath','nsf/.project','nsf/plugin.xml','nsf/.settings','database.properties','IconNote');
-
-  my $addAssoc = <STDIN>;
-  chomp($addAssoc);
-
-  exit 0 if $addAssoc =~ /^q/i;
-
-  # Remove the existing entries for both install and uninstall
-  if ($addAssoc eq "1" || $addAssoc eq "2") {
-
-    my @sedargs = ('-i', "/$cfgStartMark/,/$cfgFinishMark/d", $gitignorefile);
-    system('sed', @sedargs);
-
-  }
-
-  # If Installation, then Add the new entries
-  if ($addAssoc eq "1" || $addAssoc eq "") {
+  # Remove previously installed entries
+  uninstallIgnore(1);
 
     # Add to gitattributes file
-    open (GITATTR, ">>$gitignorefile");
+    open (GITATTR, ">>$ignoreFile");
 
     print GITATTR "\n$cfgStartMark\n\n";
 
-    foreach (@ents) {
+    foreach (@ignoreEntries) {
       print GITATTR "$_\n";
     }
 
@@ -434,12 +460,116 @@ sub updateGitIgnore {
 
     close (GITATTR);
 
-  } 
+    print "\nGit Ignore entries are now installed\n\n";
 
 }
 
+sub uninstallIgnore {
+
+  my ($silent) = @_;
+
+  if (!$silent) {
+    heading("Uninstall the gitignore entries");
+    print "Uninstall the gitgnore entries\n";
+    return 0 if !confirmContinue();
+  }
+
+  my @sedargs = ('-i', "/$cfgStartMark/,/$cfgFinishMark/d", $ignoreFile);
+  system('sed', @sedargs);
+
+}
+
+sub checkIgnore {
+
+  open (GITIGNORE, "<$ignoreFile");
+
+  my @ignoreFileLines = <GITIGNORE>;
+
+  close GITIGNORE;
+
+  foreach (@ignoreEntries) {
+
+    my $pattern = "$_";
+    my @ignoreMatches = grep /\Q$pattern\E/,@ignoreFileLines;
+
+    if (!@ignoreMatches) {
+      return 0;
+    }
+    
+  }
+
+  return 1;
+
+}
+
+sub installEverything() {
+
+  installFilter();
+  installXSL();
+  installIgnore();
+  installAttr();
+
+}
+
+sub uninstallEverything() {
+  
+  uninstallFilter();
+  uninstallXSL();
+  uninstallIgnore();
+  uninstallAttr();
+
+}
+
+# Terminal Helper Functions
+sub colorSet {
+  my ($color) = @_;
+  print Term::ANSIColor::color($color) if $useColours;
+}
+
+sub colorReset {
+  print Term::ANSIColor::color("reset") if $useColours;
+}
+
+sub menuOption {
+
+  my ($num, $text) = @_;
+
+  printf("%4s. %s\n", $num, $text);
 
 
+}
+
+sub printFileResult {
+
+  my ($filename, $resultdesc, $indicator) = @_;
+
+  printf("%-40s ...", $filename);
+
+  colorSet("bold green")  if ($indicator == 1);
+  colorSet("bold red")    if ($indicator == -1);
+
+  print("$resultdesc\n");
+
+  colorReset();
+
+}
+
+sub printInstallStatus {
+
+  my ($element, $status) = @_;
+
+  my $statusText = ($status) ? "Installed" : "Not Installed";
+
+  printf("%-25s : ",$element);
+
+  colorSet("bold green")  if ($status);
+  colorSet("bold")        if (!$status);
+
+  print("$statusText\n");
+
+  colorReset();
+
+}
 
 sub installRemoveOption {
 
@@ -532,35 +662,151 @@ sub processArgs {
 
 }
 
+sub checkRepoSetup {
+
+  # Check the Filter is installed
+  $chkFilter  = checkFilter();
+  #check Git Attributes
+  $chkAttr    = checkAttr(); 
+  #check Git Ignore
+  $chkIgnore  = checkIgnore(); 
+  #check XSL File
+  $chkXSL     = checkXSL();
+
+}
+
+sub mycls {
+
+  system("clear");
+  
+}
+
+sub heading {
+
+  my $maxwidth  = 50;
+  my $fillerChar = "*";
+
+  # Get the Title from the sub arguments
+  my ($title) = @_;;
+
+  # Determine number of Asterixes either side
+  my $tlength = length($title);
+  my $totFillers = $maxwidth - $tlength - 4;
+  if ($totFillers < 0) { print "Error: Title too long... exiting";exit -1; };
+  my $fillers = int($totFillers / 2);
+
+  # Give me some space
+  print "\n";
+
+  # If we are using colours, Set up the colour
+  if ($useColours) {
+    print Term::ANSIColor::color("bold white");
+    print Term::ANSIColor::color("on_blue");
+  }
+
+  # Print first asterixes
+  for (my $i = 0; $i < $fillers; $i++) { print $fillerChar; }
+
+  # print Heading with space either side
+  print " $title ";
+
+  # Print last asterixes
+  for (my $i = 0; $i < $fillers; $i++) { print $fillerChar; }
+  # Print an extra one if there was an odd number
+  if (($totFillers % 2) > 0) { print $fillerChar; }
+
+  # If we are using colours, reset them
+  if($useColours) {
+    print Term::ANSIColor::color("reset");
+  }
+
+  # Print new line
+  print "\n\n";
+
+}
+
+sub confirmAnyKey {
+
+  print "\nPress enter to continue ...";
+  my $tmp = <STDIN>;
+
+}
+
+sub confirmContinue {
+
+  my $opt       = "";
+  my $invalid   = 0;
+  my $noanswer  = 1;
+
+  while ($noanswer) {
+
+    print("\nInvalid option: $opt, please choose y/n/q\n\n") if $invalid;
+
+    print "\nContinue? y/n/q: ";
+    $opt = <STDIN>;
+    chomp($opt);
+
+    exit 0    if ($opt =~ m/^q/i);
+    return 1  if ($opt =~ m/^y/i || $opt eq "");
+    return 0  if ($opt =~ m/^n/i);
+
+    $invalid = 1;
+
+  }
+
+}
 
 sub menu {
 
+
+  while (1) {
+
   mycls();
 
-  print "\n===================================\n";
-  print " NSF Git Repo Configuration\n";
+  print "===================================\n";
+  print " Domino On-Disk Project Git Helper\n";
   print "-----------------------------------\n\n";
 
   if ($gitDir eq "") {
     print "You are currently not in a git repository.";
   } else {
-    print $gitDir;
+
+    checkRepoSetup();
+
+    print "------------------------------\n\n";
+    printf("%-25s : ","Setup status for repo");
+    colorSet("bold");
+    print "$gitRepoDir\n";
+    colorReset();
+
+    printInstallStatus("DXL Filter",              $chkFilter);
+    printInstallStatus("XSL File",                $chkXSL);
+    printInstallStatus(".gitignore entries",      $chkIgnore);
+    printInstallStatus(".gitattributes entries",  $chkAttr);
+
+    print "------------------------------\n\n";
+
   }
 
-  print " * Add the 'nsf' clean and smudge filters to the local Git config file .gitconfig\n";
-  print " * Associate the 'nsf' filter with form view page files etc. in .gitattributes\n";
-  print " * Add your default signer as another variable in .gitconfig 'nsf.signer'\n\n";
+  print "Please Choose the operation you would like to perform\n\n";
 
-  installRemoveOption("1", "Setup Current Repository for Metadata Filters...", 0, 0);  
+  menuOption("1", "Install   Everything for this Repository");
+  menuOption("2", "Uninstall Everything from this Repository");
   print "-----\n";
-  installRemoveOption("2", ".gitignore entries...", 1, 1);
-  installRemoveOption("3", "XSL file into this repository...", 1, 1);
-  installRemoveOption("4", "NSF filter into .git/config...", 1, 0);
-  installRemoveOption("5", ".gitattributes configuration for nsf filters...", 0, 1);
+  menuOption("3", "Install DXL Metadata Filter");
+  menuOption("4", "Install XSL File");
+  menuOption("5", "Install .gitignore entries");
+  menuOption("6", "Install .gitattributes entries");
+  menuOption("7", "Remove  DXL Metadata Filter from .git/config");
+  menuOption("8", "Remove  XSL File");
+  menuOption("9", "Remove  .gitignore entries");
+  menuOption("10", "Remove  .gitattributes entries");
   print "-----\n";
-  installRemoveOption("6", "Prepare a new Folder for an NSF repository...", 0, 1);
+  menuOption("11", "Prepare a new Git repository for an NSF On-Disk Project...");
 
-  print "\nq. quit.\n\n";
+  print "\n";
+  menuOption("q", "quit");
+  print "\n";
 
   print "Enter Choice: ";
   my $opt = <>;
@@ -571,18 +817,43 @@ sub menu {
   #TODO Check it is an enable option
 
   if ($opt eq "1") {
-    #TODO FULL SETUP SCRIPT
+    mycls();
+    installEverything();
   } elsif ($opt eq "2") {
-    updateGitIgnore();    
+    mycls();
+    uninstallEverything();    
   } elsif ($opt eq "3") {
-    #updateXslFile();    
-  } elsif($opt eq "4") {
-    addFiltersToGitConfig();
-  } elsif($opt eq "5") {
-    updateGitAttributes();
-  } elsif($opt eq "6") {
+    mycls();
+    installFilter();
+  } elsif($opt eq  "4") {
+    mycls();
+    installXSL();
+  } elsif($opt eq  "5") {
+    mycls();
+    installIgnore();
+  } elsif($opt eq  "6") {
+    mycls();
+    installAttr();
+  } elsif($opt eq  "7") {
+    mycls();
+    uninstallFilter();
+  } elsif($opt eq  "8") {
+    mycls();
+    uninstallXSL();
+  } elsif($opt eq  "9") {
+    mycls();
+    uninstallIgnore();
+  } elsif($opt eq "10") {
+    mycls();
+    uninstallAttr();
+  } elsif($opt eq "11") {
+    mycls();
     setupNewNSFFolder();
   }
+
+  confirmAnyKey();
+
+}
 
 }
 
@@ -591,6 +862,7 @@ sub main {
   processArgs();
 
   checkInGitRepo();
+  checkRepoSetup();
 
   menu();
 

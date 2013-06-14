@@ -33,7 +33,7 @@ our $setupSourceFilename  = "Setup.pl";
 our $setupSource          = "$installScriptDir/$setupSourceFilename";
 
 our $setupTargetDir = "$homeDir/bin";
-our $setupTargetFilename  = "Setup.pl";
+our $setupTargetFilename  = "dogh.pl";
 our $setupTarget          = "$setupTargetDir/$setupTargetFilename";
 
 our $binTargetDir					= $setupTargetDir;
@@ -199,7 +199,9 @@ sub installLibxslt {
 			} else {
 
 				use File::Copy;
-				copy($binSource, $binTarget) or warn "Failed copying\n$binSource to \n$binTarget: $!\n\n";
+				my $cpResult = copy($binSource, $binTarget) or warn "Failed copying\n$binSource to \n$binTarget: $!\n\n";
+
+        printf ("%-40s ...copied successfully\n", $binTarget) if $cpResult;
 
 			}
 
