@@ -1,0 +1,19 @@
+diff --git a/nsf/Views/View.view b/nsf/Views/View.view
+index 463836f..95cb4d9 100644
+--- a/nsf/Views/View.view
++++ b/nsf/Views/View.view
+@@ -4,7 +4,7 @@
+ 
+ <code event="selection"><formula>SELECT @All</formula></code>
+ <actionbar bgcolor="#f0f0f0" bordercolor="black">
+-<actionbuttonstyle bgcolor="#f0f0f0"/><font color="system"/><border style="solid" width="0px 0px 1px"/>
++<actionbuttonstyle bgcolor="#f0f0f0"/><font color="system"/><border style="solid" width="0px 0px 1px" color="system"/>
+ <action title="Categori_ze" showinbar="false" systemcommand="categorize"/>
+ <action title="_Edit Document" showinbar="false" systemcommand="edit"/>
+ <action title="_Send Document" showinbar="false" systemcommand="send"/>
+@@ -24,4 +24,4 @@
+ <action title="P_aste" showinbar="false" systemcommand="paste"/>
+ <action title="_Open" showinbar="false" systemcommand="open"/>
+ <action title="Bookmark" showinbar="false" systemcommand="bookmark"/></actionbar>
+-<column hidedetailrows="false" itemname="$0" width="10" resizable="true" separatemultiplevalues="false" sortnoaccent="true" sortnocase="true" showaslinks="false"><columnheader title="#"><font size="9pt" style="bold"/></columnheader><code event="value"><formula>@DocNumber</formula></code></column></view>
++<column hidedetailrows="false" itemname="$0" width="10" resizable="true" separatemultiplevalues="false" sortnoaccent="true" sortnocase="true" showaslinks="false"><columnheader title="#a"><font size="9pt" style="bold"/></columnheader><code event="value"><formula>@DocNumber</formula></code></column></view>

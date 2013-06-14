@@ -47,6 +47,7 @@ our @ignoreEntries = (
 
 # Entries for Git Attributes File
 our @attrEntries = (
+  '*.aa',
   '*.column',
   '*.dcr',
   '*.fa',
@@ -54,7 +55,9 @@ our @attrEntries = (
   '*.folder',
   '*.form',
   '*.frameset',
+  '*.ija',
   '*.ja',
+  '*.javalib',
   '*.lsa',
   '*.lsdb',
   '*.metadata',
@@ -66,7 +69,7 @@ our @attrEntries = (
   'AboutDocument',
   'database.properties',
   'IconNote',
-  'Shared Action',
+  'Shared?Actions',
   'UsingDocument' 
 );
 

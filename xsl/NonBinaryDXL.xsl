@@ -88,6 +88,10 @@
     <xsl:template match="//n:subform/@version"/>
     <xsl:template match="//n:subform/@designerversion"/>
 
+    <xsl:template match="//n:fileresource/@replicaid"/>
+    <xsl:template match="//n:fileresource/@version"/>
+    <xsl:template match="//n:fileresource/@designerversion"/>
+
     <!-- 
          For Agent Non-Binary DXL 
          For both LotusScript and Java agents
