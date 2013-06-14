@@ -42,9 +42,7 @@ our @ignoreEntries = (
   'nsf/.classpath',
   'nsf/.project',
   'nsf/plugin.xml',
-  'nsf/.settings',
-  'database.properties',
-  'IconNote'
+  'nsf/.settings'
 );
 
 # Entries for Git Attributes File
@@ -122,6 +120,7 @@ sub checkInGitRepo {
 
   if ($? == -1) {
     if ($verbose) { print 'git rev-parse failed, please run this operation from a Git Repository\n'; }
+    return 0;
   } else {
 
     # Must shift the result to get the error code
@@ -129,11 +128,13 @@ sub checkInGitRepo {
 
     if ($result != 0) {
       printf "\nNot in a Git Repo command exited with value %d\n", $result;
-      exit -1;
+      return 0;
     } else {
 
       $gitDir      = `git rev-parse --git-dir`;
       $gitRepoDir  = `git rev-parse --show-toplevel`;
+
+      return 1;
 
     }
 
@@ -664,14 +665,22 @@ sub processArgs {
 
 sub checkRepoSetup {
 
-  # Check the Filter is installed
-  $chkFilter  = checkFilter();
-  #check Git Attributes
-  $chkAttr    = checkAttr(); 
-  #check Git Ignore
-  $chkIgnore  = checkIgnore(); 
-  #check XSL File
-  $chkXSL     = checkXSL();
+  if(checkInGitRepo()) {
+
+    # Check the Filter is installed
+    $chkFilter  = checkFilter();
+    #check Git Attributes
+    $chkAttr    = checkAttr(); 
+    #check Git Ignore
+    $chkIgnore  = checkIgnore(); 
+    #check XSL File
+    $chkXSL     = checkXSL();
+  } else {
+    $chkFilter  = 0;
+    $chkAttr    = 0;
+    $chkIgnore  = 0;
+    $chkXSL     = 0;
+  }
 
 }
 

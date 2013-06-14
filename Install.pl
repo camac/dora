@@ -38,7 +38,7 @@ our $setupTarget          = "$setupTargetDir/$setupTargetFilename";
 
 our $binTargetDir					= $setupTargetDir;
 
-our $xslSourceFilename    = "xsl/transform.xsl";
+our $xslSourceFilename    = "xsl/NonBinaryDXL.xsl";
 our $xslSource            = "$installScriptDir/$xslSourceFilename";
 
 our $xslTargetDir  = "$homeDir/GitFilters";
