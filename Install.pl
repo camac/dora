@@ -15,10 +15,11 @@ package GitFiltersForNSF;
 use File::Basename 'dirname';
 use File::Copy 'copy';
 use File::Spec;
+use Term::ANSIColor;
 
 our $projname   = "Git Filters For NSF";
 
-our $useColours = 0;
+our $useColours = 1;
 our $verbose    = 0;
 
 our $thisAbs = File::Spec->rel2abs(__FILE__);
@@ -59,7 +60,10 @@ our @libxsltBins  = (
 	'zlib-1.2.5/bin/zlib1.dll'
 );
 
-
+# Variables used to check current configuration
+our $chkHelper 	= 0;
+our $chkXSL			= 0;
+our $chkLibxslt = 0;
 
 sub installEverything {
 
@@ -80,68 +84,103 @@ sub uninstallEverything {
 
 sub installHelper {
 
+
+	heading("Install the Helper");
+
+	print "This step will install the $setupTargetFilename script into $setupTargetDir\n";
+	print "The helper script is used to help set up and configure git repositories for nsf use\n";
+
   if (-e $setupTarget) {
-    print "NSF Repo Setup script is already installed\n";
-  } else {
-    print "NSF Repo Setup script will be installed\n";
-
-    # Check if the Home Bin directory exists
-    if (-d $setupTargetDir) {
-      print "...Target \$HOME/bin directory already exists\n";
-    } else {
-      mkdir $setupTargetDir;
-      print "...Created Directory: $setupTargetDir\n";      
-    }
-
-    # Copy the Setup script to the Target Directory
-    use File::Copy;
-    copy($setupSource, $setupTarget) or die "...Failed Copying: $!\n";
-    print "...Installed NSF Repo Setup Script to $setupTarget\n";
-
+		colorSet("bold yellow");
+    print "\nThe helper script is already installed, if you continue it will overwrite the existing copy.\n";
+		colorReset();
   }
+
+	return 0 if !confirmContinue();
+	
+  # Check if the Home Bin directory exists
+  if (-d $setupTargetDir) {
+		printFileResult($setupTargetDir,"directory already exists",0);
+  } else {
+    mkdir $setupTargetDir or die "Could not create Directory: $!\n";
+		printFileResult($setupTargetDir,"directory created", 1);
+  }
+
+  # Copy the Setup script to the Target Directory
+  use File::Copy;
+  copy($setupSource, $setupTarget) or die "...Failed Copying: $!\n";
+	printFileResult($setupTarget,"Installed",1);
 
 }
 
 sub uninstallHelper {
 
-	print "Attempt to remove Helper script ... ";
+	heading("Uninstall the Helper");
 
 	if (-e $setupTarget) {
 
+		print "This step will remove the Helper script located at: \n";
+		colorSet("bold white");
+		print "\n$setupTarget\n";
+		colorReset();
+
+		return 0 if !confirmContinue();
+
 		unlink $setupTarget or warn "Could not remove $setupTarget: $!\n";
-		print " uninstalled.\n";
+		printFileResult($setupTarget, "removed", -1);
 
 	} else {
 
-		print " already uninstalled, no action taken\n";
+		print "The helper script is not installed, no action taken\n";
 
 	}
+
+}
+
+sub checkHelper {
+
+	return (-e $setupTarget);
 
 }
 
 
 sub installXSL {
 
-  if (-e $xslTarget) {
-    print "XSL File is already installed\n";
+	heading("Install the XSL File");
+
+	print "This step will install the XSL Stylesheet to:\n\n";
+	colorSet("bold white");
+	print "  $xslTarget\n\n";
+	colorReset();
+	print "The XSL file is used by the NSF Metadata filter\n";
+	print "When you use the helper script to setup a repository for NSF Metadata filtering,,\n";
+	print "the helper script will copy the above file to the ";
+	colorSet("bold white");
+	print "xsl/";
+	colorReset();
+	print " folder of the repository\n";
+
+	if (checkXSL()) {
+		colorSet("bold yellow");
+		print "\nThe XSL File is already installed, if you continue it will be overwritten.\n";
+		colorReset();
+	}
+
+	return 0 if !confirmContinue();
+
+  # Check if the Home Bin directory exists
+  if (-d $xslTargetDir) {
+		printFileResult($xslTargetDir, "directory already exists", 0);
   } else {
-    print "XSL File will be installed\n";
-
-    # Check if the Home Bin directory exists
-    if (-d $xslTargetDir) {
-      print "...XSL directory $xslTargetDir already exists\n";
-    } else {
-      mkdir $xslTargetDir;
-      print "...Created Directory for XSL: $xslTargetDir\n";
-    }
-
-    # Copy the xsl file to the Target Directory
-    use File::Copy;
-
-    copy($xslSource, $xslTarget) or die "Failed Copying: $!\n";
-    print "...Installed XSL to $xslTarget\n";
-
+    mkdir $xslTargetDir or die "Could not create directory$xslTargetDir: $!";
+		printFileResult($xslTargetDir, "directory created", 1);
   }
+
+  # Copy the xsl file to the Target Directory
+  use File::Copy;
+
+  copy($xslSource, $xslTarget) or die "Failed Copying: $!\n";
+	printFileResult($xslTarget, "Installed", 1);
 
   print "\n";
 
@@ -149,67 +188,105 @@ sub installXSL {
 
 sub uninstallXSL {
 
-	print "Attempt to remove xsl script     ... ";  
+	heading("Uninstall the XSL File");
 
 	if (-e $xslTarget) {
 
+		print "This step will remove the xsl script located at:\n";
+		colorSet("bold white");
+		print "\n$xslTarget\n";
+		colorReset();
+
+		return 0 if !confirmContinue();
+
 		unlink $xslTarget or warn "Could not remove $xslTarget: $!\n";
-		print " uninstalled.\n";
+		printFileResult($xslTarget,"removed",-1);
 
 	} else {
 
-		print " already uninstalled, no action taken\n";
+		print "The XSL file is not currently installed, no action taken\n";
 
 	}
 
-	print "\n";
+}
+
+sub checkXSL {
+
+	return (-e $xslTarget);
 
 }
 
-sub installLibxslt {
+sub getLibxsltTarget {
 
-	#mycls();
+	# get input parameter
+	my ($srcFile) = @_;
+
+	# get full path of Source Binary
+	my $binSource = "$libxsltDir/$srcFile";
+
+	# Determin the FileName of the binary
+	my ($volume, $directories, $file) = File::Spec->splitpath($binSource);
+
+	# Return the Target Source Path of the binary
+	return "$binTargetDir/$file";
+
+} 
+
+sub installLibxslt {
 
 	my $binSource = '';
 	my $binTarget	= '';
+	my $binsExist = 0;
 
-	print "$libxsltDir\n";
-
-	#heading("Install libxslt win 32 binaries");
+	heading("Install libxslt win 32 binaries");
 
 	print ("\nThis step will install the binaries required to run xsltproc\n\n");
 	print ("xsltproc is the program used to filter the DXL using an xsl file\n");
 
-	# Copy the contents to the bindir
-	if (-d $binTargetDir) {
-		
-		# for each binary in the folder
-		foreach (@libxsltBins)  {
+
+	foreach (@libxsltBins) {
+
+		$binTarget = getLibxsltTarget($_);
+
+		if (-e $binTarget) {
 	
-			$binSource = "$libxsltDir/$_";
-
-			my ($volume, $directories, $file) = File::Spec->splitpath( $binSource );
-
-			$binTarget = "$binTargetDir/$file";
-
-			if (-e $binTarget) {
-
-				printf("%-40s ...already Installed\n", $binTarget);
-
-			} else {
-
-				use File::Copy;
-				my $cpResult = copy($binSource, $binTarget) or warn "Failed copying\n$binSource to \n$binTarget: $!\n\n";
-
-        printf ("%-40s ...copied successfully\n", $binTarget) if $cpResult;
-
+			colorSet("bold yellow");
+			if (!$binsExist) {
+				print "\nThe Following binaries are already installed and will be overwritten if you continue:\n";
+				$binsExist = 1;
 			}
-
+			print "$binTarget\n";
+			colorReset();
+	
 		}	
 
-	} else {
-		print "$binTargetDir is not set up\n\n";
 	}
+
+	return 0 if !confirmContinue();
+
+	# Set up bin directory if not there
+	if (-d $binTargetDir) {
+		printFileResult($binTargetDir, "directory already exists", 0);
+  } else {
+    mkdir $binTargetDir or die "Could not create directory $binTargetDir: $!";
+		printFileResult($binTargetDir, "directory created", 1);
+  }
+
+	# for each binary in the folder
+	foreach (@libxsltBins)  {
+	
+		$binSource = "$libxsltDir/$_";
+
+		my ($volume, $directories, $file) = File::Spec->splitpath( $binSource );
+
+		$binTarget = "$binTargetDir/$file";
+
+		use File::Copy;
+		my $cpResult = copy($binSource, $binTarget) or warn "Failed copying\n$binSource to \n$binTarget: $!\n\n";
+
+		printFileResult($binTarget,"copied successfully",1) if $cpResult;
+
+	}	
 
 }
 
@@ -217,42 +294,70 @@ sub uninstallLibxslt {
 
 	my $binSource = '';
 	my $binTarget	= '';
+	my @binsExist = ();
 
-	#heading("Uninstall libxslt win 32 binaries");
+	heading("Uninstall libxslt win 32 binaries");
 
-	# Copy the contents to the bindir
-	if (-d $binTargetDir) {
-		
-		# for each binary in the folder
-		foreach (@libxsltBins)  {
-	
-			$binSource = "$libxsltDir/$_";
-
-			my ($volume, $directories, $file) = File::Spec->splitpath( $binSource );
-
-			$binTarget = "$binTargetDir/$file";
-
-			if (-e $binTarget) {
-
-				my $noDelete = unlink $binTarget or warn "Could not remove $binTarget: $!\n";
-
-				if ($noDelete == 1) {
-					printf("%-40s ...removed\n", $binTarget);
-				}
-
-			} else {
-
-				printf("%-40s ...not there anyway\n", $binTarget);
-
-			}
-
-		}	
-
-	} else {
-		print "$binTargetDir is not set up\n\n";
+	foreach(@libxsltBins) {
+		$binTarget = getLibxsltTarget($_);
+		push(@binsExist, $binTarget) if (-e $binTarget);
 	}
 
+	if (!@binsExist) {
+		print "No Libxslt binaries are currently installed, no action taken\n";
+		return 0;
+	}
+
+	print "This step will remove the following Libxslt binaries\n\n";
+
+	colorSet("bold white");
+	foreach(@binsExist) {
+		print "$_\n";
+	}
+	colorReset();
 	
+
+	if (!confirmContinue()) {
+		print "aborting un-installation libxslt binaries\n";
+		return 0;
+	}
+
+	# for each binary in the folder
+	foreach (@libxsltBins)  {
+	
+		$binTarget = getLibxsltTarget($_);
+
+		if (-e $binTarget) {
+
+			my $noDelete = unlink $binTarget or warn "Could not remove $binTarget: $!\n";
+
+			if ($noDelete == 1) {
+				printFileResult($binTarget,"removed",-1);
+			}
+
+		} else {
+
+			printFileResult($binTarget,"not there anyway",0);
+
+		}
+
+	}	
+
+}
+
+sub checkLibxslt {
+
+	foreach (@libxsltBins) {
+
+		my $binTarget = getLibxsltTarget($_);
+
+		if (!-e $binTarget) {
+			return 0;
+		}
+
+	}
+
+	return 1;
 
 }
 
@@ -280,9 +385,14 @@ sub processArgs {
 
 }
 
-sub mycls {
-  system("clear");  
+sub checkSetup {
+
+	$chkHelper	= checkHelper();
+	$chkXSL 		= checkXSL();
+	$chkLibxslt	= checkLibxslt();
+
 }
+
 
 sub main {
 
@@ -291,32 +401,34 @@ sub main {
 	my $opt = "";
 	my $invalidOpt = 0;
 
-	mycls();
 
 	while (1) {
 
-		print "=======================================\n";
-		print "$projname Installation\n\n";
+		checkSetup();
+
+		mycls();
+
+		heading("$projname Installation");
 
 		print "Current Status:\n\n";
 
-		print "NSF Repo Setup ...";
-		print "Installed at location\n";
-		print "XSL Stylesheet ...";
-		print "Installed at location\n";
+		printInstallStatus("Git Helper Script", $chkHelper);
+		printInstallStatus("XSL Stylesheet",		$chkXSL);
+		printInstallStatus("libxslt binaries", 	$chkLibxslt);
 
 		print "\nChoose a Menu Option\n\n";
 
-		print "1. Install   Everything\n";
-		print "2. Uninstall Everything\n\n";
-		print "3. Install   Git Helper Script\n";
-		print "4. Uninstall Git Setup Scr\n";
-		print "5. Install   xsl stylesheet\n";
-		print "6. Uninstall xsl stylesheet\n";
-		print "7. Install   libxslt binaries\n";
-		print "8. Uninstall libxslt binaries\n";
-
-		print "\nq. Quit\n";
+		menuOption("1", "Install Everything");
+		menuOption("2", "Uninstall Everything");
+		menuSeparator();
+		menuOption("3", "Install Git Helper Script");
+		menuOption("4", "Install xsl stylesheet");
+		menuOption("5", "Install libxslt binaries");
+		menuOption("6", "Uninstall Git Helper Script");
+		menuOption("7", "Uninstall xsl stylesheet");
+		menuOption("8", "Uninstall libxslt binaries");
+		menuSeparator();
+		menuOption("q", "Quit");
 
 		if ($invalidOpt) {
 			printf ("%s is an invalid option\n", $opt);
@@ -326,7 +438,7 @@ sub main {
 
 		print "\nEnter Menu Option: ";
 
-		$invalidOpt = 1;
+		$invalidOpt = 0;
 		my $opt = <>;
 
 		chomp($opt);
@@ -335,43 +447,243 @@ sub main {
 
 		if ($opt eq "1") {
 
+			mycls();
 			installEverything();
 
 		} elsif ($opt eq "2") {
 
+			mycls();
 			uninstallEverything();
 
 		} elsif ($opt eq "3") {
 
+			mycls();
 			installHelper();	
 
 		} elsif ($opt eq "4") {
 
-			uninstallHelper();
+			mycls();
+			installXSL();
 
 		} elsif ($opt eq "5") {
 
-			installXSL();
+			mycls();
+			installLibxslt();
 
 		} elsif ($opt eq "6") {
 
-			uninstallXSL();
+			mycls();
+			uninstallHelper();
 
 		} elsif ($opt eq "7") {
 
-			installLibxslt();
+			mycls();
+			uninstallXSL();
 
 		} elsif ($opt eq "8") {
 
+			mycls();
 			uninstallLibxslt();
 
 		} else {
 			$invalidOpt = 1;
 		}
 
+		confirmAnyKey() if !$invalidOpt;
+
 	}
 
 }
 
-main();
+# Terminal Helper Functions
 
+sub colorSet {
+  my ($color) = @_;
+  print Term::ANSIColor::color($color) if $useColours;
+}
+
+sub colorReset {
+  print Term::ANSIColor::color("reset") if $useColours;
+}
+
+sub menuOption {
+
+  my ($num, $text) = @_;
+
+  printf("%4s. %s\n", $num, $text);
+
+
+}
+
+sub menuSeparator {
+	print "  ---------------------\n";
+}
+
+sub printFileResult {
+
+  my ($filename, $resultdesc, $indicator) = @_;
+
+  printf("%-50s ...", $filename);
+
+  colorSet("bold green")  if ($indicator == 1);
+	colorSet("bold white") 	if ($indicator == 0);
+  colorSet("bold red")    if ($indicator == -1);
+
+  print("$resultdesc\n");
+
+  colorReset();
+
+}
+
+sub printInstallStatus {
+
+  my ($element, $status) = @_;
+
+  my $statusText = ($status) ? "Installed" : "Not Installed";
+
+  printf("%-25s : ",$element);
+
+  colorSet("bold green")  if ($status);
+  colorSet("bold")        if (!$status);
+
+  print("$statusText\n");
+
+  colorReset();
+
+}
+
+sub installRemoveOption {
+
+  my ($num, $text, $enabled, $installed) = @_;
+
+  # Set up install or remove color
+  if ($useColours) {
+    if ($enabled) {
+      if ($installed) {
+        print Term::ANSIColor::color("bold red");
+      } else {
+        print Term::ANSIColor::color("bold green");
+      }
+    }
+  }
+
+  # Print option number
+  print "$num. ";
+
+  # Print the Action
+  if (!$enabled) {
+    print "n/a     ";
+  } elsif ($installed) {
+    print "Remove  ";
+  } else {   
+    print "Install ";
+  }
+
+  if ($useColours) {   
+    if (!$enabled) {
+      print Term::ANSIColor::color("reset");
+    } else {
+      print Term::ANSIColor::color("bold white");
+    }  
+  };
+
+  # Print the text of the menu option
+  print $text;
+
+  # Reset the colours
+  if ($useColours) {  
+    print Term::ANSIColor::color("reset");
+  };
+
+  print "\n";
+
+}
+
+sub heading {
+
+  my $maxwidth  = 50;
+  my $fillerChar = "*";
+
+  # Get the Title from the sub arguments
+  my ($title) = @_;;
+
+  # Determine number of Asterixes either side
+  my $tlength = length($title);
+  my $totFillers = $maxwidth - $tlength - 4;
+  if ($totFillers < 0) { print "Error: Title too long... exiting";exit -1; };
+  my $fillers = int($totFillers / 2);
+
+  # Give me some space
+  print "\n";
+
+  # If we are using colours, Set up the colour
+  if ($useColours) {
+    print Term::ANSIColor::color("bold white");
+    print Term::ANSIColor::color("on_blue");
+  }
+
+  # Print first asterixes
+  for (my $i = 0; $i < $fillers; $i++) { print $fillerChar; }
+
+  # print Heading with space either side
+  print " $title ";
+
+  # Print last asterixes
+  for (my $i = 0; $i < $fillers; $i++) { print $fillerChar; }
+  # Print an extra one if there was an odd number
+  if (($totFillers % 2) > 0) { print $fillerChar; }
+
+  # If we are using colours, reset them
+  if($useColours) {
+    print Term::ANSIColor::color("reset");
+  }
+
+  # Print new line
+  print "\n\n";
+
+}
+
+
+sub mycls {
+
+  system("clear");
+  
+}
+
+
+sub confirmAnyKey {
+
+  print "\nPress enter to continue ...";
+  my $tmp = <STDIN>;
+
+}
+
+sub confirmContinue {
+
+  my $opt       = "";
+  my $invalid   = 0;
+  my $noanswer  = 1;
+
+  while ($noanswer) {
+
+    print("\nInvalid option: $opt, please choose y/n/q\n\n") if $invalid;
+
+    print "\nContinue? y/n/q: ";
+    $opt = <STDIN>;
+    chomp($opt);
+
+		print "\n";
+
+    exit 0    if ($opt =~ m/^q/i);
+    return 1  if ($opt =~ m/^y/i || $opt eq "");
+    return 0  if ($opt =~ m/^n/i);
+
+    $invalid = 1;
+
+  }
+
+}
+
+# END TERMINAL HELPER FUNCTIONS
+
+main();

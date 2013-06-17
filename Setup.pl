@@ -622,6 +622,92 @@ sub installRemoveOption {
 
 }
 
+sub heading {
+
+  my $maxwidth  = 50;
+  my $fillerChar = "*";
+
+  # Get the Title from the sub arguments
+  my ($title) = @_;;
+
+  # Determine number of Asterixes either side
+  my $tlength = length($title);
+  my $totFillers = $maxwidth - $tlength - 4;
+  if ($totFillers < 0) { print "Error: Title too long... exiting";exit -1; };
+  my $fillers = int($totFillers / 2);
+
+  # Give me some space
+  print "\n";
+
+  # If we are using colours, Set up the colour
+  if ($useColours) {
+    print Term::ANSIColor::color("bold white");
+    print Term::ANSIColor::color("on_blue");
+  }
+
+  # Print first asterixes
+  for (my $i = 0; $i < $fillers; $i++) { print $fillerChar; }
+
+  # print Heading with space either side
+  print " $title ";
+
+  # Print last asterixes
+  for (my $i = 0; $i < $fillers; $i++) { print $fillerChar; }
+  # Print an extra one if there was an odd number
+  if (($totFillers % 2) > 0) { print $fillerChar; }
+
+  # If we are using colours, reset them
+  if($useColours) {
+    print Term::ANSIColor::color("reset");
+  }
+
+  # Print new line
+  print "\n\n";
+
+}
+
+
+sub mycls {
+
+  system("clear");
+  
+}
+
+
+sub confirmAnyKey {
+
+  print "\nPress enter to continue ...";
+  my $tmp = <STDIN>;
+
+}
+
+sub confirmContinue {
+
+  my $opt       = "";
+  my $invalid   = 0;
+  my $noanswer  = 1;
+
+  while ($noanswer) {
+
+    print("\nInvalid option: $opt, please choose y/n/q\n\n") if $invalid;
+
+    print "\nContinue? y/n/q: ";
+    $opt = <STDIN>;
+    chomp($opt);
+
+    exit 0    if ($opt =~ m/^q/i);
+    return 1  if ($opt =~ m/^y/i || $opt eq "");
+    return 0  if ($opt =~ m/^n/i);
+
+    $invalid = 1;
+
+  }
+
+}
+
+
+# END TERMINAL HELPER FUNCTIONS
+
 sub trackDbProps {
 
   my ($track) = @_;
@@ -713,86 +799,7 @@ sub checkRepoSetup {
 
 }
 
-sub mycls {
 
-  system("clear");
-  
-}
-
-sub heading {
-
-  my $maxwidth  = 50;
-  my $fillerChar = "*";
-
-  # Get the Title from the sub arguments
-  my ($title) = @_;;
-
-  # Determine number of Asterixes either side
-  my $tlength = length($title);
-  my $totFillers = $maxwidth - $tlength - 4;
-  if ($totFillers < 0) { print "Error: Title too long... exiting";exit -1; };
-  my $fillers = int($totFillers / 2);
-
-  # Give me some space
-  print "\n";
-
-  # If we are using colours, Set up the colour
-  if ($useColours) {
-    print Term::ANSIColor::color("bold white");
-    print Term::ANSIColor::color("on_blue");
-  }
-
-  # Print first asterixes
-  for (my $i = 0; $i < $fillers; $i++) { print $fillerChar; }
-
-  # print Heading with space either side
-  print " $title ";
-
-  # Print last asterixes
-  for (my $i = 0; $i < $fillers; $i++) { print $fillerChar; }
-  # Print an extra one if there was an odd number
-  if (($totFillers % 2) > 0) { print $fillerChar; }
-
-  # If we are using colours, reset them
-  if($useColours) {
-    print Term::ANSIColor::color("reset");
-  }
-
-  # Print new line
-  print "\n\n";
-
-}
-
-sub confirmAnyKey {
-
-  print "\nPress enter to continue ...";
-  my $tmp = <STDIN>;
-
-}
-
-sub confirmContinue {
-
-  my $opt       = "";
-  my $invalid   = 0;
-  my $noanswer  = 1;
-
-  while ($noanswer) {
-
-    print("\nInvalid option: $opt, please choose y/n/q\n\n") if $invalid;
-
-    print "\nContinue? y/n/q: ";
-    $opt = <STDIN>;
-    chomp($opt);
-
-    exit 0    if ($opt =~ m/^q/i);
-    return 1  if ($opt =~ m/^y/i || $opt eq "");
-    return 0  if ($opt =~ m/^n/i);
-
-    $invalid = 1;
-
-  }
-
-}
 
 sub menu {
 
@@ -801,9 +808,7 @@ sub menu {
 
   mycls();
 
-  print "===================================\n";
-  print " Domino On-Disk Project Git Helper\n";
-  print "-----------------------------------\n\n";
+	heading("Gregorbyte Git Helper");
 
   if ($gitDir eq "") {
     print "You are currently not in a git repository.";
