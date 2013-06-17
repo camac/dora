@@ -386,7 +386,7 @@ sub installAttr {
   # Add all the entries
   foreach (@attrEntries) {
 
-    my $pattern = "$_ filter=nsf\n";
+    my $pattern = "$_ filter=nsf text eol=lf\n";
     print GITATTR $pattern;
 
   }
@@ -425,7 +425,7 @@ sub checkAttr {
 
   foreach (@attrEntries) {
 
-    my $pattern = "$_ filter=nsf";
+    my $pattern = "$_ filter=nsf text eol=lf";
 
     my @matchedLines = grep /\Q$pattern\E/,@fileLines;
 
@@ -622,6 +622,24 @@ sub installRemoveOption {
 
 }
 
+sub trackDbProps {
+
+  my ($track) = @_;
+
+  my $flag = ($track) ? "--no-assume-unchanged" : "--assume-unchanged";
+
+  my @args = (
+    'update-index', 
+    $flag, 
+    'nsf/AppProperties/database.properties', 
+    'nsf/Resources/IconNote', 
+    'nsf/AppProperties/xspdesign.properties'
+  );
+
+  system('git', @args);
+
+}
+
 sub finish {
 
   heading("Setup Complete");
@@ -633,8 +651,6 @@ sub finish {
 
   print "Check the git attributes file for the file associations\n";
   print "grep nsf .gitattributes\n\n";
-
-
 
 }
 
@@ -654,6 +670,16 @@ sub processArgs {
 
     if ($ARGV[$argnum] eq '--update-ignore') {
       updateGitIgnore();
+      exit 0;
+    }
+
+    if ($ARGV[$argnum] eq '--dbprops-on') {
+      trackDbProps(1);
+      exit 0;
+    }
+
+    if ($ARGV[$argnum] eq '--dbprops-off') {
+      trackDbProps(0);
       exit 0;
     }
 
