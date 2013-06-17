@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:n="http://www.lotus.com/dxl">
+  <xsl:output indent="yes"/>
+  <xsl:strip-space elements="*"/>
 
     <!-- Maybe want to do $DesignerVersion on Java MetaData?? -->
 
@@ -129,6 +131,8 @@
     <!-- Ignore the database ACL -->
     <xsl:template match="//n:database/n:acl"/>
 
+    <!-- Ignore the DesignerVersion Item -->
+    <xsl:template match="//n:item[@name='$DesignerVersion']"/>
 
     <xsl:template match="node() | @*">
         <xsl:copy>
