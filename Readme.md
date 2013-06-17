@@ -179,8 +179,30 @@ Cloning from Remote NSF
 Go to your Workspace
 
 git clone <repo> <directory>
+run dogh.pl and make sure Filters are installed into git Config!!
 
-Install Filters into git Config!!
+Go to Domino Designer on Eclipse
+Switch Perspective to 'Java'
+
+File - > New -> Project
+Choose General -> Project
+  - Enter your Project Name 'Teamroom'
+  - deselect 'Use default location'
+  - Browse to the NSF folder that is within the newly cloned repository
+  - Do not add a related project
+
+Then switch back to Domino Designer perspective
+Window -> Show Eclipse View -> Navigator
+
+Find your new project 'Teamroom'
+Right-click and choose
+  - Team Development -> Associate with New NSF
+Choose where you will put your new nsf
+
+Wait for it to import!
+
+
+
 
 
 Notes
