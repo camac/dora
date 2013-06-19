@@ -18,14 +18,16 @@ our $homeDir            = $ENV{"HOME"};
 our $scriptDir          = "$homeDir/bin";
 our $xslSourceDir       = "$homeDir/GitFilters";
 
+our $xslFilterFilename  = "DXLFilter.xsl";
+our $xslPrettyFilename  = "DXLPretty.xsl";
+
 # XSL Stylesheets, make sure first one is the filter
 our @xslSourceFilenames = (
-  "DXLFilter.xsl",
-  "DXLPretty.xsl"
+  $xslFilterFilename,
+  $xslPrettyFilename
 );
 
 our $xslTargetDir       = "xsl";
-our $xslFilterFilename  = $xslSourceFilenames[0];
 our $xslFilter          = "$xslTargetDir/$xslFilterFilename";
   
 our $attrFile     = ".gitattributes";
@@ -616,7 +618,7 @@ sub checkIgnore {
 
 }
 
-sub installEverything() {
+sub installEverything {
 
   installFilter();
   installXSL();
@@ -625,12 +627,62 @@ sub installEverything() {
 
 }
 
-sub uninstallEverything() {
+sub uninstallEverything {
   
   uninstallFilter();
   uninstallXSL();
   uninstallIgnore();
   uninstallAttr();
+
+}
+
+sub showFilterImpurities {
+
+  my ($testFile) = @_;
+
+  # Fail if the Test File does not exist
+  die "$testFile not found: $!" unless (-e $testFile);
+
+  # Get the location of the XSL Stylesheets
+  my $xslPrettyTarget = getXSLTarget($xslPrettyFilename);
+  my $xslFilterTarget = getXSLTarget($xslFilterFilename);
+  
+  # Fail if one of the XSL Stylesheets do not exist
+  die "XSL Stylesheet not found: $!" unless (-e $xslPrettyTarget & -e $xslFilterTarget);
+
+  # Store the XSLT results into the git repo as blobs so they can be diff'd
+  # Keep the SHA1 hash references for use in git diff
+  my $blobNormal    = `xsltproc.exe $xslPrettyTarget $testFile | git hash-object -w --stdin`;
+  my $blobFiltered  = `xsltproc.exe $xslFilterTarget $testFile | git hash-object -w --stdin`;
+  
+  # Remove Line endings
+  chomp($blobNormal);
+  chomp($blobFiltered);
+
+  print "Normal Blob  : $blobNormal\nFiltered Blob: $blobFiltered\n" if ($verbose);
+  
+  # Run the git diff command on the 2 blobs
+  my @args = ('diff',$blobNormal,$blobFiltered);
+  system('git',@args);
+
+}
+
+sub showFilterResult {
+
+  my ($testFile) = @_;
+
+  # Fail if the Test File does not exist
+  die "$testFile not found: $!" unless (-e $testFile);
+
+  # Get the location of the XSL Stylesheets
+  my $xslFilterTarget = getXSLTarget($xslFilterFilename);
+  
+  # Fail if one of the XSL Stylesheets do not exist
+  die "XSL Stylesheet not found: $!" unless (-e $xslFilterTarget);
+
+  # Run the git diff command on the 2 blobs
+  my @args = ($xslFilterTarget,$testFile);
+  system('xsltproc.exe',@args);
 
 }
 
@@ -857,6 +909,36 @@ sub processArgs {
   foreach my $argnum (0 .. $#ARGV) {
     if ($ARGV[$argnum] eq '--no-color') {
       $useColours = 0;
+    }
+
+    if ($ARGV[$argnum] eq '--test-filter' | $ARGV[$argnum] eq '-t') {
+
+      my $testFile = $ARGV[$argnum + 1];
+
+      die "Please specify a file." unless ($testFile);
+
+      if (!-e $testFile) {
+        die "$testFile does not exist";
+      }
+
+      showFilterResult($testFile);
+      exit 0;
+
+    }
+
+    if ($ARGV[$argnum] eq '--show-impurities' | $ARGV[$argnum] eq '-im') {
+
+      my $testFile = $ARGV[$argnum + 1];
+
+      die "Please specify a file." unless ($testFile);
+
+      if (!-e $testFile) {
+        die "$testFile does not exist";
+      }
+
+      showFilterImpurities($testFile);
+      exit 0;
+
     }
 
     if ($ARGV[$argnum] eq '--update-attributes') {
