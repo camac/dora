@@ -16,7 +16,7 @@ our $productNameLong    = "Domino ODP Repository Assistant";
 # Directory and File Locations
 our $homeDir            = $ENV{"HOME"};
 our $scriptDir          = "$homeDir/bin";
-our $xslSourceDir       = "$homeDir/GitFilters";
+our $xslSourceDir       = "$homeDir/dora";
 
 our $xslFilterFilename  = "DXLFilter.xsl";
 our $xslPrettyFilename  = "DXLPretty.xsl";
@@ -1015,7 +1015,7 @@ sub menu {
     colorReset();
 
     printInstallStatus("DXL Filter",              $chkFilter);
-    printInstallStatus("XSL File",                $chkXSL);
+    printInstallStatus("XSL Stylesheets",         $chkXSL);
     printInstallStatus(".gitignore entries",      $chkIgnore);
     printInstallStatus(".gitattributes entries",  $chkAttr);
 

@@ -1,4 +1,4 @@
-Git NSF ODP Helper
+Domino ODP Repository Helper (dora)
 ===================
 
 This project contains a set of git filters and scripts which assist when collaborating on a Domino Project.

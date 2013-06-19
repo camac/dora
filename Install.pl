@@ -46,7 +46,7 @@ our @xslSourceFilenames   = (
   "DXLPretty.xsl"
 );
 
-our $xslTargetDir        = "$homeDir/GitFilters";
+our $xslTargetDir        = "$homeDir/dora";
 
 our $libxsltDir		= "$installScriptDir/libxslt";
 our @libxsltBins  = (
