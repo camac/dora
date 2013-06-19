@@ -1,0 +1,2159 @@
+<?xml version="1.0"?>
+<subform xmlns="http://www.lotus.com/dxl" name="Procurement" renderpassthrough="true">
+  <globals>
+    <code event="options">
+      <lotusscript>Option Public
+Use "BillOfMaterialsSL"
+
+</lotusscript>
+    </code>
+  </globals>
+  <actionbar bgcolor="#ece9d8" bordercolor="black">
+    <actionbuttonstyle bgcolor="#ece9d8"/>
+    <font color="system"/>
+    <border style="solid" width="0px 0px 1px"/>
+  </actionbar>
+  <body>
+    <richtext>
+      <pardef id="1" hide="notes web mobile"/>
+      <par def="1"/>
+      <table widthtype="fitmargins" cellbordercolor="#4f4f4f" refwidth="11.6563in">
+        <tablecolumn width="100%"/>
+        <tablerow>
+          <tablecell borderwidth="0px">
+            <pardef id="3" hide="notes web mobile" keepwithnext="true" keeptogether="true"/>
+            <par def="3"/>
+            <table widthtype="fitmargins" cellbordercolor="silver" leftmargin="0%" refwidth="11.6667in">
+              <tablecolumn width="100%"/>
+              <tablerow>
+                <tablecell>
+                  <pardef id="5" hide="notes web mobile" keepwithnext="true" keeptogether="true"/>
+                  <par def="5"/>
+                  <table widthtype="fitmargins" minrowheight="0.1965in" leftmargin="0.0104in" columnspacing="0.0785in" refwidth="11.6563in">
+                    <tablecolumn width="1.6278in"/>
+                    <tablecolumn width="100%"/>
+                    <tablerow>
+                      <tablecell borderwidth="0px" bgcolor="#efefef">
+                        <pardef id="7" keepwithnext="true" keeptogether="true"/>
+                        <par def="7">
+                          <run><font size="9pt" style="bold" name="Arial" pitch="variable" truetype="true" familyid="20" color="navy"/>Procurement</run>
+                        </par>
+                      </tablecell>
+                      <tablecell borderwidth="0px" bgcolor="#efefef">
+                        <pardef id="8" keepwithnext="true" keeptogether="true">
+                          <code event="hidewhen">
+                            <formula>NotForProcurement != 1</formula>
+                          </code>
+                        </pardef>
+                        <par def="8">
+                          <run><font size="8pt" style="bold" name="Arial" pitch="variable" truetype="true" familyid="20" color="#ff8100"/>Marked Not for Procurement by </run>
+                          <run>
+                            <font size="8pt" color="#ff8100" style="bold" name="Arial" pitch="variable" truetype="true" familyid="20"/>
+                            <field type="text" kind="computed" name="NotForProcurementMarkedBy">
+                              <code event="defaultvalue">
+                                <formula>NotForProcurementMarkedBy</formula>
+                              </code>
+                            </field>
+                          </run>
+                          <compositedata type="98" prevtype="65418" nexttype="222" afterparcount="11" containertype="65418" aftercontainercount="1" afterbegincount="3">
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata>
+                          <run><font size="8pt" style="bold" name="Arial" pitch="variable" truetype="true" familyid="20" color="#ff8100"/> on </run>
+                          <run>
+                            <font size="8pt" color="#ff8100" style="bold" name="Arial" pitch="variable" truetype="true" familyid="20"/>
+                            <field type="datetime" kind="computed" name="NotForProcurementMarkedDate">
+                              <datetimeformat show="date" date="yearmonthday" fourdigityearfor21stcentury="true" zone="never" dateformat="weekdaydaymonthyear" dayformat="twodigitday" monthformat="twodigitmonth" yearformat="fourdigityear" weekdayformat="shortname" dateseparator1=" " dateseparator2="/" dateseparator3="/" timeseparator=":" preference="usersetting"/>
+                              <code event="defaultvalue">
+                                <formula>NotForProcurementMarkedDate</formula>
+                              </code>
+                            </field>
+                          </run>
+                          <run>
+                            <font size="8pt" style="bold" name="Arial" pitch="variable" truetype="true" familyid="20" color="#ff8100"/>
+                          </run>
+                        </par>
+                      </tablecell>
+                    </tablerow>
+                    <tablerow>
+                      <tablecell valign="center" borderwidth="0px" bgcolor="#f7f7f7">
+                        <pardef id="9" keepwithnext="true" keeptogether="true"/>
+                        <par def="9">
+                          <run><font size="8pt" name="Arial" pitch="variable" truetype="true" familyid="20"/>Description</run>
+                        </par>
+                      </tablecell>
+                      <tablecell valign="center" borderwidth="0px">
+                        <pardef id="10" hide="preview" keepwithnext="true" keeptogether="true"/>
+                        <par def="10">
+                          <run>
+                            <font size="8pt" style="bold" name="Arial" pitch="variable" truetype="true" familyid="20"/>
+                            <field type="text" kind="computedfordisplay" name="Description_dispaoeu">
+                              <code event="defaultvalue">
+                                <formula>Description</formula>
+                              </code>
+                            </field>
+                          </run>
+                          <compositedata type="98" prevtype="65418" nexttype="222" afterparcount="7" containertype="65418" aftercontainercount="1" afterbegincount="3">
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata>
+                        </par>
+                      </tablecell>
+                    </tablerow>
+                    <tablerow>
+                      <tablecell valign="center" borderwidth="0px" bgcolor="#f7f7f7">
+                        <pardef id="11" hide="preview" keepwithnext="true" keeptogether="true"/>
+                        <par def="11">
+                          <run><font size="8pt" name="Arial" pitch="variable" truetype="true" familyid="20" color="#4f4f4f"/>Date Required at workshop:</run>
+                        </par>
+                      </tablecell>
+                      <tablecell valign="center" borderwidth="0px">
+                        <pardef id="12" hide="read print preview" keepwithnext="true" keeptogether="true">
+                          <code event="hidewhen">
+                            <formula>LinkTaskID!=""</formula>
+                          </code>
+                        </pardef>
+                        <par def="12">
+                          <run>
+                            <font size="8pt" name="Arial" pitch="variable" truetype="true" familyid="20"/>
+                            <field usenotesstyle="false" height="0.1847in" width="1in" heighttype="proportional" multiline="true" borderstyle="single" type="datetime" kind="editable" name="DateRequired">
+                              <datetimeformat show="date" date="yearmonthday" fourdigityearfor21stcentury="true" zone="never" dateformat="weekdaydaymonthyear" dayformat="twodigitday" monthformat="shortname" yearformat="fourdigityear" weekdayformat="shortname" dateseparator1=" " dateseparator2=" " dateseparator3=" " timeseparator=":" preference="custom"/>
+                            </field>
+                          </run>
+                          <run>
+                            <font size="8pt" name="Arial" pitch="variable" truetype="true" familyid="20" color="#4f4f4f"/>
+                          </run>
+                        </par>
+                        <pardef id="13" hide="edit previewedit" keepwithnext="true" keeptogether="true"/>
+                        <par def="13">
+                          <run>
+                            <font size="8pt" name="Arial" pitch="variable" truetype="true" familyid="20" color="#4f4f4f"/>
+                          </run>
+                          <run>
+                            <font size="8pt" name="Arial" pitch="variable" truetype="true" familyid="20"/>
+                            <field type="datetime" kind="computed" name="DateRequiredDisp">
+                              <datetimeformat show="date" date="yearmonthday" fourdigityearfor21stcentury="true" zone="never" dateformat="weekdaydaymonthyear" dayformat="twodigitday" monthformat="shortname" yearformat="fourdigityear" weekdayformat="shortname" dateseparator1=" " dateseparator2=" " dateseparator3=" " timeseparator=":" preference="custom"/>
+                              <code event="defaultvalue">
+                                <formula>DateRequiredUsed</formula>
+                              </code>
+                            </field>
+                          </run>
+                          <run>
+                            <font size="8pt" name="Arial" pitch="variable" truetype="true" familyid="20"/>
+                          </run>
+                          <run>
+                            <font size="8pt" name="Arial" pitch="variable" truetype="true" familyid="20"/>
+                            <computedtext>
+                              <code event="value">
+                                <formula>@If(LinkTaskID="";"";LinkTaskID + " - " + LinkTaskDesc)</formula>
+                              </code>
+                            </computedtext>
+                          </run>
+                          <run>
+                            <font size="8pt" name="Arial" pitch="variable" truetype="true" familyid="20"/>
+                          </run>
+                        </par>
+                        <pardef id="14" hide="read print preview" keepwithnext="true" keeptogether="true">
+                          <code event="hidewhen">
+                            <formula>LinkTaskID=""</formula>
+                          </code>
+                        </pardef>
+                        <par def="14">
+                          <run>
+                            <font size="8pt" name="Arial" pitch="variable" truetype="true" familyid="20"/>
+                            <field type="datetime" kind="computed" name="DateRequiredLinked">
+                              <datetimeformat show="date" date="yearmonthday" fourdigityearfor21stcentury="true" zone="never" dateformat="weekdaydaymonthyear" dayformat="twodigitday" monthformat="shortname" yearformat="fourdigityear" weekdayformat="shortname" dateseparator1=" " dateseparator2=" " dateseparator3=" " timeseparator=":" preference="custom"/>
+                              <code event="defaultvalue">
+                                <formula>@Now</formula>
+                              </code>
+                            </field>
+                          </run>
+                          <run>
+                            <font size="8pt" name="Arial" pitch="variable" truetype="true" familyid="20"/>
+                            <computedtext>
+                              <code event="value">
+                                <formula>LinkTaskID + " - " + LinkTaskDesc</formula>
+                              </code>
+                            </computedtext>
+                          </run>
+                          <button width="2in" widthtype="maximum" maxlines="1" wraptext="true" edge="rounded" bgcolor="system"><font size="7pt" name="Arial" pitch="variable" truetype="true" familyid="20"/>Remove Link to Item<code event="click"><lotusscript>Sub Click(Source As Button)
+	
+	Dim ws 		As New NotesUIWorkspace 
+	Dim doc		As NotesDocument 	
+	
+	Set doc 	= ws.CurrentDocument.Document 
+	
+	doc.LinkTaskID 		= ""
+	doc.LinkTaskDesc		= ""
+	
+	doc.Save False, False
+	
+	ws.CurrentDocument.Refresh
+	
+End Sub</lotusscript></code></button>
+                          <run>
+                            <font size="8pt" name="Arial" pitch="variable" truetype="true" familyid="20" color="#4f4f4f"/>
+                          </run>
+                          <button width="2in" widthtype="maximum" maxlines="1" wraptext="true" edge="rounded" bgcolor="system"><font size="7pt" name="Arial" pitch="variable" truetype="true" familyid="20"/>Link to Start of Another Item<code event="click"><lotusscript>Sub Click(Source As Button)
+	
+	Dim ws 		As New NotesUIWorkspace 
+	Dim doc		As NotesDocument 	
+	Dim ldoc		As NotesDocument 
+	Dim db		As NotesDatabase 
+	Dim dc		As NotesDocumentCollection 
+	Dim s		As New NotesSession 
+	Dim strKey 	As String 
+	
+	Set db	= s.CurrentDatabase 
+	
+	Set doc 	= ws.CurrentDocument.Document 
+	
+	strKey	= Cstr(doc.DocId(0)) + "-" + Cstr(doc.Revision(0))
+	
+	title$ 	= "Choose the Item"
+	prompt$	= "Please Choose the Item to link to the start of"
+	
+	Set dc = ws.PickListCollection(PICKLIST_CUSTOM,False,db.Server,db.FilePath,"EmbeddedViewMaterials",title$,prompt$,strKey)	
+	
+	If dc.Count = 0 Then Exit Sub	
+	
+	Set ldoc	= dc.GetFirstDocument
+	
+	If doc.MatDocID(0) = ldoc.MatDocId(0) Then 
+		Msgbox "Items cannot be linked to the start of itself"
+		Exit Sub
+	End If
+	
+	If ldoc.LinkTaskID(0) &lt;&gt; "" Then
+		Msgbox "The item you selected is linked to the start of another item. The system is currently only set up to link tasks 1 deep. If you " + _
+		" have a need to link tasks 2 deep then please contact Cameron Gregor in IT and He'll make the system changes for you"
+		Exit Sub
+	End If
+	
+	doc.LinkTaskID 		= ldoc.MatDocId(0)
+	doc.LinkTaskDesc		= ldoc.Description(0)
+	
+	doc.Save False, False
+	
+	ws.CurrentDocument.Refresh
+	
+End Sub</lotusscript></code></button>
+                          <run>
+                            <font size="7pt"/>
+                          </run>
+                        </par>
+                      </tablecell>
+                    </tablerow>
+                  </table>
+                  <par def="5"/>
+                  <table widthtype="fitmargins" minrowheight="0.1965in" cellbordercolor="#efefef" leftmargin="0.0104in" columnspacing="0.0785in" refwidth="11.6563in">
+                    <tablecolumn width="0.8333in" sizetofit="true"/>
+                    <tablecolumn width="33.3229%"/>
+                    <tablecolumn width="33.3229%"/>
+                    <tablecolumn width="1.4688in" sizetofit="true"/>
+                    <tablecolumn width="33.3542%"/>
+                    <tablerow>
+                      <tablecell valign="center" borderwidth="0px" bgcolor="#efefef">
+                        <pardef id="16" keepwithnext="true" keeptogether="true"/>
+                        <par def="16">
+                          <run><font size="9pt" style="bold" name="Arial" pitch="variable" truetype="true" familyid="20" color="navy"/>Delivery Path</run>
+                        </par>
+                      </tablecell>
+                      <tablecell valign="center" borderwidth="0px" bgcolor="#efefef">
+                        <pardef id="17" keepwithnext="true" keeptogether="true"/>
+                        <par def="17">
+                          <run><font size="8pt" style="bold" name="Arial" pitch="variable" truetype="true" familyid="20" color="#4f4f4f"/>Default</run>
+                        </par>
+                      </tablecell>
+                      <tablecell valign="center" borderwidth="0px" bgcolor="#efefef">
+                        <pardef id="18" keepwithnext="true" keeptogether="true"/>
+                        <par def="18">
+                          <run><font size="8pt" style="bold" name="Arial" pitch="variable" truetype="true" familyid="20" color="#4f4f4f"/>From Order</run>
+                        </par>
+                      </tablecell>
+                      <tablecell valign="center" borderwidth="0px" bgcolor="#efefef">
+                        <pardef id="19" keepwithnext="true" keeptogether="true"/>
+                        <par def="19">
+                          <run><font size="8pt" style="bold" name="Arial" pitch="variable" truetype="true" familyid="20" color="#4f4f4f"/>Override</run>
+                        </par>
+                      </tablecell>
+                      <tablecell valign="center" borderwidth="0px" bgcolor="#efefef">
+                        <pardef id="20" align="center" keepwithnext="true" keeptogether="true"/>
+                        <par def="20">
+                          <run><font size="8pt" style="bold" name="Arial" pitch="variable" truetype="true" familyid="20"/>Country Used</run>
+                        </par>
+                      </tablecell>
+                    </tablerow>
+                    <tablerow>
+                      <tablecell valign="center" borderwidth="0px" bgcolor="#f7f7f7">
+                        <pardef id="21" keepwithnext="true" keeptogether="true"/>
+                        <par def="21">
+                          <run><font size="8pt" name="Arial" pitch="variable" truetype="true" familyid="20" color="#4f4f4f"/>Supplier Country</run>
+                        </par>
+                      </tablecell>
+                      <tablecell valign="center" borderwidth="0px 0px 1px">
+                        <pardef id="22" keepwithnext="true" keeptogether="true"/>
+                        <par def="22">
+                          <run>
+                            <font size="8pt" name="Arial" pitch="variable" truetype="true" familyid="20"/>
+                            <field type="text" kind="computed" name="SupplierCountry_Disp">
+                              <code event="defaultvalue">
+                                <formula>SupplierCountry</formula>
+                              </code>
+                            </field>
+                          </run>
+                          <compositedata type="98" prevtype="65418" nexttype="222" afterparcount="7" containertype="65418" aftercontainercount="1" afterbegincount="3">
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata>
+                          <run>
+                            <font size="8pt" name="Arial" pitch="variable" truetype="true" familyid="20"/>
+                            <field type="text" kind="computedfordisplay" name="SupplierNamedisp">
+                              <code event="defaultvalue">
+                                <formula>@If(supplier="";"";"("+supplier+")")</formula>
+                              </code>
+                            </field>
+                          </run>
+                          <compositedata type="98" prevtype="65418" nexttype="222" afterparcount="13" containertype="65418" aftercontainercount="1" afterbegincount="3">
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata>
+                        </par>
+                      </tablecell>
+                      <tablecell valign="center" borderwidth="0px 0px 1px">
+                        <par def="18">
+                          <run>
+                            <font size="8pt" name="Arial" pitch="variable" truetype="true" familyid="20"/>
+                            <field type="text" kind="computedfordisplay" name="ActualSuppCountryDisp">
+                              <code event="defaultvalue">
+                                <formula>ActualSupplierCountry</formula>
+                              </code>
+                            </field>
+                          </run>
+                          <compositedata type="98" prevtype="65418" nexttype="222" afterparcount="6" containertype="65418" aftercontainercount="1" afterbegincount="3">
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata>
+                        </par>
+                      </tablecell>
+                      <tablecell valign="center" borderwidth="0px 0px 1px">
+                        <par def="19">
+                          <run>
+                            <font size="8pt" name="Arial" pitch="variable" truetype="true" familyid="20"/>
+                            <field type="keyword" kind="editable" name="SupplierCountry_or">
+                              <keywords ui="dialoglist">
+                                <formula>server := @Subset( @DbName ; 1 );
+database :=@Subset( @DbName ; -1 );
+view := "ParametersLookup";
+col:=2;
+key:="Countries";
+tmp:= @DbLookup( "": "NoCache" ; server : database ; view ; key; col);
+@Unique(tmp)</formula>
+                              </keywords>
+                              <code event="inputtranslation">
+                                <formula>@UpperCase(@ThisValue)</formula>
+                              </code>
+                            </field>
+                          </run>
+                        </par>
+                      </tablecell>
+                      <tablecell valign="center" borderwidth="0px" bgcolor="#f7f7f7">
+                        <pardef id="23" align="center" keepwithnext="true" keeptogether="true"/>
+                        <par def="23">
+                          <run>
+                            <font size="8pt" style="bold" name="Arial" pitch="variable" truetype="true" familyid="20"/>
+                            <field type="text" kind="computed" name="SupplierCountryUsed">
+                              <code event="defaultvalue">
+                                <formula>@If(SupplierCountry_or!="";SupplierCountry_or;ActualSupplierCountry!="";ActualSupplierCountry;SupplierCountry)</formula>
+                              </code>
+                            </field>
+                          </run>
+                          <compositedata type="98" prevtype="65418" nexttype="222" afterparcount="7" containertype="65418" aftercontainercount="1" afterbegincount="3">
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata>
+                        </par>
+                      </tablecell>
+                    </tablerow>
+                    <tablerow>
+                      <tablecell valign="center" borderwidth="0px" bgcolor="#f7f7f7">
+                        <pardef id="24" hide="edit previewedit" keepwithnext="true" keeptogether="true"/>
+                        <par def="24">
+                          <run><font size="8pt" name="Arial" pitch="variable" truetype="true" familyid="20"/>Interim Delivery</run>
+                        </par>
+                      </tablecell>
+                      <tablecell valign="center" borderwidth="1px 0px">
+                        <pardef id="25" hide="edit previewedit" keepwithnext="true" keeptogether="true">
+                          <code event="hidewhen">
+                            <formula>InterimDelivery != "1"</formula>
+                          </code>
+                        </pardef>
+                        <par def="25">
+                          <run><font size="8pt" name="Arial" pitch="variable" truetype="true" familyid="20"/>Yes</run>
+                        </par>
+                        <pardef id="26" hide="edit previewedit" keepwithnext="true" keeptogether="true">
+                          <code event="hidewhen">
+                            <formula>InterimDelivery = "1"</formula>
+                          </code>
+                        </pardef>
+                        <par def="26">
+                          <run><font size="8pt" name="Arial" pitch="variable" truetype="true" familyid="20"/>No</run>
+                        </par>
+                        <pardef id="27" hide="read print preview" keepwithnext="true" keeptogether="true"/>
+                        <par def="27">
+                          <run>
+                            <font size="8pt" name="Arial" pitch="variable" truetype="true" familyid="20"/>
+                            <field borderstyle="none" lookupeachchar="false" lookupaddressonrefresh="false" type="keyword" allowmultivalues="true" kind="editable" name="InterimDelivery" listinputseparators="comma" listdisplayseparator="comma">
+                              <keywords helperbutton="false" recalconchange="true" columns="1" ui="checkbox">
+                                <textlist>
+                                  <text>Interim Delivery|1</text>
+                                </textlist>
+                              </keywords>
+                              <code event="onchange">
+                                <lotusscript>Sub Onchange(Source As Field)
+	
+	Dim ws 		As New NotesUIWorkspace
+	Dim s		As New NotesSession
+	Dim db		As NotesDatabase 
+	Dim uidoc		As NotesUIDocument 
+	Dim doc		As NotesDocument 
+	Dim flag		As Boolean
+	Dim strCountry	As String 
+	
+	Set uidoc		= ws.CurrentDocument
+	
+	strCountry = uidoc.FieldGetText("InterimCountryUsed")
+	
+	If strCountry &lt;&gt; "" Then Exit Sub
+	
+	Set db	 = s.CurrentDatabase
+	Set tmpdoc = db.CreateDocument 
+	
+	flag = ws.DialogBox("SelectCountry",True,True,,,,,"Choose Interim Country",tmpdoc,True,,)
+	
+	If Not flag Then Exit Sub
+	
+	Call uidoc.FieldSetText("InterimCountry_or",Cstr(tmpdoc.chsCountry(0)))	
+	
+End Sub</lotusscript>
+                              </code>
+                            </field>
+                          </run>
+                        </par>
+                      </tablecell>
+                      <tablecell valign="center" borderwidth="1px 0px">
+                        <par def="18">
+                          <run>
+                            <font size="8pt" name="Arial" pitch="variable" truetype="true" familyid="20"/>
+                            <field type="text" kind="computedfordisplay" name="OrderInterimCountryDisp">
+                              <code event="defaultvalue">
+                                <formula>@If(InterimDelivery="1";DeliveryCountry;"")</formula>
+                              </code>
+                            </field>
+                          </run>
+                          <compositedata type="98" prevtype="65418" nexttype="222" afterparcount="6" containertype="65418" aftercontainercount="1" afterbegincount="3">
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata>
+                        </par>
+                      </tablecell>
+                      <tablecell valign="center" borderwidth="1px 0px">
+                        <pardef id="28" keepwithnext="true" keeptogether="true">
+                          <code event="hidewhen">
+                            <formula>InterimDelivery != "1"</formula>
+                          </code>
+                        </pardef>
+                        <par def="28">
+                          <run>
+                            <font size="8pt" name="Arial" pitch="variable" truetype="true" familyid="20"/>
+                            <field type="keyword" kind="editable" name="InterimCountry_or">
+                              <keywords ui="dialoglist">
+                                <formula>server := @Subset( @DbName ; 1 );
+database :=@Subset( @DbName ; -1 );
+view := "ParametersLookup";
+col:=2;
+key:="Countries";
+tmp:= @DbLookup( "": "NoCache" ; server : database ; view ; key; col);
+@Unique(tmp)</formula>
+                              </keywords>
+                              <code event="inputtranslation">
+                                <formula>@UpperCase(@ThisValue)</formula>
+                              </code>
+                              <code event="inputvalidation">
+                                <formula>@If(InterimDelivery="1"&amp;InterimCountryUsed="";@Failure("Please enter an interim Country");@Success)</formula>
+                              </code>
+                            </field>
+                          </run>
+                        </par>
+                      </tablecell>
+                      <tablecell valign="center" borderwidth="0px" bgcolor="#f7f7f7">
+                        <pardef id="29" align="center" keepwithnext="true" keeptogether="true">
+                          <code event="hidewhen">
+                            <formula>InterimDelivery!="1"</formula>
+                          </code>
+                        </pardef>
+                        <par def="29">
+                          <run>
+                            <font size="8pt" style="bold" name="Arial" pitch="variable" truetype="true" familyid="20"/>
+                            <field type="text" kind="computed" name="InterimCountryUsed">
+                              <code event="defaultvalue">
+                                <formula>@If(InterimCountry_or!="";InterimCountry_or;DeliveryCountry!="";DeliveryCountry;"")</formula>
+                              </code>
+                            </field>
+                          </run>
+                          <compositedata type="98" prevtype="65418" nexttype="222" afterparcount="8" containertype="65418" aftercontainercount="1" afterbegincount="3">
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata>
+                        </par>
+                      </tablecell>
+                    </tablerow>
+                    <tablerow>
+                      <tablecell valign="center" borderwidth="0px" bgcolor="#f7f7f7">
+                        <par def="16">
+                          <run><font size="8pt" name="Arial" pitch="variable" truetype="true" familyid="20" color="#4f4f4f"/>Delivery Country</run>
+                        </par>
+                      </tablecell>
+                      <tablecell valign="center" borderwidth="1px 0px">
+                        <par def="17">
+                          <run>
+                            <font size="8pt" name="Arial" pitch="variable" truetype="true" familyid="20"/>
+                            <field type="text" kind="computedfordisplay" name="WorkshopCountryDisp">
+                              <code event="defaultvalue">
+                                <formula>WorkshopCountry</formula>
+                              </code>
+                            </field>
+                          </run>
+                          <compositedata type="98" prevtype="65418" nexttype="222" afterparcount="6" containertype="65418" aftercontainercount="1" afterbegincount="3">
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata>
+                          <run>
+                            <font size="7pt" name="Arial" pitch="variable" truetype="true" familyid="20"/>
+                            <field type="text" kind="computedfordisplay" name="WorkshopDisp">
+                              <code event="defaultvalue">
+                                <formula>@If(MadeIn="";"";"("+MadeIn+")")</formula>
+                              </code>
+                            </field>
+                          </run>
+                          <compositedata type="98" prevtype="65418" nexttype="222" afterparcount="12" containertype="65418" aftercontainercount="1" afterbegincount="3">
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata>
+                        </par>
+                      </tablecell>
+                      <tablecell valign="center" borderwidth="1px 0px">
+                        <par def="18">
+                          <run>
+                            <font size="8pt" name="Arial" pitch="variable" truetype="true" familyid="20"/>
+                            <field type="text" kind="computedfordisplay" name="DeliveryCountryDisp">
+                              <code event="defaultvalue">
+                                <formula>@If(InterimDelivery="1";"";DeliveryCountry)</formula>
+                              </code>
+                            </field>
+                          </run>
+                          <compositedata type="98" prevtype="65418" nexttype="222" afterparcount="6" containertype="65418" aftercontainercount="1" afterbegincount="3">
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata>
+                        </par>
+                      </tablecell>
+                      <tablecell valign="center" borderwidth="1px 0px">
+                        <par def="19">
+                          <run>
+                            <font size="8pt" name="Arial" pitch="variable" truetype="true" familyid="20"/>
+                            <field type="keyword" kind="editable" name="DeliveryCountry_or">
+                              <keywords ui="dialoglist">
+                                <formula>server := @Subset( @DbName ; 1 );
+database :=@Subset( @DbName ; -1 );
+view := "ParametersLookup";
+col:=2;
+key:="Countries";
+tmp:= @DbLookup( "": "NoCache" ; server : database ; view ; key; col);
+@Unique(tmp)</formula>
+                              </keywords>
+                              <code event="inputtranslation">
+                                <formula>@UpperCase(@ThisValue)</formula>
+                              </code>
+                            </field>
+                          </run>
+                        </par>
+                      </tablecell>
+                      <tablecell valign="center" borderwidth="0px" bgcolor="#f7f7f7">
+                        <par def="23">
+                          <run>
+                            <font size="8pt" style="bold" name="Arial" pitch="variable" truetype="true" familyid="20"/>
+                            <field type="text" kind="computed" name="DeliveryCountryUsed">
+                              <code event="defaultvalue">
+                                <formula>@If(DeliveryCountry_or!="";DeliveryCountry_or;DeliveryCountry!=""&amp;InterimDelivery!="1";DeliveryCountry;WorkshopCountry)</formula>
+                              </code>
+                            </field>
+                          </run>
+                          <compositedata type="98" prevtype="65418" nexttype="222" afterparcount="6" containertype="65418" aftercontainercount="1" afterbegincount="3">
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata>
+                        </par>
+                      </tablecell>
+                    </tablerow>
+                  </table>
+                  <par def="5"/>
+                  <table widthtype="fitmargins" minrowheight="0.1965in" cellbordercolor="#efefef" leftmargin="0.0104in" columnspacing="0.0785in" refwidth="11.6819in">
+                    <tablecolumn width="2.0521in" sizetofit="true"/>
+                    <tablecolumn width="1.6771in" sizetofit="true"/>
+                    <tablecolumn width="1.6146in" sizetofit="true"/>
+                    <tablecolumn width="1.4479in" sizetofit="true"/>
+                    <tablecolumn width="1.8542in" sizetofit="true"/>
+                    <tablecolumn width="1.8125in" sizetofit="true"/>
+                    <tablecolumn width="100%"/>
+                    <tablerow>
+                      <tablecell valign="center" borderwidth="0px" bgcolor="#efefef">
+                        <pardef id="30" align="center" keepwithnext="true" keeptogether="true"/>
+                        <par def="30">
+                          <run><font size="8pt" style="bold" name="Arial" pitch="variable" truetype="true" familyid="20" color="navy"/>Transport Estimate</run>
+                        </par>
+                      </tablecell>
+                      <tablecell valign="center" borderwidth="0px" bgcolor="#efefef">
+                        <pardef id="31" align="center" keepwithnext="true" keeptogether="true"/>
+                        <par def="31">
+                          <run><font size="8pt" style="bold" name="Arial" pitch="variable" truetype="true" familyid="20" color="#5f5f5f"/>Default</run>
+                        </par>
+                      </tablecell>
+                      <tablecell valign="center" borderwidth="0px" bgcolor="#efefef">
+                        <pardef id="32" align="center" keepwithnext="true" keeptogether="true"/>
+                        <par def="32">
+                          <run><font size="8pt" style="bold" name="Arial" pitch="variable" truetype="true" familyid="20" color="#5f5f5f"/>Override</run>
+                        </par>
+                      </tablecell>
+                      <tablecell valign="center" borderwidth="0px" bgcolor="#efefef">
+                        <pardef id="33" keepwithnext="true" keeptogether="true"/>
+                        <par def="33">
+                          <run><font size="8pt" style="bold" name="Arial" pitch="variable" truetype="true" familyid="20" color="#5f5f5f"/>Value Used</run>
+                        </par>
+                      </tablecell>
+                      <tablecell valign="center" borderwidth="0px" bgcolor="#efefef">
+                        <pardef id="34" keepwithnext="true" keeptogether="true"/>
+                        <par def="34">
+                          <run><font size="8pt" style="bold" name="Arial" pitch="variable" truetype="true" familyid="20" color="#5f5f5f"/>Calculated Date</run>
+                        </par>
+                      </tablecell>
+                      <tablecell valign="center" borderwidth="0px" bgcolor="#efefef">
+                        <pardef id="35" hide="read print preview" keepwithnext="true" keeptogether="true"/>
+                        <par def="35">
+                          <run>
+                            <font size="8pt" style="bold" name="Arial" pitch="variable" truetype="true" familyid="20" color="navy"/>
+                          </run>
+                        </par>
+                      </tablecell>
+                      <tablecell valign="center" borderwidth="0px" bgcolor="#efefef">
+                        <pardef id="36" align="center" hide="read print preview" keepwithnext="true" keeptogether="true"/>
+                        <par def="36">
+                          <run><font size="8pt" style="bold" name="Arial" pitch="variable" truetype="true" familyid="20" color="#5f5f5f"/>Actuals From Expediting</run>
+                        </par>
+                      </tablecell>
+                    </tablerow>
+                    <tablerow>
+                      <tablecell valign="center" borderwidth="0px" bgcolor="#f7f7f7">
+                        <pardef id="37" align="center" hide="read print preview" keepwithnext="true" keeptogether="true"/>
+                        <par def="37"/>
+                      </tablecell>
+                      <tablecell valign="center" borderwidth="0px 0px 1px">
+                        <par def="31">
+                          <run><font size="8pt" name="Arial" pitch="variable" truetype="true" familyid="20"/>days</run>
+                        </par>
+                      </tablecell>
+                      <tablecell valign="center" borderwidth="0px 0px 1px">
+                        <par def="32">
+                          <run><font size="8pt" name="Arial" pitch="variable" truetype="true" familyid="20"/>days</run>
+                        </par>
+                      </tablecell>
+                      <tablecell valign="center" borderwidth="0px 0px 1px">
+                        <pardef id="38" align="center" keepwithnext="true" keeptogether="true"/>
+                        <par def="38">
+                          <run><font size="8pt" name="Arial" pitch="variable" truetype="true" familyid="20"/>days</run>
+                        </par>
+                      </tablecell>
+                      <tablecell valign="center" borderwidth="0px 0px 1px">
+                        <par def="34">
+                          <run>
+                            <font size="8pt" style="bold" name="Arial" pitch="variable" truetype="true" familyid="20"/>
+                            <field type="datetime" kind="computedfordisplay" name="OrderBefore_disp">
+                              <datetimeformat show="date" date="weekdaymonthdayyear" fourdigityearfor21stcentury="true" zone="never" dateformat="weekdaydaymonthyear" dayformat="twodigitday" monthformat="shortname" yearformat="fourdigityear" weekdayformat="shortname" dateseparator1=" " dateseparator2="-" dateseparator3="-" timeseparator=":" preference="custom"/>
+                              <code event="defaultvalue">
+                                <formula>OrderBefore</formula>
+                              </code>
+                            </field>
+                          </run>
+                        </par>
+                      </tablecell>
+                      <tablecell valign="center" borderwidth="0px 0px 1px">
+                        <pardef id="39" keepwithnext="true" keeptogether="true"/>
+                        <par def="39">
+                          <run><font size="8pt" name="Arial" pitch="variable" truetype="true" familyid="20"/>Order Before this Date</run>
+                        </par>
+                      </tablecell>
+                      <tablecell valign="center" borderwidth="0px 0px 1px">
+                        <pardef id="40" align="center" keepwithnext="true" keeptogether="true"/>
+                        <par def="40">
+                          <run>
+                            <font size="8pt" name="Arial" pitch="variable" truetype="true" familyid="20"/>
+                            <field type="datetime" kind="computed" name="DateOrdered_1">
+                              <datetimeformat show="date" date="yearmonthday" fourdigityearfor21stcentury="true" zone="never" dateformat="weekdaydaymonthyear" dayformat="twodigitday" monthformat="shortname" yearformat="fourdigityear" weekdayformat="shortname" dateseparator1=" " dateseparator2="-" dateseparator3="-" timeseparator=":" preference="custom"/>
+                              <code event="defaultvalue">
+                                <formula>orderDate</formula>
+                              </code>
+                            </field>
+                          </run>
+                        </par>
+                      </tablecell>
+                    </tablerow>
+                    <tablerow>
+                      <tablecell valign="center" borderwidth="0px" bgcolor="#f7f7f7">
+                        <pardef id="41" keepwithnext="true" keeptogether="true"/>
+                        <par def="41">
+                          <run><font size="8pt" name="Arial" pitch="variable" truetype="true" familyid="20"/>Order Preparation Time</run>
+                        </par>
+                      </tablecell>
+                      <tablecell valign="center" borderwidth="1px 0px">
+                        <par def="31">
+                          <run>
+                            <font size="8pt" name="Arial" pitch="variable" truetype="true" familyid="20"/>
+                          </run>
+                          <run>
+                            <font size="8pt" name="Arial" pitch="variable" truetype="true" familyid="20"/>
+                            <field type="number" kind="computed" name="LeadTime_def">
+                              <numberformat format="fixed" punctuated="false" parens="false" percent="false" bytes="false"/>
+                              <code event="defaultvalue">
+                                <formula>@If(@Text(LeadTime_def)="";0;LeadTime_def)</formula>
+                              </code>
+                            </field>
+                          </run>
+                          <run>
+                            <font size="8pt" name="Arial" pitch="variable" truetype="true" familyid="20"/>
+                          </run>
+                        </par>
+                      </tablecell>
+                      <tablecell valign="center" borderwidth="1px 0px">
+                        <par def="32">
+                          <run>
+                            <font size="8pt" name="Arial" pitch="variable" truetype="true" familyid="20"/>
+                            <field type="number" kind="editable" name="LeadTime_or">
+                              <numberformat format="general" punctuated="false" parens="false" percent="false" bytes="false"/>
+                              <code event="onchange">
+                                <lotusscript>Sub Onchange(Source As Field)
+	
+	Dim ws As New NotesUIWorkspace 
+	Call ws.CurrentDocument.Refresh
+	Call ws.CurrentDocument.Refresh	
+	
+End Sub</lotusscript>
+                              </code>
+                            </field>
+                          </run>
+                        </par>
+                      </tablecell>
+                      <tablecell borderwidth="1px 0px">
+                        <par def="38">
+                          <run>
+                            <font size="8pt" name="Arial" pitch="variable" truetype="true" familyid="20"/>
+                            <field type="number" kind="computed" name="LeadTime">
+                              <numberformat format="fixed" punctuated="false" parens="false" percent="false" bytes="false"/>
+                              <code event="defaultvalue">
+                                <formula>@If(@Text(LeadTime_or)!="";LeadTime_or;LeadTime_Def)</formula>
+                              </code>
+                            </field>
+                          </run>
+                        </par>
+                      </tablecell>
+                      <tablecell valign="center" borderwidth="1px 0px">
+                        <pardef id="42" keepwithnext="true" keeptogether="true">
+                          <code event="hidewhen">
+                            <formula>DateRequired = ""</formula>
+                          </code>
+                        </pardef>
+                        <par def="42">
+                          <run>
+                            <font size="8pt" name="Arial" pitch="variable" truetype="true" familyid="20"/>
+                            <field type="datetime" kind="computedfordisplay" name="ProjectedOrderReady_disp">
+                              <datetimeformat show="date" date="weekdaymonthdayyear" fourdigityearfor21stcentury="true" zone="never" dateformat="weekdaydaymonthyear" dayformat="twodigitday" monthformat="shortname" yearformat="fourdigityear" weekdayformat="shortname" dateseparator1=" " dateseparator2="-" dateseparator3="-" timeseparator=":" preference="custom"/>
+                              <code event="defaultvalue">
+                                <formula>@If(@IsError(ProjectedOrderReady);"";ProjectedOrderReady)</formula>
+                              </code>
+                            </field>
+                          </run>
+                        </par>
+                      </tablecell>
+                      <tablecell valign="center" borderwidth="1px 0px">
+                        <par def="39">
+                          <run><font size="8pt" name="Arial" pitch="variable" truetype="true" familyid="20"/>Order Ready to Ship</run>
+                        </par>
+                      </tablecell>
+                      <tablecell valign="center" borderwidth="1px 0px">
+                        <par def="40">
+                          <run>
+                            <font size="8pt" name="Arial" pitch="variable" truetype="true" familyid="20"/>
+                          </run>
+                        </par>
+                      </tablecell>
+                    </tablerow>
+                    <tablerow>
+                      <tablecell valign="center" borderwidth="0px" bgcolor="#f7f7f7">
+                        <par def="41">
+                          <run><font size="8pt" name="Arial" pitch="variable" truetype="true" familyid="20"/>Transit to Port</run>
+                        </par>
+                      </tablecell>
+                      <tablecell valign="center" borderwidth="1px 0px">
+                        <pardef id="43" align="center" keepwithnext="true" keeptogether="true">
+                          <code event="hidewhen">
+                            <formula>@Text(DateRequired) = ""</formula>
+                          </code>
+                        </pardef>
+                        <par def="43">
+                          <run>
+                            <font size="8pt" name="Arial" pitch="variable" truetype="true" familyid="20"/>
+                          </run>
+                          <run>
+                            <font size="8pt" name="Arial" pitch="variable" truetype="true" familyid="20"/>
+                            <field type="number" kind="computed" name="TransToPort_def">
+                              <numberformat format="fixed" punctuated="false" parens="false" percent="false" bytes="false"/>
+                              <code event="defaultvalue">
+                                <formula>TransToPort_def</formula>
+                              </code>
+                            </field>
+                          </run>
+                          <run>
+                            <font size="8pt" name="Arial" pitch="variable" truetype="true" familyid="20"/>
+                          </run>
+                        </par>
+                      </tablecell>
+                      <tablecell valign="center" borderwidth="1px 0px">
+                        <par def="32">
+                          <run>
+                            <font size="8pt" name="Arial" pitch="variable" truetype="true" familyid="20"/>
+                            <field type="number" kind="editable" name="TransToPort_or">
+                              <numberformat format="general" punctuated="false" parens="false" percent="false" bytes="false"/>
+                              <code event="onchange">
+                                <lotusscript>Sub Onchange(Source As Field)
+	Dim ws As New NotesUIWorkspace 
+	Call ws.CurrentDocument.Refresh
+	Call ws.CurrentDocument.Refresh	
+End Sub</lotusscript>
+                              </code>
+                            </field>
+                          </run>
+                        </par>
+                      </tablecell>
+                      <tablecell borderwidth="1px 0px">
+                        <pardef id="44" align="center" keepwithnext="true" keeptogether="true">
+                          <code event="hidewhen">
+                            <formula>@Text(DateRequired) = ""</formula>
+                          </code>
+                        </pardef>
+                        <par def="44">
+                          <run>
+                            <font size="8pt" name="Arial" pitch="variable" truetype="true" familyid="20"/>
+                            <field type="number" kind="computed" name="TransToPort">
+                              <numberformat format="fixed" punctuated="false" parens="false" percent="false" bytes="false"/>
+                              <code event="defaultvalue">
+                                <formula>@If(@Text(TransToPort_or)!="";TransToPort_or;TransToPort_def)</formula>
+                              </code>
+                            </field>
+                          </run>
+                        </par>
+                      </tablecell>
+                      <tablecell valign="center" borderwidth="1px 0px">
+                        <par def="42">
+                          <run>
+                            <font size="8pt" name="Arial" pitch="variable" truetype="true" familyid="20"/>
+                            <field type="datetime" kind="computedfordisplay" name="ProjectedETD_disp">
+                              <datetimeformat show="date" date="weekdaymonthdayyear" fourdigityearfor21stcentury="true" zone="never" dateformat="weekdaydaymonthyear" dayformat="twodigitday" monthformat="shortname" yearformat="fourdigityear" weekdayformat="shortname" dateseparator1=" " dateseparator2="-" dateseparator3="-" timeseparator=":" preference="custom"/>
+                              <code event="defaultvalue">
+                                <formula>ProjectedETD</formula>
+                              </code>
+                            </field>
+                          </run>
+                        </par>
+                      </tablecell>
+                      <tablecell valign="center" borderwidth="1px 0px">
+                        <par def="39">
+                          <run><font size="8pt" name="Arial" pitch="variable" truetype="true" familyid="20"/>ETD Port of Export</run>
+                        </par>
+                      </tablecell>
+                      <tablecell valign="center" borderwidth="1px 0px">
+                        <pardef id="45" align="center" keepwithnext="true" keeptogether="true">
+                          <code event="hidewhen">
+                            <formula>ETADelivery = ""</formula>
+                          </code>
+                        </pardef>
+                        <par def="45">
+                          <run>
+                            <font size="8pt" name="Arial" pitch="variable" truetype="true" familyid="20"/>
+                            <field type="datetime" kind="computed" name="ETDDelivery">
+                              <datetimeformat show="date" date="yearmonthday" fourdigityearfor21stcentury="true" zone="never" dateformat="weekdaydaymonthyear" dayformat="twodigitday" monthformat="shortname" yearformat="fourdigityear" weekdayformat="shortname" dateseparator1=" " dateseparator2="-" dateseparator3="-" timeseparator=":" preference="custom"/>
+                              <code event="defaultvalue">
+                                <formula>ETDDelivery</formula>
+                              </code>
+                            </field>
+                          </run>
+                        </par>
+                      </tablecell>
+                    </tablerow>
+                    <tablerow>
+                      <tablecell valign="center" borderwidth="0px" bgcolor="#f7f7f7">
+                        <par def="41">
+                          <run><font size="8pt" name="Arial" pitch="variable" truetype="true" familyid="20"/>Transit time</run>
+                        </par>
+                      </tablecell>
+                      <tablecell valign="center" borderwidth="1px 0px">
+                        <par def="43">
+                          <run>
+                            <font size="8pt" name="Arial" pitch="variable" truetype="true" familyid="20"/>
+                          </run>
+                          <run>
+                            <font size="8pt" name="Arial" pitch="variable" truetype="true" familyid="20"/>
+                            <field type="number" kind="computed" name="TransDuration_def">
+                              <numberformat format="fixed" punctuated="false" parens="false" percent="false" bytes="false"/>
+                              <code event="defaultvalue">
+                                <formula>TransDuration_def</formula>
+                              </code>
+                            </field>
+                          </run>
+                          <run>
+                            <font size="8pt" name="Arial" pitch="variable" truetype="true" familyid="20"/>
+                          </run>
+                        </par>
+                      </tablecell>
+                      <tablecell valign="center" borderwidth="1px 0px">
+                        <par def="32">
+                          <run>
+                            <font size="8pt" name="Arial" pitch="variable" truetype="true" familyid="20"/>
+                            <field type="number" kind="editable" name="TransDuration_or">
+                              <numberformat format="general" punctuated="false" parens="false" percent="false" bytes="false"/>
+                              <code event="onchange">
+                                <lotusscript>Sub Onchange(Source As Field)
+	Dim ws As New NotesUIWorkspace 
+	Call ws.CurrentDocument.Refresh
+	Call ws.CurrentDocument.Refresh	
+End Sub</lotusscript>
+                              </code>
+                            </field>
+                          </run>
+                        </par>
+                      </tablecell>
+                      <tablecell borderwidth="1px 0px">
+                        <par def="44">
+                          <run>
+                            <font size="8pt" name="Arial" pitch="variable" truetype="true" familyid="20"/>
+                            <field type="number" kind="computed" name="TransDuration">
+                              <numberformat format="fixed" punctuated="false" parens="false" percent="false" bytes="false"/>
+                              <code event="defaultvalue">
+                                <formula>@If(@Text(TransDuration_or)!="";TransDuration_or;TransDuration_def)</formula>
+                              </code>
+                            </field>
+                          </run>
+                        </par>
+                      </tablecell>
+                      <tablecell valign="center" borderwidth="1px 0px">
+                        <par def="42">
+                          <run>
+                            <font size="8pt" name="Arial" pitch="variable" truetype="true" familyid="20"/>
+                            <field type="datetime" kind="computedfordisplay" name="ProjectedETA_disp">
+                              <datetimeformat show="date" date="weekdaymonthdayyear" fourdigityearfor21stcentury="true" zone="never" dateformat="weekdaydaymonthyear" dayformat="twodigitday" monthformat="shortname" yearformat="fourdigityear" weekdayformat="shortname" dateseparator1=" " dateseparator2="-" dateseparator3="-" timeseparator=":" preference="custom"/>
+                              <code event="defaultvalue">
+                                <formula>ProjectedETA</formula>
+                              </code>
+                            </field>
+                          </run>
+                        </par>
+                      </tablecell>
+                      <tablecell valign="center" borderwidth="1px 0px">
+                        <par def="39">
+                          <run><font size="8pt" name="Arial" pitch="variable" truetype="true" familyid="20"/>ETA Port of Import</run>
+                        </par>
+                      </tablecell>
+                      <tablecell valign="center" borderwidth="1px 0px">
+                        <par def="45">
+                          <run>
+                            <font size="8pt" name="Arial" pitch="variable" truetype="true" familyid="20"/>
+                            <field type="datetime" kind="computed" name="ETADelivery">
+                              <datetimeformat show="date" date="yearmonthday" fourdigityearfor21stcentury="true" zone="never" dateformat="weekdaydaymonthyear" dayformat="twodigitday" monthformat="shortname" yearformat="fourdigityear" weekdayformat="shortname" dateseparator1=" " dateseparator2="-" dateseparator3="-" timeseparator=":" preference="custom"/>
+                              <code event="defaultvalue">
+                                <formula>ETADelivery</formula>
+                              </code>
+                            </field>
+                          </run>
+                        </par>
+                      </tablecell>
+                    </tablerow>
+                    <tablerow>
+                      <tablecell valign="center" borderwidth="0px" bgcolor="#f7f7f7">
+                        <par def="41">
+                          <run><font size="8pt" name="Arial" pitch="variable" truetype="true" familyid="20"/>Customs Clearance</run>
+                        </par>
+                      </tablecell>
+                      <tablecell valign="center" borderwidth="1px 0px">
+                        <par def="43">
+                          <run>
+                            <font size="8pt" name="Arial" pitch="variable" truetype="true" familyid="20"/>
+                          </run>
+                          <run>
+                            <font size="8pt" name="Arial" pitch="variable" truetype="true" familyid="20"/>
+                            <field type="number" kind="computed" name="CustomsClearance_def">
+                              <numberformat format="fixed" punctuated="false" parens="false" percent="false" bytes="false"/>
+                              <code event="defaultvalue">
+                                <formula>CustomsClearance_def</formula>
+                              </code>
+                            </field>
+                          </run>
+                          <run>
+                            <font size="8pt" name="Arial" pitch="variable" truetype="true" familyid="20"/>
+                          </run>
+                        </par>
+                      </tablecell>
+                      <tablecell valign="center" borderwidth="1px 0px">
+                        <par def="32">
+                          <run>
+                            <font size="8pt" name="Arial" pitch="variable" truetype="true" familyid="20"/>
+                            <field type="number" kind="editable" name="CustomsClearance_or">
+                              <numberformat format="general" punctuated="false" parens="false" percent="false" bytes="false"/>
+                              <code event="onchange">
+                                <lotusscript>Sub Onchange(Source As Field)
+	Dim ws As New NotesUIWorkspace 
+	Call ws.CurrentDocument.Refresh
+	Call ws.CurrentDocument.Refresh	
+End Sub</lotusscript>
+                              </code>
+                            </field>
+                          </run>
+                        </par>
+                      </tablecell>
+                      <tablecell borderwidth="1px 0px">
+                        <par def="44">
+                          <run>
+                            <font size="8pt" name="Arial" pitch="variable" truetype="true" familyid="20"/>
+                            <field type="number" kind="computed" name="CustomsClearance">
+                              <numberformat format="fixed" punctuated="false" parens="false" percent="false" bytes="false"/>
+                              <code event="defaultvalue">
+                                <formula>@If(@Text(CustomsClearance_or)!="";CustomsClearance_or;CustomsClearance_def)</formula>
+                              </code>
+                            </field>
+                          </run>
+                        </par>
+                      </tablecell>
+                      <tablecell valign="center" borderwidth="1px 0px">
+                        <par def="42">
+                          <run>
+                            <font size="8pt" name="Arial" pitch="variable" truetype="true" familyid="20"/>
+                            <field type="datetime" kind="computedfordisplay" name="ProjectedCC_disp">
+                              <datetimeformat show="date" date="weekdaymonthdayyear" fourdigityearfor21stcentury="true" zone="never" dateformat="weekdaydaymonthyear" dayformat="twodigitday" monthformat="shortname" yearformat="fourdigityear" weekdayformat="shortname" dateseparator1=" " dateseparator2="-" dateseparator3="-" timeseparator=":" preference="custom"/>
+                              <code event="defaultvalue">
+                                <formula>ProjectedCC</formula>
+                              </code>
+                            </field>
+                          </run>
+                        </par>
+                      </tablecell>
+                      <tablecell valign="center" borderwidth="1px 0px">
+                        <par def="39">
+                          <run><font size="8pt" name="Arial" pitch="variable" truetype="true" familyid="20"/>Customs Cleared Date</run>
+                        </par>
+                      </tablecell>
+                      <tablecell valign="center" borderwidth="1px 0px">
+                        <par def="40">
+                          <run>
+                            <font size="8pt" name="Arial" pitch="variable" truetype="true" familyid="20"/>
+                          </run>
+                        </par>
+                      </tablecell>
+                    </tablerow>
+                    <tablerow>
+                      <tablecell valign="center" borderwidth="0px" bgcolor="#f7f7f7">
+                        <par def="41">
+                          <run><font size="8pt" name="Arial" pitch="variable" truetype="true" familyid="20"/>Transport from Port</run>
+                        </par>
+                      </tablecell>
+                      <tablecell valign="center" borderwidth="1px 0px">
+                        <pardef id="46" align="center" keepwithnext="true" keeptogether="true">
+                          <code event="hidewhen">
+                            <formula>DateRequired = ""</formula>
+                          </code>
+                        </pardef>
+                        <par def="46">
+                          <run>
+                            <font size="8pt" name="Arial" pitch="variable" truetype="true" familyid="20"/>
+                          </run>
+                          <run>
+                            <font size="8pt" name="Arial" pitch="variable" truetype="true" familyid="20"/>
+                            <field type="number" kind="computed" name="PortToDest_def">
+                              <numberformat format="fixed" punctuated="false" parens="false" percent="false" bytes="false"/>
+                              <code event="defaultvalue">
+                                <formula>PortToDest_def</formula>
+                              </code>
+                            </field>
+                          </run>
+                          <run>
+                            <font size="8pt" name="Arial" pitch="variable" truetype="true" familyid="20"/>
+                          </run>
+                        </par>
+                      </tablecell>
+                      <tablecell valign="center" borderwidth="1px 0px">
+                        <par def="32">
+                          <run>
+                            <font size="8pt" name="Arial" pitch="variable" truetype="true" familyid="20"/>
+                            <field type="number" kind="editable" name="PortToDest_or">
+                              <numberformat format="general" punctuated="false" parens="false" percent="false" bytes="false"/>
+                              <code event="onchange">
+                                <lotusscript>Sub Onchange(Source As Field)
+	Dim ws As New NotesUIWorkspace 
+	Call ws.CurrentDocument.Refresh
+	Call ws.CurrentDocument.Refresh
+End Sub</lotusscript>
+                              </code>
+                            </field>
+                          </run>
+                        </par>
+                      </tablecell>
+                      <tablecell borderwidth="1px 0px">
+                        <pardef id="47" align="center" keepwithnext="true" keeptogether="true">
+                          <code event="hidewhen">
+                            <formula>DateRequired = ""</formula>
+                          </code>
+                        </pardef>
+                        <par def="47">
+                          <run>
+                            <font size="8pt" name="Arial" pitch="variable" truetype="true" familyid="20"/>
+                            <field type="number" kind="computed" name="PortToDest">
+                              <numberformat format="fixed" punctuated="false" parens="false" percent="false" bytes="false"/>
+                              <code event="defaultvalue">
+                                <formula>@If(@Text(PortToDest_or)!="";PortToDest_or;PortToDest_def)</formula>
+                              </code>
+                            </field>
+                          </run>
+                        </par>
+                      </tablecell>
+                      <tablecell valign="center" borderwidth="1px 0px">
+                        <par def="34">
+                          <run>
+                            <font size="8pt" name="Arial" pitch="variable" truetype="true" familyid="20"/>
+                          </run>
+                          <run>
+                            <font size="8pt" name="Arial" pitch="variable" truetype="true" familyid="20"/>
+                            <field type="datetime" kind="computed" name="DateRequired_disp">
+                              <datetimeformat show="date" date="weekdaymonthdayyear" fourdigityearfor21stcentury="true" zone="never" dateformat="weekdaydaymonthyear" dayformat="twodigitday" monthformat="shortname" yearformat="fourdigityear" weekdayformat="shortname" dateseparator1=" " dateseparator2="-" dateseparator3="-" timeseparator=":" preference="custom"/>
+                              <code event="defaultvalue">
+                                <formula>@If(InterimDelivery="1";ProjectedIntDel;DateRequiredUsed)</formula>
+                              </code>
+                            </field>
+                          </run>
+                          <run>
+                            <font size="8pt" name="Arial" pitch="variable" truetype="true" familyid="20"/>
+                          </run>
+                        </par>
+                      </tablecell>
+                      <tablecell valign="center" borderwidth="1px 0px">
+                        <par def="39">
+                          <run><font size="8pt" name="Arial" pitch="variable" truetype="true" familyid="20"/>Date Required </run>
+                          <run>
+                            <font size="8pt" name="Arial" pitch="variable" truetype="true" familyid="20"/>
+                            <computedtext>
+                              <code event="value">
+                                <formula>@If(InterimDelivery = "1";"at "+ InterimCountryUsed;DeliveryCountryUsed)</formula>
+                              </code>
+                            </computedtext>
+                          </run>
+                          <run>
+                            <font size="8pt" name="Arial" pitch="variable" truetype="true" familyid="20"/>
+                          </run>
+                        </par>
+                      </tablecell>
+                      <tablecell valign="center" borderwidth="1px 0px">
+                        <par def="40">
+                          <run>
+                            <font size="8pt" name="Arial" pitch="variable" truetype="true" familyid="20"/>
+                            <field type="datetime" kind="computed" name="ETAWorkshop">
+                              <datetimeformat show="date" date="yearmonthday" fourdigityearfor21stcentury="true" zone="never" dateformat="weekdaydaymonthyear" dayformat="twodigitday" monthformat="shortname" yearformat="fourdigityear" weekdayformat="shortname" dateseparator1=" " dateseparator2="-" dateseparator3="-" timeseparator=":" preference="custom"/>
+                              <code event="defaultvalue">
+                                <formula>REM {@If(ETADelivery!="";@Adjust(ETADelivery;0;0;CustomsClearance + PortToWorkshop;0;0;0);"")};
+""</formula>
+                              </code>
+                            </field>
+                          </run>
+                        </par>
+                      </tablecell>
+                    </tablerow>
+                    <tablerow>
+                      <tablecell valign="center" borderwidth="0px" bgcolor="#f7f7f7">
+                        <pardef id="48" keepwithnext="true" keeptogether="true">
+                          <code event="hidewhen">
+                            <formula>InterimDelivery != "1"</formula>
+                          </code>
+                        </pardef>
+                        <par def="48">
+                          <run>
+                            <font size="8pt" name="Arial" pitch="variable" truetype="true" familyid="20"/>
+                          </run>
+                          <run>
+                            <font size="8pt" name="Arial" pitch="variable" truetype="true" familyid="20"/>
+                            <computedtext>
+                              <code event="value">
+                                <formula>InterimCountryUsed</formula>
+                              </code>
+                            </computedtext>
+                          </run>
+                          <run><font size="8pt" name="Arial" pitch="variable" truetype="true" familyid="20"/> to </run>
+                          <run>
+                            <font size="8pt" name="Arial" pitch="variable" truetype="true" familyid="20"/>
+                            <computedtext>
+                              <code event="value">
+                                <formula>DeliveryCountryUsed</formula>
+                              </code>
+                            </computedtext>
+                          </run>
+                          <run>
+                            <font size="8pt" name="Arial" pitch="variable" truetype="true" familyid="20"/>
+                          </run>
+                        </par>
+                      </tablecell>
+                      <tablecell valign="center" borderwidth="1px 0px">
+                        <pardef id="49" align="center" keepwithnext="true" keeptogether="true">
+                          <code event="hidewhen">
+                            <formula>InterimDelivery != "1"</formula>
+                          </code>
+                        </pardef>
+                        <par def="49">
+                          <run>
+                            <font size="8pt" name="Arial" pitch="variable" truetype="true" familyid="20"/>
+                            <field type="number" kind="computed" name="ConsShipDuration_def">
+                              <numberformat format="fixed" punctuated="false" parens="false" percent="false" bytes="false"/>
+                              <code event="defaultvalue">
+                                <formula>ConsShipDuration_def</formula>
+                              </code>
+                            </field>
+                          </run>
+                        </par>
+                      </tablecell>
+                      <tablecell valign="center" borderwidth="1px 0px">
+                        <pardef id="50" align="center" keepwithnext="true" keeptogether="true">
+                          <code event="hidewhen">
+                            <formula>InterimDelivery != "1"</formula>
+                          </code>
+                        </pardef>
+                        <par def="50">
+                          <run>
+                            <font size="8pt" name="Arial" pitch="variable" truetype="true" familyid="20"/>
+                            <field type="number" kind="editable" name="ConsShipDuration_or">
+                              <numberformat format="general" punctuated="false" parens="false" percent="false" bytes="false"/>
+                              <code event="onchange">
+                                <lotusscript>Sub Onchange(Source As Field)
+	Dim ws As New NotesUIWorkspace 
+	Call ws.CurrentDocument.Refresh
+	Call ws.CurrentDocument.Refresh
+End Sub</lotusscript>
+                              </code>
+                            </field>
+                          </run>
+                        </par>
+                      </tablecell>
+                      <tablecell valign="center" borderwidth="1px 0px">
+                        <pardef id="51" align="center" keepwithnext="true" keeptogether="true">
+                          <code event="hidewhen">
+                            <formula>InterimDelivery != "1"</formula>
+                          </code>
+                        </pardef>
+                        <par def="51">
+                          <run>
+                            <font size="8pt" name="Arial" pitch="variable" truetype="true" familyid="20"/>
+                            <field type="number" kind="computed" name="ConsShipDuration">
+                              <numberformat format="fixed" punctuated="false" parens="false" percent="false" bytes="false"/>
+                              <code event="defaultvalue">
+                                <formula>@If(@Text(ConsShipDuration_or)!="";ConsShipDuration_or;ConsShipDuration_def)</formula>
+                              </code>
+                            </field>
+                          </run>
+                        </par>
+                      </tablecell>
+                      <tablecell valign="center" borderwidth="1px 0px">
+                        <pardef id="52" keepwithnext="true" keeptogether="true">
+                          <code event="hidewhen">
+                            <formula>InterimDelivery != "1"</formula>
+                          </code>
+                        </pardef>
+                        <par def="52">
+                          <run>
+                            <font size="8pt" name="Arial" pitch="variable" truetype="true" familyid="20"/>
+                            <field type="datetime" kind="computed" name="DateRequired_disp_1">
+                              <datetimeformat show="date" date="weekdaymonthdayyear" fourdigityearfor21stcentury="true" zone="never" dateformat="weekdaydaymonthyear" dayformat="twodigitday" monthformat="shortname" yearformat="fourdigityear" weekdayformat="shortname" dateseparator1=" " dateseparator2="-" dateseparator3="-" timeseparator=":" preference="custom"/>
+                              <code event="defaultvalue">
+                                <formula>DateRequiredUsed</formula>
+                              </code>
+                            </field>
+                          </run>
+                        </par>
+                      </tablecell>
+                      <tablecell valign="center" borderwidth="1px 0px">
+                        <pardef id="53" keepwithnext="true" keeptogether="true">
+                          <code event="hidewhen">
+                            <formula>InterimDelivery != "1"</formula>
+                          </code>
+                        </pardef>
+                        <par def="53">
+                          <run><font size="8pt" name="Arial" pitch="variable" truetype="true" familyid="20"/>Date Required at </run>
+                          <run>
+                            <font size="8pt" name="Arial" pitch="variable" truetype="true" familyid="20"/>
+                            <computedtext>
+                              <code event="value">
+                                <formula>DeliveryCountryUsed</formula>
+                              </code>
+                            </computedtext>
+                          </run>
+                          <run>
+                            <font size="8pt" name="Arial" pitch="variable" truetype="true" familyid="20"/>
+                          </run>
+                        </par>
+                      </tablecell>
+                      <tablecell valign="center" borderwidth="1px 0px">
+                        <pardef id="54" align="center" keepwithnext="true" keeptogether="true">
+                          <code event="hidewhen">
+                            <formula>InterimDelivery != "1"</formula>
+                          </code>
+                        </pardef>
+                        <par def="54"/>
+                      </tablecell>
+                    </tablerow>
+                  </table>
+                  <par def="5"/>
+                  <table widthtype="fitmargins" minrowheight="0.1965in" leftmargin="0.0104in" columnspacing="0.0785in" refwidth="11.6563in">
+                    <tablecolumn width="17.3507%"/>
+                    <tablecolumn width="82.6493%"/>
+                    <tablerow>
+                      <tablecell valign="center" borderwidth="0px" bgcolor="#efefef">
+                        <pardef id="55" keepwithnext="true" keeptogether="true"/>
+                        <par def="55">
+                          <run><font size="8pt" style="bold" name="Arial" pitch="variable" truetype="true" familyid="20" color="navy"/>Order Details</run>
+                        </par>
+                      </tablecell>
+                      <tablecell valign="center" borderwidth="0px" bgcolor="#efefef">
+                        <pardef id="56" hide="read print preview" keepwithnext="true" keeptogether="true"/>
+                        <par def="56">
+                          <run>
+                            <font size="8pt" style="bold" name="Arial" pitch="variable" truetype="true" familyid="20"/>
+                          </run>
+                        </par>
+                      </tablecell>
+                    </tablerow>
+                  </table>
+                  <par def="5"/>
+                  <table widthtype="fitmargins" leftmargin="0.0104in" rowspacing="0.0396in" refwidth="11.6563in">
+                    <tablecolumn width="100%"/>
+                    <tablerow>
+                      <tablecell borderwidth="0px" bgcolor="#ffc0ce">
+                        <pardef id="57" align="center" keepwithnext="true" keeptogether="true">
+                          <code event="hidewhen">
+                            <formula>(@IsNumber(OILinkCount) &amp; OILinkCount &lt;2) | @Text(OILinkCount) = ""</formula>
+                          </code>
+                        </pardef>
+                        <par def="57">
+                          <run><font size="8pt" style="bold" name="Arial" pitch="variable" truetype="true" familyid="20" color="#4f4f4f"/>This Material has been linked to more than one order item.</run>
+                        </par>
+                        <par def="57">
+                          <run><font size="8pt" style="bold" name="Arial" pitch="variable" truetype="true" familyid="20" color="#4f4f4f"/>To Correct this please choose the remove link to order button.</run>
+                        </par>
+                      </tablecell>
+                    </tablerow>
+                  </table>
+                  <par def="5"/>
+                  <table widthtype="fitmargins" minrowheight="0.1965in" cellbordercolor="#efefef" leftmargin="0.0104in" columnspacing="0.0785in" refwidth="11.6563in">
+                    <tablecolumn width="1.8896in"/>
+                    <tablecolumn width="33.3646%"/>
+                    <tablecolumn width="33.3646%"/>
+                    <tablecolumn width="33.2708%"/>
+                    <tablerow>
+                      <tablecell valign="center" borderwidth="0px" bgcolor="#f7f7f7">
+                        <pardef id="58" leftmargin="0" keepwithnext="true" keeptogether="true"/>
+                        <par def="58">
+                          <run><font size="8pt" name="Arial" pitch="variable" truetype="true" familyid="20"/>Order No </run>
+                        </par>
+                      </tablecell>
+                      <tablecell valign="center" borderwidth="0px" bgcolor="white">
+                        <pardef id="59" leftmargin="0" keepwithnext="true" keeptogether="true"/>
+                        <par def="59">
+                          <run>
+                            <font size="8pt" color="navy" style="bold" name="Arial" pitch="variable" truetype="true" familyid="20"/>
+                            <field type="text" kind="computed" name="po_orderNumber">
+                              <code event="defaultvalue">
+                                <formula>po_orderNumber</formula>
+                              </code>
+                            </field>
+                          </run>
+                          <compositedata type="98" prevtype="65418" nexttype="222" afterparcount="7" containertype="65418" aftercontainercount="1" afterbegincount="3">
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata>
+                        </par>
+                      </tablecell>
+                      <tablecell valign="center" borderwidth="0px" bgcolor="#f7f7f7">
+                        <pardef id="60" leftmargin="0" keepwithnext="true" keeptogether="true"/>
+                        <par def="60">
+                          <run><font size="8pt" name="Arial" pitch="variable" truetype="true" familyid="20"/>Delivery Date</run>
+                        </par>
+                      </tablecell>
+                      <tablecell valign="center" borderwidth="0px" bgcolor="white">
+                        <pardef id="61" leftmargin="0" keepwithnext="true" keeptogether="true"/>
+                        <par def="61">
+                          <run>
+                            <font size="8pt" name="Arial" pitch="variable" truetype="true" familyid="20"/>
+                            <field type="datetime" kind="computed" name="po_DeliveryDate">
+                              <datetimeformat show="date" date="yearmonthday" fourdigityearfor21stcentury="true" zone="never" dateformat="weekdaydaymonthyear" dayformat="twodigitday" monthformat="shortname" yearformat="fourdigityear" weekdayformat="shortname" dateseparator1=" " dateseparator2="-" dateseparator3="-" timeseparator=":" preference="custom"/>
+                              <code event="defaultvalue">
+                                <formula>po_DeliveryDate</formula>
+                              </code>
+                            </field>
+                          </run>
+                        </par>
+                      </tablecell>
+                    </tablerow>
+                    <tablerow>
+                      <tablecell valign="center" borderwidth="0px" bgcolor="#f7f7f7">
+                        <pardef id="62" keepwithnext="true" keeptogether="true"/>
+                        <par def="62">
+                          <run><font size="8pt" name="Arial" pitch="variable" truetype="true" familyid="20"/>Supplier Name</run>
+                        </par>
+                      </tablecell>
+                      <tablecell valign="center" borderwidth="1px 0px 0px" bgcolor="white">
+                        <pardef id="63" keepwithnext="true" keeptogether="true"/>
+                        <par def="63">
+                          <run>
+                            <font size="8pt" name="Arial" pitch="variable" truetype="true" familyid="20"/>
+                            <field type="text" kind="computed" name="po_SupplierName">
+                              <code event="defaultvalue">
+                                <formula>po_SupplierName</formula>
+                              </code>
+                            </field>
+                          </run>
+                          <compositedata type="98" prevtype="65418" nexttype="222" afterparcount="7" containertype="65418" aftercontainercount="1" afterbegincount="3">
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata>
+                        </par>
+                      </tablecell>
+                      <tablecell valign="center" borderwidth="1px 0px 0px" bgcolor="#f7f7f7">
+                        <pardef id="64" keepwithnext="true" keeptogether="true"/>
+                        <par def="64">
+                          <run><font size="8pt" name="Arial" pitch="variable" truetype="true" familyid="20"/>Delivery Name</run>
+                        </par>
+                      </tablecell>
+                      <tablecell valign="center" borderwidth="1px 0px 0px" bgcolor="white">
+                        <pardef id="65" keepwithnext="true" keeptogether="true"/>
+                        <par def="65">
+                          <run>
+                            <font size="8pt" name="Arial" pitch="variable" truetype="true" familyid="20"/>
+                          </run>
+                          <run>
+                            <font size="8pt" name="Arial" pitch="variable" truetype="true" familyid="20"/>
+                            <field type="text" kind="computed" name="po_DeliveryName">
+                              <code event="defaultvalue">
+                                <formula>po_DeliveryName</formula>
+                              </code>
+                            </field>
+                          </run>
+                          <compositedata type="98" prevtype="65418" nexttype="222" afterparcount="7" containertype="65418" aftercontainercount="1" afterbegincount="3">
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata>
+                          <run>
+                            <font size="8pt" name="Arial" pitch="variable" truetype="true" familyid="20"/>
+                          </run>
+                        </par>
+                      </tablecell>
+                    </tablerow>
+                    <tablerow>
+                      <tablecell valign="center" borderwidth="0px" bgcolor="#f7f7f7">
+                        <par def="62">
+                          <run><font size="8pt" name="Arial" pitch="variable" truetype="true" familyid="20"/>Supplier Country</run>
+                        </par>
+                      </tablecell>
+                      <tablecell valign="center" borderwidth="1px 0px 0px" bgcolor="white">
+                        <par def="63">
+                          <run>
+                            <font size="8pt" name="Arial" pitch="variable" truetype="true" familyid="20"/>
+                            <field type="text" kind="computed" name="po_SupplierCountry">
+                              <code event="defaultvalue">
+                                <formula>po_SupplierCountry</formula>
+                              </code>
+                            </field>
+                          </run>
+                          <compositedata type="98" prevtype="65418" nexttype="222" afterparcount="6" containertype="65418" aftercontainercount="1" afterbegincount="3">
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata>
+                        </par>
+                      </tablecell>
+                      <tablecell valign="center" borderwidth="1px 0px 0px" bgcolor="#f7f7f7">
+                        <par def="64">
+                          <run><font size="8pt" name="Arial" pitch="variable" truetype="true" familyid="20"/>Delivery Country</run>
+                        </par>
+                      </tablecell>
+                      <tablecell valign="center" borderwidth="1px 0px 0px" bgcolor="white">
+                        <pardef id="66" keepwithnext="true" keeptogether="true"/>
+                        <par def="66">
+                          <run>
+                            <font size="8pt" name="Arial" pitch="variable" truetype="true" familyid="20"/>
+                            <field type="text" kind="computed" name="po_DeliveryCountry">
+                              <code event="defaultvalue">
+                                <formula>po_DeliveryCountry</formula>
+                              </code>
+                            </field>
+                          </run>
+                          <compositedata type="98" prevtype="65418" nexttype="222" afterparcount="7" containertype="65418" aftercontainercount="1" afterbegincount="3">
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata>
+                        </par>
+                      </tablecell>
+                    </tablerow>
+                    <tablerow>
+                      <tablecell valign="center" borderwidth="0px" bgcolor="#f7f7f7">
+                        <par def="62">
+                          <run><font size="8pt" name="Arial" pitch="variable" truetype="true" familyid="20"/>Order Status</run>
+                        </par>
+                      </tablecell>
+                      <tablecell valign="center" borderwidth="1px 0px 0px" bgcolor="white">
+                        <par def="63">
+                          <run>
+                            <font size="8pt" name="Arial" pitch="variable" truetype="true" familyid="20" color="#4f4f4f"/>
+                          </run>
+                          <run>
+                            <font size="8pt" name="Arial" pitch="variable" truetype="true" familyid="20"/>
+                            <field type="text" kind="computed" name="po_Status">
+                              <code event="defaultvalue">
+                                <formula>po_Status</formula>
+                              </code>
+                            </field>
+                          </run>
+                          <compositedata type="98" prevtype="65418" nexttype="222" afterparcount="9" containertype="65418" aftercontainercount="1" afterbegincount="3">
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata>
+                          <run>
+                            <font size="8pt" name="Arial" pitch="variable" truetype="true" familyid="20" color="#4f4f4f"/>
+                          </run>
+                        </par>
+                      </tablecell>
+                      <tablecell valign="center" borderwidth="1px 0px 0px" bgcolor="#f7f7f7">
+                        <par def="64">
+                          <run><font size="8pt" name="Arial" pitch="variable" truetype="true" familyid="20"/>Delivery Complete?</run>
+                        </par>
+                      </tablecell>
+                      <tablecell valign="center" borderwidth="1px 0px 0px" bgcolor="white">
+                        <par def="65">
+                          <run>
+                            <font size="8pt" name="Arial" pitch="variable" truetype="true" familyid="20"/>
+                            <field type="text" kind="computed" name="DelCompleteDisp">
+                              <code event="defaultvalue">
+                                <formula>@If(DelComplete="1";"Yes";"No")</formula>
+                              </code>
+                            </field>
+                          </run>
+                          <compositedata type="98" prevtype="65418" nexttype="222" afterparcount="6" containertype="65418" aftercontainercount="1" afterbegincount="3">
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata>
+                        </par>
+                      </tablecell>
+                    </tablerow>
+                    <tablerow>
+                      <tablecell valign="center" borderwidth="0px" bgcolor="#f7f7f7">
+                        <par def="58">
+                          <run><font size="8pt" name="Arial" pitch="variable" truetype="true" familyid="20"/>Date Ordered</run>
+                        </par>
+                      </tablecell>
+                      <tablecell valign="center" borderwidth="1px 0px 0px" bgcolor="white">
+                        <par def="59">
+                          <run>
+                            <font size="8pt" name="Arial" pitch="variable" truetype="true" familyid="20"/>
+                            <field type="datetime" kind="computed" name="po_OrderDate">
+                              <datetimeformat show="date" date="yearmonthday" fourdigityearfor21stcentury="true" zone="never" dateformat="weekdaydaymonthyear" dayformat="twodigitday" monthformat="shortname" yearformat="fourdigityear" weekdayformat="shortname" dateseparator1=" " dateseparator2="-" dateseparator3="-" timeseparator=":" preference="custom"/>
+                              <code event="defaultvalue">
+                                <formula>po_OrderDate</formula>
+                              </code>
+                            </field>
+                          </run>
+                          <run>
+                            <font size="8pt" name="Arial" pitch="variable" truetype="true" familyid="20" color="#4f4f4f"/>
+                          </run>
+                        </par>
+                      </tablecell>
+                      <tablecell valign="center" borderwidth="1px 0px 0px" bgcolor="#f7f7f7">
+                        <par def="60">
+                          <run>
+                            <font size="8pt" name="Arial" pitch="variable" truetype="true" familyid="20"/>
+                          </run>
+                        </par>
+                      </tablecell>
+                      <tablecell valign="center" borderwidth="1px 0px 0px" bgcolor="white">
+                        <pardef id="67" leftmargin="0" keepwithnext="true" keeptogether="true"/>
+                        <par def="67"/>
+                      </tablecell>
+                    </tablerow>
+                    <tablerow>
+                      <tablecell valign="center" borderwidth="0px" bgcolor="#f7f7f7">
+                        <par def="58">
+                          <run><font size="8pt" name="Arial" pitch="variable" truetype="true" familyid="20"/>Delivery Terms</run>
+                        </par>
+                      </tablecell>
+                      <tablecell valign="center" borderwidth="1px 0px 0px" bgcolor="white">
+                        <pardef id="68" leftmargin="0" keepwithnext="true" keeptogether="true"/>
+                        <par def="68">
+                          <run>
+                            <font size="8pt" name="Arial" pitch="variable" truetype="true" familyid="20"/>
+                            <field type="text" kind="computed" name="po_incoTerms">
+                              <code event="defaultvalue">
+                                <formula>po_incoTerms</formula>
+                              </code>
+                            </field>
+                          </run>
+                          <compositedata type="98" prevtype="65418" nexttype="222" afterparcount="7" containertype="65418" aftercontainercount="1" afterbegincount="3">
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata>
+                          <run>
+                            <font size="8pt" name="Arial" pitch="variable" truetype="true" familyid="20" color="#4f4f4f"/>
+                          </run>
+                        </par>
+                      </tablecell>
+                      <tablecell valign="center" borderwidth="1px 0px 0px" bgcolor="#f7f7f7">
+                        <par def="60">
+                          <run><font size="8pt" name="Arial" pitch="variable" truetype="true" familyid="20"/>These Details were Last Refreshed</run>
+                        </par>
+                      </tablecell>
+                      <tablecell valign="center" borderwidth="1px 0px 0px" bgcolor="white">
+                        <par def="61">
+                          <run>
+                            <font size="8pt"/>
+                          </run>
+                          <run>
+                            <font size="8pt"/>
+                            <field type="datetime" kind="computed" name="po_LastRefreshed">
+                              <datetimeformat show="date" date="yearmonthday" fourdigityearfor21stcentury="true" zone="never" dateformat="weekdaydaymonthyear" dayformat="twodigitday" monthformat="twodigitmonth" yearformat="fourdigityear" weekdayformat="shortname" dateseparator1=" " dateseparator2="/" dateseparator3="/" timeseparator=":" preference="usersetting"/>
+                              <code event="defaultvalue">
+                                <formula>po_LastRefreshed</formula>
+                              </code>
+                            </field>
+                          </run>
+                          <run>
+                            <font size="8pt"/>
+                          </run>
+                        </par>
+                      </tablecell>
+                    </tablerow>
+                    <tablerow>
+                      <tablecell valign="center" borderwidth="0px" bgcolor="#f7f7f7">
+                        <par def="58">
+                          <run><font size="8pt" name="Arial" pitch="variable" truetype="true" familyid="20"/>Last Expediting Comment</run>
+                        </par>
+                      </tablecell>
+                      <tablecell columnspan="3" valign="center" borderwidth="1px 0px 0px" bgcolor="white">
+                        <pardef id="69" leftmargin="0" keepwithnext="true" keeptogether="true"/>
+                        <par def="69">
+                          <run>
+                            <font size="8pt" name="Arial" pitch="variable" truetype="true" familyid="20"/>
+                            <field type="text" kind="computed" name="exp_LastComment">
+                              <code event="defaultvalue">
+                                <formula>exp_LastComment</formula>
+                              </code>
+                            </field>
+                          </run>
+                          <compositedata type="98" prevtype="65418" nexttype="222" afterparcount="7" containertype="65418" aftercontainercount="1" afterbegincount="3">
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata>
+                        </par>
+                      </tablecell>
+                    </tablerow>
+                    <tablerow>
+                      <tablecell valign="center" borderwidth="0px" bgcolor="#f7f7f7">
+                        <par def="58">
+                          <run><font size="8pt" name="Arial" pitch="variable" truetype="true" familyid="20"/>Last Expeditor</run>
+                        </par>
+                      </tablecell>
+                      <tablecell columnspan="3" valign="center" borderwidth="1px 0px 0px" bgcolor="white">
+                        <par def="69"><run><font size="8pt" name="Arial" pitch="variable" truetype="true" familyid="20"/><field type="text" kind="computed" name="exp_LastExpeditor"><code event="defaultvalue"><formula>@Name([CN];exp_LastExpeditor)</formula></code></field></run><compositedata type="98" prevtype="65418" nexttype="222" afterparcount="6" containertype="65418" aftercontainercount="1" afterbegincount="3">
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata> - <run><font size="8pt" name="Arial" pitch="variable" truetype="true" familyid="20"/><field type="datetime" kind="computed" name="exp_LastExpedDate"><datetimeformat show="date" date="yearmonthday" fourdigityearfor21stcentury="true" zone="never" dateformat="weekdaydaymonthyear" dayformat="twodigitday" monthformat="twodigitmonth" yearformat="fourdigityear" weekdayformat="shortname" dateseparator1=" " dateseparator2="/" dateseparator3="/" timeseparator=":" preference="usersetting"/><code event="defaultvalue"><formula>exp_LastExpedDate</formula></code></field></run></par>
+                      </tablecell>
+                    </tablerow>
+                  </table>
+                </tablecell>
+              </tablerow>
+            </table>
+            <pardef id="70" hide="notes web mobile" keepwithnext="true" keeptogether="true"/>
+            <par def="70">
+              <run>
+                <font size="12pt" style="bold"/>
+              </run>
+            </par>
+          </tablecell>
+        </tablerow>
+      </table>
+      <pardef id="71" hide="notes web mobile" tabs="L0.5000in L1in L1.5000in L2in L2.5000in L3in L3.5000in L4in"/>
+      <par def="71"/>
+    </richtext>
+  </body>
+  <item name="DeliveryReq" summary="false">
+    <rawitemdata type="400">
+AAAAAAAAAAA=
+</rawitemdata>
+  </item>
+  <item name="PortToShop" summary="false">
+    <number>0</number>
+  </item>
+  <item name="DateReq" summary="false">
+    <rawitemdata type="400">
+AAAAAAAAAAA=
+</rawitemdata>
+  </item>
+  <item name="ActualDeliveryDate" summary="false">
+    <rawitemdata type="400">
+AAAAAAAAAAA=
+</rawitemdata>
+  </item>
+  <item name="ProjectedIntDelDate" summary="false">
+    <rawitemdata type="400">
+AAAAAAAAAAA=
+</rawitemdata>
+  </item>
+  <item name="LinkTaskStartDate" summary="false">
+    <rawitemdata type="400">
+AAAAAAAAAAA=
+</rawitemdata>
+  </item>
+  <item name="TotalDuration" summary="false">
+    <number>0</number>
+  </item>
+  <item name="DateRequiredDisp_1" summary="false">
+    <rawitemdata type="400">
+AAAAAAAAAAA=
+</rawitemdata>
+  </item>
+  <item name="OriginalModTime">
+    <datetime dst="true">20071109T140740,21+11</datetime>
+  </item>
+  <item name="DateRequiredUsed" summary="false">
+    <rawitemdata type="400">
+AAAAAAAAAAA=
+</rawitemdata>
+  </item>
+  <item name="ProjectedIntDel" summary="false">
+    <rawitemdata type="400">
+AAAAAAAAAAA=
+</rawitemdata>
+  </item>
+  <item name="ProjectedCC" summary="false">
+    <rawitemdata type="400">
+AAAAAAAAAAA=
+</rawitemdata>
+  </item>
+  <item name="ProjectedETA" summary="false">
+    <rawitemdata type="400">
+AAAAAAAAAAA=
+</rawitemdata>
+  </item>
+  <item name="ProjectedETD" summary="false">
+    <rawitemdata type="400">
+AAAAAAAAAAA=
+</rawitemdata>
+  </item>
+  <item name="ProjectedOrderReady" summary="false">
+    <rawitemdata type="400">
+AAAAAAAAAAA=
+</rawitemdata>
+  </item>
+  <item name="OrderBefore" summary="false">
+    <rawitemdata type="400">
+AAAAAAAAAAA=
+</rawitemdata>
+  </item>
+  <item name="DeliveryDate" summary="false">
+    <rawitemdata type="400">
+AAAAAAAAAAA=
+</rawitemdata>
+  </item>
+  <item name="DateOrdered" summary="false">
+    <rawitemdata type="400">
+AAAAAAAAAAA=
+</rawitemdata>
+  </item>
+  <item name="LastExpedDate" summary="false">
+    <rawitemdata type="400">
+AAAAAAAAAAA=
+</rawitemdata>
+  </item>
+  <item name="LeadTime_def" summary="false">
+    <number>0</number>
+  </item>
+  <item name="LeadTime_or" summary="false">
+    <number>0</number>
+  </item>
+  <item name="LeadTime" summary="false">
+    <number>0</number>
+  </item>
+  <item name="TransToPort_def" summary="false">
+    <number>0</number>
+  </item>
+  <item name="TransToPort_or" summary="false">
+    <number>0</number>
+  </item>
+  <item name="TransToPort" summary="false">
+    <number>0</number>
+  </item>
+  <item name="TransDuration_def" summary="false">
+    <number>0</number>
+  </item>
+  <item name="TransDuration_or" summary="false">
+    <number>0</number>
+  </item>
+  <item name="TransDuration" summary="false">
+    <number>0</number>
+  </item>
+  <item name="CustomsClearance_def" summary="false">
+    <number>0</number>
+  </item>
+  <item name="CustomsClearance_or" summary="false">
+    <number>0</number>
+  </item>
+  <item name="CustomsClearance" summary="false">
+    <number>0</number>
+  </item>
+  <item name="PortToDest_def" summary="false">
+    <number>0</number>
+  </item>
+  <item name="PortToDest_or" summary="false">
+    <number>0</number>
+  </item>
+  <item name="PortToDest" summary="false">
+    <number>0</number>
+  </item>
+  <item name="ConsShipDuration_def" summary="false">
+    <number>0</number>
+  </item>
+  <item name="ConsShipDuration_or" summary="false">
+    <number>0</number>
+  </item>
+  <item name="ConsShipDuration" summary="false">
+    <number>0</number>
+  </item>
+  <item name="$InterimDelivery_O" sign="true">
+    <rawitemdata type="14">
+AQAAAkxTT0IFABQIZW4AAAQAIwDPAAQAAAB8B1gEAAAAAAQA8AJABQAAAAA0AAwBKABIAAAAKAFk
+AAAAAAAAAAIAAAAYAGwBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAGABsAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAYAAADMAEAFoARABcwAzAAgAiACAAAAAMwDzAMAAAAAAAAAAAAAAAAAAAAA
+AAAAAPwC/AIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAEABQBMb3R1cyBQcm9kdWN0AAAAVjAuMAAAAAAAAAAAAAAAAAAA
+AAAEAAAAzwAAAAAAAAB8BwAAWAQAAAAAAAAAAAAAAQAAAAAAAAABAAAAAAAAAAEAAAAAAAAAAAAA
+AAUAAABXMzJJJQMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAACAAIAAAAAABYBAAAAwBcBAAAAABoAREAJAAkAEkATgBUAEUAUgBJAE0ARABFAEwASQBWAEUA
+UgBZAAAAfAADAE4ARQBXAAAAkAAGAEQARQBMAEUAVABFAAAAAADIAAoASQBOAEkAVABJAEEATABJ
+AFoARQAAAAAAyAEJAFQARQBSAE0ASQBOAEEAVABFAAAAtAEGAE8AQgBKAEUAQwBUAAAAAACYAAAA
+AAAAAPgAFAAoAEcATABPAEIAQQBMAFMAKQBQAFIATwBDAFUAUgBFAE0ARQBOAFQAAAAAAPABFAAo
+AEcAbABvAGIAYQBsAHMAKQBQAHIAbwBjAHUAcgBlAG0AZQBuAHQAAAAAAEQBBgBTAE8AVQBSAEMA
+RQAAAAAAVAEKAEIASQBOAEQARQBWAEUATgBUAFMAAAAAAIwBCwBPAEIASgBFAEMAVABOAEEATQBF
+AF8AAADgAgUARgBJAEUATABEAAAAgAEGACUATABTAEkARABFAAAAAAAsAwgATwBOAEMASABBAE4A
+RwBFAAAAAAAAAwIAVwBTAAAAAADQARAATgBPAFQARQBTAFUASQBXAE8AUgBLAFMAUABBAEMARQAA
+AAAA//8GACUATABTAFgAVQBJAAAAAAAEAgEAUwAAAKACDABOAE8AVABFAFMAUwBFAFMAUwBJAE8A
+TgAAAAAAQAIGACUATABTAFgAQgBFAAAAAAAQAgIARABCAAAAAAAwAg0ATgBPAFQARQBTAEQAQQBU
+AEEAQgBBAFMARQAAAGQCBQBVAEkARABPAEMAAAD//w8ATgBPAFQARQBTAFUASQBEAE8AQwBVAE0A
+RQBOAFQAAABwAgMARABPAEMAAACQAg0ATgBPAFQARQBTAEQATwBDAFUATQBFAE4AVAAAAP//BABG
+AEwAQQBHAAAAAAC8AgoAUwBUAFIAQwBPAFUATgBUAFIAWQAAAAAA//8PAEMAVQBSAFIARQBOAFQA
+RABPAEMAVQBNAEUATgBUAAAAiAMMAEYASQBFAEwARABHAEUAVABUAEUAWABUAAAAAABkAxIASQBu
+AHQAZQByAGkAbQBDAG8AdQBuAHQAcgB5AFUAcwBlAGQAAAAAAFADDwBDAFUAUgBSAEUATgBUAEQA
+QQBUAEEAQgBBAFMARQAAAKADBgBUAE0AUABEAE8AQwAAAAAA9AMOAEMAUgBFAEEAVABFAEQATwBD
+AFUATQBFAE4AVAAAAAAA//8JAEQASQBBAEwATwBHAEIATwBYAAAAwAMNAFMAZQBsAGUAYwB0AEMA
+bwB1AG4AdAByAHkAAAD//xYAQwBoAG8AbwBzAGUAIABJAG4AdABlAHIAaQBtACAAQwBvAHUAbgB0
+AHIAeQAAAAAAFAQMAEYASQBFAEwARABTAEUAVABUAEUAWABUAAAAAAA8BBEASQBuAHQAZQByAGkA
+bQBDAG8AdQBuAHQAcgB5AF8AbwByAAAA//8KAEMASABTAEMATwBVAE4AVABSAFkAAAAAAA0ACAAA
+AAAAfAcAAAUAgAcAAAAAg9kthhgAAAAAAJwAiC/vCAAAAAAAAAAACAAAAGwBbAEQAQAAAAAAAAIA
+AACwAFwBAAAAAAAAAAAAAAAAAAAAALAAsAAAAAAAAAAAAAAAAAAAAAAAAAAAAFwBXAEAAAAAAAAA
+AAEAAAACAAAABgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+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
+</rawitemdata>
+  </item>
+  <item name="$LeadTime_or_O" sign="true">
+    <rawitemdata type="14">
+AQAAAkxTT0IDABQIZW4AAAQAEABbAAQAAADoAxwCAAAAAAQAFAIkAwAAAAAsAAQBIABAAGABAABc
+AAAAAAAAAAIAAAAYAGwBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAGABsAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAMAAADMACQDJAMkA8wAzAAgAiACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAEABQBMb3R1cyBQcm9kdWN0AAAAVjAuMAAAAAAAAAAAAAAAAAAA
+AAAEAAAAWwAAAAAAAADoAwAAHAIAAAAAAAAAAAAAAQAAAAAAAAABAAAAAAAAAAEAAAAAAAAAAAAA
+AAUAAABXMzJJJQMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAwAgAgAAAAAgAQ0AJAAkAEwARQBBAEQAVABJAE0ARQBfAE8AUgAAAHQAAwBOAEUAVwAAAIgA
+BgBEAEUATABFAFQARQAAAAAAwAAKAEkATgBJAFQASQBBAEwASQBaAEUAAAAAAP//CQBUAEUAUgBN
+AEkATgBBAFQARQAAAKwBBgBPAEIASgBFAEMAVAAAAAAAkAAAAAAAAADwABQAKABHAEwATwBCAEEA
+TABTACkAUABSAE8AQwBVAFIARQBNAEUATgBUAAAAAADkARQAKABHAGwAbwBiAGEAbABzACkAUABy
+AG8AYwB1AHIAZQBtAGUAbgB0AAAAAAA8AQYAUwBPAFUAUgBDAEUAAAAAAEwBCgBCAEkATgBEAEUA
+VgBFAE4AVABTAAAAAACEAQsATwBCAEoARQBDAFQATgBBAE0ARQBfAAAA//8FAEYASQBFAEwARAAA
+AHgBBgAlAEwAUwBJAEQARQAAAAAA//8IAE8ATgBDAEgAQQBOAEcARQAAAAAA//8CAFcAUwAAAAAA
+wAEQAE4ATwBUAEUAUwBVAEkAVwBPAFIASwBTAFAAQQBDAEUAAAAAAP//BgAlAEwAUwBYAFUASQAA
+AAAA//8PAEMAVQBSAFIARQBOAFQARABPAEMAVQBNAEUATgBUAAAA+AEHAFIARQBGAFIARQBTAEgA
+AAD//w8ATgBPAFQARQBTAFUASQBEAE8AQwBVAE0ARQBOAFQAAAAFAOwDAAAAAO0iRHYYAAAAAACU
+AIgv7wgAAAAAAAAAAAgAAABsAWwBCAEAAAAAAAACAAAAsABcAQAAAAAAAAAAAAAAAAAAAACwALAA
+AAAAAAAAAAAAAAAAAAAAAAAAAABcAVwBAAAAAAAAAAABAAAAAgAAAAYAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAwABAFwB
+AAAkAQYIAAAAABoAAABQAf//AAAAABAAAAAgAgAAQAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADFhMp7S5pEL9dAN0BEYa3
+AAAAAAAAAAAAAAAAAAAAAGQAAAAAAAAAAAAAAAAAAAACAMAAAADwAgAAAABcBAEA//8AAAMAIAAA
+AAAA9AAJAgAAzAAIAAAAAAAAAGQBAAAAAAAAAgAAAAQC4AIAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AADgAuACAAAAAAAAAAAAAAAABAIEAgAAAAAAAAAAAQAAAAsAAAAkAAAABAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMAAQDgAgAA
+9AAJAgAAzAAaAMAAsAH//wAAAAAQAAAAJAMAAIgBAAAAAAAAAQAAAAADAAMAAAAAAAMAAwAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAhUTKe0uaRC/XQDdARGGtwAA
+AAAAAAAAAAAAAAAAAABkAAAAAAAAAAAAAAAAAAAAAgAUArACAADMAAAACgABAP//AAASABQAAAAA
+AP//CQIAAAAAAAYAAAAAIAIUAv//AAAAAAQAAQAAAAkCIAIJAiACGQADAAIAAAAAAHwBCQIAACAC
+EwAAAGQBAADsAAAAAAAAABEAEAUAAAAAxAEJAuIFAAAAAAAAAAAAAAAAAAAAAAAAAAAkAxAAAAAA
+AAAA/AEAAAAAAAABAAAAtAO0AwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAALQDtAMEFRMp7S5pEL9dAN0BEYa3AAAAAAAAAAAAAAAAAAAAAGQAAAAAAAAAAAAA
+AAAAAAACABQCAAAAACACAAAKAAEA//8AABIAFAAAAAAA6AEKAAAAAADYBgAAAAAkAxQC//8AAAAA
+BgAEAAAACgAJAiQDgACAAIAAGQAEAF8AAAAAANLEAB0AABoLAFtcAUmwAMrMAKYaDABHXAHL7AAA
+AGwBGg0AHRoSAF7gAisgAiSmGhMAS+ACLQADIyy0A4sAiwCLACMaFABL4AItAAMjLLQDiwCLAIsA
+IxoWAB0CAAAAEQAYAAAAAAD//wEAAwADAAAABgAIAQgAZAEPAAoAAAAA
+</rawitemdata>
+  </item>
+  <item name="$TransToPort_or_O" sign="true">
+    <rawitemdata type="14">
+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
+</rawitemdata>
+  </item>
+  <item name="$TransDuration_or_O" sign="true">
+    <rawitemdata type="14">
+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
+</rawitemdata>
+  </item>
+  <item name="$CustomsClearance_or_O" sign="true">
+    <rawitemdata type="14">
+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
+Yw==
+</rawitemdata>
+  </item>
+  <item name="$PortToDest_or_O" sign="true">
+    <rawitemdata type="14">
+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
+</rawitemdata>
+  </item>
+  <item name="$ConsShipDuration_or_O" sign="true">
+    <rawitemdata type="14">
+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
+AA==
+</rawitemdata>
+  </item>
+  <item name="$$ScriptName" summary="false" sign="true">
+    <text>Procurement</text>
+  </item>
+</subform>

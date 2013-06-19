@@ -1,0 +1,1973 @@
+<?xml version='1.0' encoding='utf-8'?>
+<form name='Inspection' alias='Inspection' xmlns='http://www.lotus.com/dxl'
+ version='9.0' replicaid='CA257B640025EF27' nocompose='true' noquery='true'
+ publicaccess='false' designerversion='8.5' editonopen='true' renderpassthrough='true'>
+<noteinfo noteid='49a' unid='1EBD9C539F5EE26FCA257B64002614F7' sequence='2'>
+<created><datetime>20130507T165557,35+10</datetime></created>
+<modified><datetime>20130507T165557,68+10</datetime></modified>
+<revised><datetime>20130507T165557,67+10</datetime></revised>
+<lastaccessed><datetime>20130507T165557,68+10</datetime></lastaccessed>
+<addedtofile><datetime>20130507T165557,24+10</datetime></addedtofile></noteinfo>
+<updatedby><name>CN=Cameron Gregor/O=JORD Engineers</name></updatedby>
+<wassignedby><name>CN=Cameron Gregor/O=JORD Engineers</name></wassignedby>
+<globals><code event='options'><lotusscript>Option Public
+Option Explicit
+Use "Jord.General"
+Use "OrdersScripts"
+
+
+</lotusscript></code><code event='PromptTaxRate'><lotusscript>Sub PromptTaxRate
+	Dim ses As New NotesSession
+	Dim ws As New NotesUIWorkspace
+	Dim uidoc As NotesUIDocument
+	Dim dbThis As NotesDatabase
+	Dim vwItems As NotesView
+	Dim dcItems As NotesDocumentCollection	
+	Dim doc As NotesDocument
+	Dim docItem As NotesDocument
+	Dim varRate As Variant
+	Dim strOrderID As String
+	Dim initRate As Variant
+	
+	'...init
+	Set dbThis = ses.CurrentDatabase
+	Set uidoc = ws.CurrentDocument
+	Set doc = uidoc.Document
+	
+	'...prompt for tax rate
+	If uidoc.FieldGetText("taxRate") = "" Then
+		initRate = ""
+	Else
+		initRate = uidoc.FieldGetText("taxRate")
+	End If
+	
+	varRate = ws.Prompt ( PROMPT_OKCANCELEDIT , "Tax Rate" , _
+	"Enter the tax rate as a number only" +Chr(13)+"e.g. ten and a half percent tax = 10.5" +Chr(13)+"For no tax enter in 0" , Cstr(initRate))
+	
+	If Not Isempty ( varRate ) Then
+		
+		'...set in this doc
+		doc.taxRate = varRate
+		
+		'...update any child item docs
+		Set vwItems = dbThis.GetView( "ItemsByOrderID" )
+		strOrderID = doc.OrderID( 0 )
+		Set dcItems = vwItems.GetAllDocumentsByKey( strOrderID , True )
+		If dcItems.Count &gt; 0 Then
+			Set docItem = dcItems.GetFirstDocument
+			While Not docItem Is Nothing
+				Call docItem.ReplaceItemValue( "taxRate" , Cdbl(doc.taxRate( 0 ) ))
+				Call docItem.ComputeWithForm( False , False )
+				Call docItem.Save( True , True )
+				Set docItem = dcItems.GetNextDocument( docItem )
+			Wend
+		End If
+		
+		Call doc.Save(True, True)
+		uidoc.Refresh
+		uidoc.Refresh
+		Call uidoc.Save
+	End If	
+End Sub
+</lotusscript></code><code event='NextLineNumber'><lotusscript>Function NextLineNumber(orderID As String) As Double
+	Dim s As New NotesSession
+	Dim db As NotesDatabase
+	Dim view As NotesView
+	Dim nav As NotesViewNavigator
+	Dim entry As NotesViewEntry
+	
+	Set db = s.CurrentDatabase
+	Set view = db.GetView("EmbedItems")
+	Set nav = view.CreateViewNavFromCategory(orderID)
+	If Not(nav Is Nothing) Then
+		If Not(nav.Count = 0) Then
+			Set entry = nav.GetLastDocument
+			NextLineNumber = entry.ColumnValues(1) + 1
+		Else
+			NextLineNumber = 1
+		End If	
+	Else 
+		NextLineNumber = 1
+	End If
+	
+End Function
+</lotusscript></code><code event='checkfornull'><lotusscript>Function checkfornull(newone As Variant) As Variant
+	If newone = "" Then
+		checkfornull = ""
+	Else
+		checkfornull = newone
+	End If
+End Function</lotusscript></code></globals><code event='windowtitle'><formula
+>"Inspection"</formula></code><code event='querysave'><lotusscript>Sub Querysave(Source As Notesuidocument, Continue As Variant)
+	
+	Dim s 		As New NotesSession
+	Dim db 		As NotesDatabase
+	Dim doc 		As NotesDocument
+	Dim docComment As NotesDocument
+	Dim docEmail 	As NotesDocument
+	Dim rtitem 	As NotesRichTextItem
+	
+	Set db 	= s.CurrentDatabase
+	Set doc 	= Source.Document
+	
+	'...if we have new inspection signoff then create response and clear inspection signoff fields
+	If doc.inspectionConducted( 0 ) = "1" Then
+		' .. if final then mark as awiting PM to sign off
+		If (doc.inspectionRequired(0) = "Final") And (doc.projManagerSignoff(0) = "-1")Then
+			doc.FinalInspection = "1"			
+		End If
+		
+		'...create inspection comment and set fields
+		Set docInspect 			= db.CreateDocument
+		docInspect.Form 			= "InspectionComment"
+		docInspect.orderID 			= doc.orderID
+		docInspect.inspectionReport 	= doc.inspectionReport
+		docInspect.releaseCertificate = doc.releaseCertificate
+		
+		docInspect.ComputeWithForm False , False
+		
+		'...save comment and make it a response
+		Call docInspect.MakeResponse( doc )
+		docInspect.save True , True
+		
+		'...send off email notification if release cert issued
+		If doc.releaseCertificate( 0 ) = "1" Then
+			
+			Set docEmail 		= db.CreateDocument
+			docEmail.Form 		= "Memo"
+			docEmail.SendTo	=  doc.projectManagers
+			docEmail.Subject 	= "Release certificate has been issued for purchase order " + doc.orderNumber( 0 )
+			Set rtitem 		= New NotesRichTextItem( docEmail , "Body" )
+			Call rtitem.AppendText ( "Release certificate has been issued for purchase order " + doc.orderNumber( 0 ) + _
+			Chr(13) + "Please click here to view the inspection document --&gt; " )
+			Call rtitem.AppendDocLink( doc , doc.orderNumber( 0 ) )
+			Call docEmail.Send( True )
+			
+		' if the persons add a no no  then email proj manager with comments
+		Elseif (doc.releaseCertificate( 0 ) = "0") And (doc.inspectionReport( 0 ) = "0") Then
+			
+			Set docEmail 		= db.CreateDocument
+			docEmail.Form 		= "Memo"
+			docEmail.SendTo	=  doc.projectManagers
+			docEmail.Subject 	= "Inspection complete for purchase order " + doc.orderNumber( 0 ) + ". No Report or release certificate created"
+			Set rtitem 		= New NotesRichTextItem( docEmail , "Body" )
+			Call rtitem.AppendText ( "Inspection complete for purchase order " + doc.orderNumber( 0 ) + _
+			Chr(13) + "No inspection report or release certificate have been created. " + Chr(13) + _
+			Chr(13)+ "Comments:" +Chr(13) + doc.inspectionComment(0) + Chr(13) +Chr(13)+ _ 
+			"Click here to open the inspection document ------&gt; ")
+			Call rtitem.AppendDocLink( doc , doc.orderNumber( 0 ) )
+			Call docEmail.Send( True )
+			
+		End If
+		
+		'...clear the inspection signoff fields
+		doc.inspectionConducted 	= ""
+		doc.inspectionReport 	= "No"
+		doc.releaseCertificate 	= "No"
+		doc.inspectionComment 	= ""
+		
+		Source.Refresh
+		
+	Elseif (doc.projManagerSignoff(0) = "1" Or doc.projManagerSignoff(0) = "0") Then
+		
+		Set docEmail 		= db.CreateDocument
+		docEmail.Form 		= "Memo"
+		docEmail.SendTo	=  doc.inspector(0)
+		Set rtitem 		= New NotesRichTextItem( docEmail , "Body" )
+		
+		If doc.projManagerSignoff(0) = "1" Then
+			
+			docEmail.Subject = "Inspection has been Signed Off for order " + doc.orderNumber( 0 ) + " as complete"
+			Call rtitem.AppendText ( "Inspection has been signed off the by project manager. ")
+			
+		Else
+			
+			doc.FinalInspection 	= ""		
+			docEmail.Subject 		= "Inspection has NOT been Signed Off for order " + doc.orderNumber( 0 ) + ". Please address these issues ASAP"			
+			Call rtitem.AppendText ( "Inspection has NOT been signed off the by project manager. ")
+			
+		End If
+		
+		Call rtitem.AppendText(Chr(13) +Chr(13)+ "COMMENTS:" +Chr(13) + doc.EmailComments(0) + Chr(13) +Chr(13)+ _ 
+		"Click here to open the inspection document ------&gt; ")
+		Call rtitem.AppendDocLink( doc , doc.orderNumber( 0 ) )
+		Call docEmail.Send( True )
+		
+	End If
+	
+End Sub</lotusscript></code>
+<actionbar borderstyle='none' bgcolor='#f0f0f0' bordercolor='black'><actionbarstyle
+ height='25px' repeat='hrepeat'><imageref name='ActionBarBG'/></actionbarstyle>
+<actionbuttonstyle heighttype='fixed' height='21' margintype='fixed' margin='1'
+ bgcolor='none'/><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='system'/><border/>
+<sharedactionref id='1'>
+<action title='Close'><imageref name='action_stop.gif'/><code event='click'><formula
+>@Command([FileCloseWindow])</formula></code></action></sharedactionref>
+<sharedactionref id='2'>
+<action title='Edit' hide='edit previewedit'><imageref name='page_edit.gif'/><code
+ event='click'><formula>@Command([EditDocument])</formula></code><code event='hidewhen'><formula
+>status="Superseded"</formula></code></action></sharedactionref>
+<action title='Save' hide='preview read'><imageref name='action_save.gif'/><code
+ event='click'><formula>@Command([ViewRefreshFields]);
+@Command([ViewRefreshFields]);
+@Command([FileSave])</formula></code><code event='hidewhen'><formula>status="Superseded"</formula></code></action>
+<action title='Save&amp;Close' hide='preview read'><imageref name='action_save.gif'/><code
+ event='click'><formula>@Command([ViewRefreshFields]);
+@Command([ViewRefreshFields]);
+@Command([FileSave]);
+@Command([FileCloseWindow])</formula></code><code event='hidewhen'><formula
+>status="Superseded"</formula></code></action>
+<sharedactionref id='35'>
+<action title='Print Goods Received Note'><imageref name='action_print.gif'/><code
+ event='click'><lotusscript>Sub Click(Source As Button)
+	' Call agent will full permissions to create GRN
+	' then take picture and put it on blank doc for printing.
+	Dim ws 		As New NotesUIWorkspace
+	Dim s 		As New NotesSession
+	Dim uidoc 	As NotesUIDocument
+	Dim doc 		As NotesDocument
+	Dim agent 	As NotesAgent
+	Dim view 		As NotesView
+	Dim gdoc		As NotesDocument
+	Dim db		As NotesDatabase
+	
+	
+	Set uidoc 	= ws.CurrentDocument
+	Set doc		= uidoc.Document 
+	Set db		= s.CurrentDatabase	
+	Set view		= db.GetView("GoodsReceivedPrint")
+	
+	Set agent = db.GetAgent("OpenGRN")
+	If agent.RunOnServer(doc.NoteID) = 0 Then	
+		Set gdoc	= view.GetDocumentByKey(doc.OrderNumber(0))
+		If Not(gdoc Is Nothing) Then Call ws.EditDocument(False, gdoc)		
+	End If	
+End Sub</lotusscript></code></action></sharedactionref>
+<sharedactionref id='25'>
+<action title='Help' align='right'><imageref name='icon_info.gif'/><code event='click'><formula
+>@Command([OpenPage];"HELP")</formula></code></action></sharedactionref></actionbar>
+<background><imageref><code event='value'><formula>@If(status="Superseded" | status="Canceled";"pink.gif";"")</formula></code></imageref></background>
+<body><richtext>
+<pardef id='1' leftmargin='0.7500in' hide='notes web mobile'/>
+<section expanded='true'><sectiontitle pardef='1' borderstyle='double' color='maroon'><font
+ size='8pt' color='maroon' name='Arial' pitch='variable' truetype='true' familyid='20'/><text
+>Hidden Fields</text></sectiontitle>
+<pardef id='2' hide='notes web'/>
+<par def='2'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='maroon'/></run></par>
+<table widthtype='fitmargins' refwidth='14.0625in'><tablecolumn width='20.2257%'/><tablecolumn
+ width='79.7743%'/>
+<tablerow>
+<tablecell borderwidth='0px'>
+<pardef id='4' hide='notes web mobile' keepwithnext='true' keeptogether='true'/>
+<par def='4'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='maroon'/>globalsDb</run></par></tablecell>
+<tablecell borderwidth='0px'>
+<pardef id='5' hide='notes web mobile' keepwithnext='true' keeptogether='true'/>
+<par def='5'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='maroon'/></run><run><font size='8pt' color='maroon'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/><sharedfieldref
+ name='globalsDb'/></run><run><font size='8pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='maroon'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell borderwidth='0px'>
+<pardef id='6' hide='notes web mobile' keepwithnext='true' keeptogether='true'/>
+<par def='6'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='maroon'/>ordersDb</run></par></tablecell>
+<tablecell borderwidth='0px'>
+<pardef id='7' hide='notes web mobile' keepwithnext='true' keeptogether='true'/>
+<par def='7'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='maroon'/></run><run><font size='8pt' color='maroon'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/><field type='text'
+ kind='computedfordisplay' name='ordersDb'><code event='defaultvalue'><formula
+>server:= @Subset( @DbName ; 1 );
+database := globalsDb;
+view := "ParametersLookup";
+key := "orders_db";
+col := 2;
+tmp := @DbLookup( "" ; server : database ; view ; key ; col );
+@If( @IsError( tmp ) ; "" ; tmp )</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='10' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='8pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='maroon'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell borderwidth='0px'>
+<par def='4'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='maroon'/>orderID</run></par></tablecell>
+<tablecell borderwidth='0px'>
+<par def='7'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='maroon'/></run><run><font size='8pt' color='maroon'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/><field type='text'
+ kind='computedwhencomposed' name='orderID'><code event='defaultvalue'><formula
+>orderID</formula></code></field></run><compositedata type='98' prevtype='65418'
+ nexttype='222' afterparcount='9' containertype='65418' aftercontainercount='1'
+ afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='8pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='maroon'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell borderwidth='0px'>
+<pardef id='8' hide='notes web mobile' keepwithnext='true' keeptogether='true'/>
+<par def='8'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='maroon'/></run></par></tablecell>
+<tablecell borderwidth='0px'>
+<pardef id='9' hide='notes web mobile' keepwithnext='true' keeptogether='true'/>
+<par def='9'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='maroon'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell borderwidth='0px'>
+<par def='6'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='maroon'/>redFlag</run></par></tablecell>
+<tablecell borderwidth='0px'>
+<par def='9'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='maroon'/></run><run><font size='8pt' color='maroon'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/><field borderstyle='none'
+ type='text' kind='computed' name='redFlag'><keywords helperbutton='false'
+ recalconchange='true' columns='1' ui='checkbox'/><code event='defaultvalue'><formula
+>redFlag</formula></code></field></run><compositedata type='98' prevtype='65418'
+ nexttype='222' afterparcount='10' containertype='65418' aftercontainercount='1'
+ afterbegincount='4'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='8pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='maroon'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell borderwidth='0px'>
+<par def='8'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='maroon'/>Jord Company</run></par></tablecell>
+<tablecell borderwidth='0px'>
+<par def='9'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='maroon'/></run><run><font size='8pt' color='maroon'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/><field type='text'
+ kind='editable' name='JordCompany'/></run><compositedata type='98' prevtype='65418'
+ nexttype='222' afterparcount='9' containertype='65418' aftercontainercount='1'
+ afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='8pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='maroon'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell borderwidth='0px'>
+<par def='8'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='maroon'/>Inspection Date Flag</run></par></tablecell>
+<tablecell borderwidth='0px'>
+<par def='9'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='maroon'/></run><run><font size='8pt' color='maroon'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/><field type='number'
+ kind='editable' name='IDFlag'><numberformat format='general' digits='2' punctuated='false'
+ parens='false' percent='false' bytes='false'/><code event='defaultvalue'><formula
+>2</formula></code></field></run><run><font size='8pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='maroon'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell borderwidth='0px'>
+<par def='8'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='maroon'/>currentRevUNID</run></par></tablecell>
+<tablecell borderwidth='0px'>
+<par def='9'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='maroon'/></run><run><font size='8pt' color='maroon'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/><field type='text'
+ kind='computedfordisplay' name='currentRevUNID'><code event='defaultvalue'><formula
+>server:= @Subset( @DbName ; 1 );
+database := ordersDb;
+view := "ByOrderNoRevFree";
+key := orderNumber + supplierName;
+col := 6;
+tmp := @DbLookup( "" : "NoCache" ; server : database ; view ; key ; col );
+@If( @IsError( tmp ) ; "" ; @Subset( tmp ; 1 ) )</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='9' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='8pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='maroon'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell borderwidth='0px'>
+<par def='8'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='maroon'/>Final Inspection</run></par></tablecell>
+<tablecell borderwidth='0px'>
+<par def='9'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='maroon'/></run><run><font size='8pt' color='maroon'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/><field type='text'
+ kind='editable' name='FinalInspection'/></run><compositedata type='98' prevtype='65418'
+ nexttype='222' afterparcount='9' containertype='65418' aftercontainercount='1'
+ afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='8pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='maroon'/></run></par></tablecell></tablerow></table>
+<pardef id='3' leftmargin='1in' hide='read edit copy preview previewedit notes web'/>
+<par def='3'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='maroon'/></run><run><font color='maroon'/></run></par></section>
+<pardef id='10' hide='notes web mobile'/>
+<par def='10'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='navy'/></run></par>
+<table widthtype='fitwindow' minrowheight='0.5667in' cellbordercolor='silver'
+ leftmargin='0.7500in' colorstyle='solid' bgcolor='#e1e1e1' refwidth='14.5625in'><tablecolumn
+ width='1.2285in'/><tablecolumn width='84.8993%'/><tablecolumn width='15.1007%'/>
+<tablerow>
+<tablecell valign='center' borderwidth='0px 0px 1px' bgcolor='white'>
+<cellbackground repeat='once'><imageref name='JordLogoMinimum.gif'/></cellbackground>
+<pardef id='12' leftmargin='0.2444in' keepwithnext='true' keeptogether='true'/>
+<par def='12'><run><font size='8pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/></run></par></tablecell>
+<tablecell valign='center' borderwidth='0px 0px 1px'>
+<cellbackground repeat='once'><imageref name='headergradient.jpg'/></cellbackground>
+<pardef id='13' leftmargin='0.5903in' keepwithnext='true' keeptogether='true'/>
+<par def='13'><run><font size='12pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='navy'/>Inspection</run><run><font size='12pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/>  </run><run
+><font style='bold' name='Arial' pitch='variable' truetype='true' familyid='20'/><computedtext
+><code event='value'><formula>OrderNumber</formula></code></computedtext></run><run
+><font size='12pt' style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='navy'/> </run><run><font size='12pt' style='bold' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/>- </run><run><font style='bold'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='#5f5f5f'/><computedtext
+><code event='value'><formula>SupplierName</formula></code></computedtext></run><run
+><font size='12pt' name='Arial' pitch='variable' truetype='true' familyid='20'/></run></par></tablecell>
+<tablecell valign='center' borderwidth='0px 0px 1px'>
+<pardef id='14' align='right' leftmargin='0.1375in' hide='notes web mobile'
+ keepwithnext='true' keeptogether='true'/>
+<par def='14'><run><font size='12pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='navy'/></run></par>
+<pardef id='15' leftmargin='0.1375in' hide='notes web mobile' keepwithnext='true'
+ keeptogether='true'/>
+<par def='15'><run><font size='12pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='navy'/></run></par>
+<par def='14'><run><font size='12pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='navy'/></run></par>
+<par def='14'><run><font size='12pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='navy'/></run></par></tablecell></tablerow></table>
+<pardef id='16' leftmargin='0.7396in'/>
+<par def='16'><run><font color='red'/></run></par>
+<table widthtype='fitmargins' minrowheight='1.6931in' rowdisplay='tabs' tablocation='left'
+ refwidth='13.0611in'><tablerowstyle><font name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='navy'/></tablerowstyle><tablecolumn width='100%'/>
+<tablerow tablabel='1. Inspection'>
+<tablecell borderwidth='0px'>
+<pardef id='18' hide='notes web mobile' keepwithnext='true' keeptogether='true'/>
+<par def='18'><run><font size='9pt' style='bold'/></run></par>
+<table widthtype='fitmargins' cellbordercolor='#4f4f4f' leftmargin='0' refwidth='13.0604in'><tablecolumn
+ width='49.0451%'/><tablecolumn width='1.8785%'/><tablecolumn width='49.0764%'/>
+<tablerow>
+<tablecell borderwidth='0px'>
+<pardef id='20' hide='notes web mobile' keepwithnext='true' keeptogether='true'/>
+<par def='20'><run><font size='8pt'/></run></par>
+<table widthtype='fitmargins' cellbordercolor='silver' leftmargin='0' refwidth='6.4056in'><tablecolumn
+ width='100%'/>
+<tablerow>
+<tablecell borderwidth='1px 0px 0px 1px'>
+<pardef id='22' hide='notes web mobile' keepwithnext='true' keeptogether='true'/>
+<par def='22'><run><font size='8pt'/></run></par>
+<table widthtype='fitmargins' minrowheight='0.1965in' cellbordercolor='#efefef'
+ leftmargin='0%' refwidth='6.3951in'><tablecolumn width='1.5750in'/><tablecolumn
+ width='100%'/>
+<tablerow>
+<tablecell valign='center' borderwidth='0px 0px 1px' bgcolor='#e9eae4'>
+<pardef id='24' leftmargin='0.0785in' keepwithnext='true' keeptogether='true'/>
+<par def='24'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='navy'/>Inspector Sign-Off</run></par></tablecell>
+<tablecell valign='center' borderwidth='0px 0px 1px' bgcolor='#e9eae4'>
+<pardef id='25' leftmargin='0.0785in' keepwithnext='true' keeptogether='true'/>
+<par def='25'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell valign='center' borderwidth='0px' bgcolor='#f7f7f7'>
+<pardef id='26' leftmargin='0.0785in' keepwithnext='true' keeptogether='true'/>
+<par def='26'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>Acknowledge that you have done the inspection (appended to Inspection History on Save)</run></par></tablecell>
+<tablecell valign='center' borderwidth='1px 0px 0px' bgcolor='white'>
+<pardef id='27' leftmargin='0.0785in' keepwithnext='true' keeptogether='true'/>
+<par def='27'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run><run><font size='8pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field runexitingonchange='true' borderstyle='none'
+ lookupeachchar='false' lookupaddressonrefresh='false' type='keyword' allowmultivalues='true'
+ kind='editable' name='inspectionConducted' listinputseparators='comma' listdisplayseparator='comma'><keywords
+ helperbutton='false' recalconchange='true' columns='1' ui='checkbox'><textlist
+><text>Inspection Conducted|1</text></textlist></keywords><code event='onchange'><lotusscript
+>Sub Onchange(Source As Field)
+	Dim s As New NotesSession
+	Dim db As NotesDatabase
+	Dim ws As New notesuiworkspace
+	Dim uidoc As NotesUIDocument
+	Dim doc As NotesDocument
+	Dim tmpdoc As NotesDocument
+	
+	Set uidoc = ws.CurrentDocument
+	Set doc = uidoc.Document
+	Set db = s.CurrentDatabase
+	Set tmpDoc = db.CreateDocument
+	
+	If (Right(Cstr(((doc.IDFlag(0) / 2) *10)), 1)  = "0") And (doc.inspectionConducted(0) = "1") Then
+		If (Cstr(doc.inspectionDate(0)) &lt;&gt; "") And (doc.inspectionRequired(0) = "Progressive")Then
+			Dim dateTime As New NotesDateTime( doc.InspectionDate(0) )
+			Call dateTime.AdjustDay( Cint(doc.ProgressInspectionRate(0)) )
+			tmpDoc.inspectionDate = dateTime.DateOnly
+		Else 
+			tmpDoc.inspectionDate = Today
+		End If	
+		
+		flag =  ws.DialogBox("NextInspectionDate",True , True , True , False , False , False , "Select Next Inspection Date" , tmpDoc , True , False , False )	
+		If flag = True Then
+			doc.inspectionDate = tmpDoc.inspectionDate(0)			
+		End If		
+		'Call uidoc.Refresh
+	End If	
+	doc.IDFlag = doc.IDFlag(0) + 1
+End Sub</lotusscript></code></field></run><run><font size='8pt' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell valign='center' borderwidth='0px' bgcolor='#f7f7f7'>
+<pardef id='28' leftmargin='0.0785in' keepwithnext='true' keeptogether='true'><code
+ event='hidewhen'><formula>inspectionConducted != "1"</formula></code></pardef>
+<par def='28'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='#4f4f4f'/>Inspection Report Created:</run></par></tablecell>
+<tablecell valign='center' borderwidth='1px 0px 0px' bgcolor='white'>
+<pardef id='29' leftmargin='0.0785in' keepwithnext='true' keeptogether='true'><code
+ event='hidewhen'><formula>inspectionConducted != "1"</formula></code></pardef>
+<par def='29'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run><run><font size='8pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field borderstyle='none' lookupeachchar='false'
+ lookupaddressonrefresh='false' type='keyword' kind='editable' name='inspectionReport'><keywords
+ helperbutton='false' recalconchange='true' columns='2' ui='radiobutton'><textlist
+><text>Yes|1</text><text>No|0</text></textlist></keywords><code event='defaultvalue'><formula
+>"No"</formula></code></field></run><run><font size='8pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>  </run><actionhotspot hotspotstyle='none'><run
+><font size='8pt' style='underline' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='blue'/>Create Now</run><code event='options'><lotusscript
+>Use "Jord.General"
+
+</lotusscript></code><code event='click'><lotusscript>Sub Click(Source As Button)
+	' get a link to the inspection report db
+	' create an inspection report
+	
+	Dim ws 		As New notesuiworkspace
+	Dim uidoc 	As notesuidocument
+	Dim s 		As New notessession
+	Dim doc 		As NotesDocument
+	Dim currdoc 	As NotesDocument
+	Dim db 		As NotesDatabase
+	Dim insptype 	As String
+	Dim jsstr 	As String
+	Dim jsvar		As Variant
+	Dim fjob		As String
+	
+	'..init
+	Set uidoc = ws.CurrentDocument
+	Set currdoc = uidoc.Document
+	
+	' Get the inspection reports database
+	Set db = getDb(s, "inspection_reports_db")
+	
+	insptype = currdoc.inspectionRequired(0)
+	If insptype 		= "Final" Then
+		insptype 		= "Release"
+	Elseif insptype 	= "Progressive" Then
+		insptype 		= "Progress"
+	End If
+	
+	Set doc = db.CreateDocument
+	With doc
+		.form 				= "InspRep"		
+		.Date 				= Today
+		.equipDesc 			= currdoc.orderDescription(0)
+		.puchaseOrder 	= currdoc.orderNumber(0)
+		.vendorName 		= currdoc.supplierName(0)
+		.type 					= insptype
+		.orderInitiator 	= currdoc.orderInitiator(0)
+	End With	
+	
+	If Instr(currDoc.JobnoList(0), ", ")&gt;0 Then
+		doc.JobNo 			= Split(currDoc.JobnoList, ", ")						
+	Else
+		doc.JobNo 			= currDoc.JobnoList(0)		
+	End If
+	
+	If 	Left(doc.JobNo(0), 1) = "M" Then
+		Set jdb	= getdb(s, "malaysia_job_summaries_db")
+	Else
+		Set jdb	= getdb(s, "job_summaries_db")		
+	End If
+	
+	Set jview	= jdb.GetView("AllJobs")
+	
+	namesstr = doc.OrderInitiator(0) 
+	'set the default distribution settings
+	For x=0 To Ubound(doc.JobNo)		
+		Set jdoc = jview.GetDocumentByKey(doc.jobno(x),True)
+		If Not(jdoc Is Nothing) Then
+			namesstr = namesstr + ","+jdoc.ContractEngineer(0) +","+jdoc.DesignEngineer(0)+","+jdoc.OperationsManager(0)
+			PrimaryFieldEngineer = PrimaryFieldEngineer + ","+jdoc.PrimaryFieldEngineer(0)	
+		End If	
+	Next
+	doc.defaultsendto = Split(namesstr,",")
+	doc.FieldEngineer = Split(PrimaryFieldEngineer,",")
+	
+	Call ws.EditDocument(True, doc)
+End Sub</lotusscript></code></actionhotspot><run><font size='8pt' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell valign='center' borderwidth='0px' bgcolor='#f7f7f7'>
+<par def='28'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='#4f4f4f'/>Release Certificate Issued:</run></par></tablecell>
+<tablecell valign='center' borderwidth='1px 0px 0px' bgcolor='white'>
+<par def='29'><run><font size='8pt'/></run><run><font size='8pt' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field borderstyle='none'
+ lookupeachchar='false' lookupaddressonrefresh='false' type='keyword' kind='editable'
+ name='releaseCertificate'><keywords helperbutton='false' recalconchange='true'
+ columns='2' ui='radiobutton'><textlist><text>Yes|1</text><text>No|0</text></textlist></keywords><code
+ event='defaultvalue'><formula>"No"</formula></code></field></run><run><font
+ size='8pt' name='Arial' pitch='variable' truetype='true' familyid='20'/>  </run><run
+><font size='8pt' name='Arial' pitch='variable' truetype='true' familyid='20'
+ color='#4f4f4f'/>Created in Inspection Report</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell valign='center' borderwidth='0px' bgcolor='#f7f7f7'>
+<pardef id='30' leftmargin='0.0785in' keepwithnext='true' keeptogether='true'><code
+ event='hidewhen'><formula>!((inspectionConducted = "1") &amp; (inspectionReport = "0") &amp; (releaseCertificate = "0"))</formula></code></pardef>
+<par def='30'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='#4f4f4f'/>Inspection Comment to be sent to Project Manager:</run></par></tablecell>
+<tablecell valign='center' borderwidth='1px 0px 0px' bgcolor='white'>
+<pardef id='31' keepwithnext='true' keeptogether='true'><code event='hidewhen'><formula
+>!((inspectionConducted = "1") &amp; (inspectionReport = "0") &amp; (releaseCertificate = "0"))</formula></code></pardef>
+<par def='31'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run><run><font size='8pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field type='text' kind='editable' name='InspectionComment'/></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='8' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='8pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/></run></par></tablecell></tablerow></table>
+<par def='22'><run><font size='8pt'/></run></par></tablecell></tablerow></table>
+<pardef id='32' keepwithnext='true' keeptogether='true'><code event='hidewhen'><formula
+>!@Contains(@UserRoles;"[ProjectManager]")</formula></code></pardef>
+<par def='32'><run><font size='8pt'/></run></par>
+<table widthtype='fitmargins' cellbordercolor='silver' leftmargin='0' refwidth='6.4056in'><tablecolumn
+ width='100%'/>
+<tablerow>
+<tablecell borderwidth='1px 0px 0px 1px'>
+<pardef id='34' hide='notes web mobile' keepwithnext='true' keeptogether='true'><code
+ event='hidewhen'><formula>!(@IsMember("[ProjectManager]";@UserRoles))</formula></code></pardef>
+<par def='34'><run><font size='8pt'/></run></par>
+<table widthtype='fitmargins' minrowheight='0.1965in' leftmargin='0.0104in'
+ refwidth='6.3951in'><tablecolumn width='100%'/>
+<tablerow>
+<tablecell valign='center' borderwidth='0px' bgcolor='#e9eae4'>
+<pardef id='36' leftmargin='0.0785in' keepwithnext='true' keeptogether='true'><code
+ event='hidewhen'><formula>!@Contains(@UserRoles;"[ProjectManager]")</formula></code></pardef>
+<par def='36'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='navy'/>Project Manager Final Inspection Sign-Off</run></par></tablecell></tablerow></table>
+<pardef id='37' hide='notes web mobile' keepwithnext='true' keeptogether='true'><code
+ event='hidewhen'><formula>!@Contains(@UserRoles;"[ProjectManager]")</formula></code></pardef>
+<par def='37'><run><font size='8pt'/></run></par>
+<table widthtype='fitmargins' minrowheight='0.1965in' cellbordercolor='#efefef'
+ leftmargin='0.0104in' refwidth='6.3951in'><tablecolumn width='1.4569in'/><tablecolumn
+ width='100%'/>
+<tablerow>
+<tablecell valign='center' borderwidth='0px' bgcolor='#f7f7f7'>
+<pardef id='38' leftmargin='0.0785in' keepwithnext='true' keeptogether='true'><code
+ event='hidewhen'><formula>!@Contains(@UserRoles;"[ProjectManager]")</formula></code></pardef>
+<par def='38'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='#4f4f4f'/>Project Manager Signoff:</run></par></tablecell>
+<tablecell valign='center' borderwidth='1px 0px 0px' bgcolor='white'>
+<pardef id='39' leftmargin='0.0785in' hide='read print preview' keepwithnext='true'
+ keeptogether='true'><code event='hidewhen'><formula>!@Contains(@UserRoles;"[ProjectManager]")</formula></code></pardef>
+<par def='39'><run><font size='8pt'/></run><run><font size='8pt' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field runexitingonchange='true'
+ borderstyle='none' lookupeachchar='false' lookupaddressonrefresh='false'
+ type='keyword' kind='editable' name='projManagerSignoff'><keywords helperbutton='false'
+ recalconchange='true' columns='3' ui='radiobutton'><textlist><text>Yes|1</text><text
+>No|0</text><text>Deciding|-1</text></textlist></keywords><code event='defaultvalue'><formula
+>"Deciding"</formula></code><code event='exiting'><lotusscript>Sub Exiting(Source As Field)
+	Dim ws As New notesuiworkspace
+	Dim uidoc As NotesUIDocument
+	Dim doc As NotesDocument
+	
+	Set uidoc = ws.CurrentDocument
+	Set doc = uidoc.Document
+	If (doc.projManagerSignoff(0) = "1" Or doc.projManagerSignoff(0) = "0" ) And doc.ProjManager(0) ="" Then
+		Dim s As New notessession
+		Dim user As String
+		Dim tdate As String
+		
+		user = Cstr(s.CommonUserName)
+		tdate = Cstr(Today)
+		Call uidoc.FieldSetText("ProjManager", user)
+		Call uidoc.FieldSetText("ProjManagerDate", tdate)		
+	Elseif doc.projManagerSignoff(0) = "-1" And doc.ProjManager(0) &lt;&gt;"" Then
+		Call uidoc.FieldSetText("ProjManager", "")
+		Call uidoc.FieldSetText("ProjManagerDate", "")		
+	End If	
+End Sub</lotusscript></code></field></run><run><font size='8pt' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/></run></par>
+<pardef id='40' leftmargin='0.0785in' hide='edit copy previewedit' keepwithnext='true'
+ keeptogether='true'><code event='hidewhen'><formula>!@Contains(@UserRoles;"[ProjectManager]")</formula></code></pardef>
+<par def='40'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run><run><font size='8pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field type='text' kind='computed' name='projManagerSignoffView'><code
+ event='defaultvalue'><formula>@If(projManagerSignoff = "1";"Yes";projManagerSignoff)</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='8' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='8pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell valign='center' borderwidth='0px' bgcolor='#f7f7f7'>
+<par def='38'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='#4f4f4f'/>Project Manager:</run></par></tablecell>
+<tablecell valign='center' borderwidth='1px 0px 0px' bgcolor='white'>
+<pardef id='41' leftmargin='0.0785in' keepwithnext='true' keeptogether='true'><code
+ event='hidewhen'><formula>!@Contains(@UserRoles;"[ProjectManager]")</formula></code></pardef>
+<par def='41'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run><run><font size='8pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field borderstyle='inset' type='text' kind='computed'
+ name='ProjManager'><keywords helperbutton='false' columns='1' ui='combobox'
+ allownew='true'/><code event='defaultvalue'><formula>ProjManager</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='9' containertype='65418'
+ aftercontainercount='1' afterbegincount='4'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='8pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell valign='center' borderwidth='0px' bgcolor='#f7f7f7'>
+<par def='38'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='#4f4f4f'/>Date:</run></par></tablecell>
+<tablecell valign='center' borderwidth='1px 0px 0px' bgcolor='white'>
+<par def='41'><run><font size='8pt'/></run><run><font size='8pt' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field type='datetime' kind='computed'
+ name='ProjManagerDate'><datetimeformat show='date' date='yearmonthday' fourdigityearfor21stcentury='true'
+ zone='never' dateformat='weekdaydaymonthyear' dayformat='twodigitday' monthformat='twodigitmonth'
+ yearformat='fourdigityear' weekdayformat='shortname' dateseparator1=' ' dateseparator2='/'
+ dateseparator3='/' timeseparator=':' preference='usersetting'/><code event='defaultvalue'><formula
+>ProjManagerDate</formula></code></field></run><run><font size='8pt' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell valign='center' borderwidth='0px' bgcolor='#f7f7f7'>
+<par def='38'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='#4f4f4f'/>Email Comment:</run></par></tablecell>
+<tablecell valign='center' borderwidth='1px 0px 0px' bgcolor='white'>
+<par def='41'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run><run><font size='8pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field type='text' kind='editable' name='EmailComments'/></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='7' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='8pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/></run></par></tablecell></tablerow></table>
+<par def='37'><run><font size='8pt'/></run></par></tablecell></tablerow></table>
+<par def='20'><run><font size='8pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/></run></par></tablecell>
+<tablecell borderwidth='0px'>
+<pardef id='42' hide='read print preview' keepwithnext='true' keeptogether='true'/>
+<par def='42'><run><font size='8pt' style='bold'/></run></par></tablecell>
+<tablecell borderwidth='0px'>
+<pardef id='43' hide='notes web mobile' keepwithnext='true' keeptogether='true'/>
+<par def='43'><run><font size='8pt'/></run></par>
+<table widthtype='fitmargins' cellbordercolor='silver' leftmargin='0' refwidth='6.4097in'><tablecolumn
+ width='100%'/>
+<tablerow>
+<tablecell borderwidth='1px 0px 0px 1px'>
+<pardef id='45' hide='notes web mobile' keepwithnext='true' keeptogether='true'/>
+<par def='45'><run><font size='8pt'/></run></par>
+<table widthtype='fitmargins' minrowheight='0.1965in' cellbordercolor='#efefef'
+ leftmargin='0.0104in' refwidth='6.3993in'><tablecolumn width='1.5354in'/><tablecolumn
+ width='100%'/>
+<tablerow>
+<tablecell valign='center' borderwidth='0px 0px 1px' bgcolor='#e9eae4'>
+<pardef id='47' leftmargin='0.0785in' keepwithnext='true' keeptogether='true'/>
+<par def='47'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='navy'/>Inspection Details</run></par></tablecell>
+<tablecell borderwidth='0px 0px 1px' bgcolor='#e9eae4'>
+<pardef id='48' align='right' keepwithnext='true' keeptogether='true'/>
+<par def='48'><run><font size='8pt' style='underline' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='blue'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell valign='center' borderwidth='0px' bgcolor='#f7f7f7'>
+<pardef id='49' leftmargin='0.0785in' keepwithnext='true' keeptogether='true'/>
+<par def='49'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='#4f4f4f'/>Type:</run></par></tablecell>
+<tablecell valign='center' borderwidth='0px 0px 1px' bgcolor='white'>
+<pardef id='50' leftmargin='0.0785in' keepwithnext='true' keeptogether='true'/>
+<par def='50'><run><font size='8pt'/></run><run><font size='8pt' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field lookupeachchar='false'
+ lookupaddressonrefresh='false' type='keyword' kind='editable' name='inspectionRequired'><keywords
+ recalconchange='true' columns='1' ui='dialoglist'><textlist><text>Final</text><text
+>Progressive</text><text>Not Required|No</text></textlist></keywords><code
+ event='defaultvalue'><formula>"Final"</formula></code></field></run><run
+><font size='8pt'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell valign='center' borderwidth='0px' bgcolor='#f7f7f7'>
+<par def='49'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='#4f4f4f'/>Inspector:</run></par></tablecell>
+<tablecell valign='center' borderwidth='1px 0px 0px' bgcolor='white'>
+<par def='50'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='#4f4f4f'/></run><run><font size='8pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field choicesdialog='addressbook' lookupeachchar='false'
+ lookupaddressonrefresh='false' type='keyword' kind='editable' name='inspector'><keywords
+ columns='1' ui='dialoglist'/><code event='inputtranslation'><formula>@Name( [CN] ; inspector )</formula></code></field></run><run
+><font size='8pt' name='Arial' pitch='variable' truetype='true' familyid='20'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell valign='center' borderwidth='0px' bgcolor='#f7f7f7'>
+<pardef id='51' leftmargin='0.0785in' keepwithnext='true' keeptogether='true'><code
+ event='hidewhen'><formula>inspectionRequired != "Progressive"</formula></code></pardef>
+<par def='51'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='#4f4f4f'/>Inspection needed every:</run></par></tablecell>
+<tablecell valign='center' borderwidth='1px 0px 0px' bgcolor='white'>
+<pardef id='52' leftmargin='0.0785in' keepwithnext='true' keeptogether='true'><code
+ event='hidewhen'><formula>inspectionRequired != "Progressive"</formula></code></pardef>
+<par def='52'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='#4f4f4f'/></run><run><font size='8pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field type='number' kind='editable' name='ProgressInspectionRate'><numberformat
+ format='general' digits='2' punctuated='false' parens='false' percent='false'
+ bytes='false'/><code event='defaultvalue'><formula>7</formula></code></field></run><run
+><font size='8pt' name='Arial' pitch='variable' truetype='true' familyid='20'
+ color='#4f4f4f'/> days </run></par></tablecell></tablerow>
+<tablerow>
+<tablecell valign='center' borderwidth='0px' bgcolor='#f7f7f7'>
+<par def='49'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='#4f4f4f'/></run><run><font size='8pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='#4f4f4f'/><computedtext><code event='value'><formula
+>@If(projManagerSignoff = "1";""; inspectionRequired = "Progressive"; "Next ";inspectionRequired = "Final";"Next "; "")</formula></code></computedtext></run><run
+><font size='8pt' name='Arial' pitch='variable' truetype='true' familyid='20'
+ color='#4f4f4f'/>Inspection Date:</run><run><font size='8pt' name='Arial'
+ pitch='variable' truetype='true' familyid='20' color='red'/>:</run></par></tablecell>
+<tablecell valign='center' borderwidth='1px 0px 0px' bgcolor='white'>
+<pardef id='53' leftmargin='0.0785in' hide='read preview embedded' keepwithnext='true'
+ keeptogether='true'/>
+<par def='53'><run><font size='8pt'/></run><run><font size='8pt' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field runexitingonchange='true'
+ usenotesstyle='false' height='0.1847in' width='1.1813in' heighttype='proportional'
+ multiline='true' borderstyle='single' type='datetime' kind='editable' name='inspectionDate'><datetimeformat
+ show='date' date='yearmonthday' fourdigityearfor21stcentury='true' zone='never'
+ dateformat='weekdaydaymonthyear' dayformat='twodigitday' monthformat='twodigitmonth'
+ yearformat='fourdigityear' weekdayformat='shortname' dateseparator1=' ' dateseparator2='/'
+ dateseparator3='/' timeseparator=':' preference='usersetting'/><code event='exiting'><lotusscript
+>Sub Exiting(Source As Field)
+	
+End Sub</lotusscript></code></field></run><run><font size='8pt' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/></run></par>
+<pardef id='54' leftmargin='0.0785in' hide='edit copy previewedit' keepwithnext='true'
+ keeptogether='true'/>
+<par def='54'><run><font size='8pt'/></run><run><font size='8pt' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field type='text' kind='computed'
+ name='inspectionDateView'><code event='defaultvalue'><formula>inspectionDate</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='7' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='8pt'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell borderwidth='0px' bgcolor='#f7f7f7'>
+<pardef id='55' keepwithnext='true' keeptogether='true'/>
+<par def='55'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='maroon'/></run></par></tablecell>
+<tablecell borderwidth='1px 0px 0px' bgcolor='white'>
+<pardef id='56' keepwithnext='true' keeptogether='true'/>
+<par def='56'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='maroon'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell valign='center' borderwidth='0px' bgcolor='#f7f7f7'>
+<par def='49'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='#4f4f4f'/>Supplier Inspections Notes:</run></par></tablecell>
+<tablecell valign='center' borderwidth='1px 0px 0px' bgcolor='white'>
+<pardef id='57' leftmargin='0.0785in' keepwithnext='true' keeptogether='true'/>
+<par def='57'><run><font size='8pt'/></run><run><font size='8pt' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field type='text' kind='computed'
+ name='supplierInspections'><code event='defaultvalue'><formula>supplierInspections</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='8' containertype='65418'
+ aftercontainercount='1' afterbegincount='4'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='8pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='maroon'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell valign='center' borderwidth='0px' bgcolor='#f7f7f7'>
+<pardef id='58' leftmargin='0.0785in' keepwithnext='true' keeptogether='true'><code
+ event='hidewhen'><formula>expedDeliveryDate_1 = revisedDeliveryDate</formula></code></pardef>
+<par def='58'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='#4f4f4f'/>Revised Delivery Date:</run></par></tablecell>
+<tablecell valign='center' borderwidth='1px 0px 0px' bgcolor='white'>
+<pardef id='59' leftmargin='0.0785in' keepwithnext='true' keeptogether='true'><code
+ event='hidewhen'><formula>expedDeliveryDate_1 = revisedDeliveryDate</formula></code></pardef>
+<par def='59'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/>Expediting Revised Delivery Date: </run><run><font
+ size='8pt' name='Arial' pitch='variable' truetype='true' familyid='20'/><field
+ type='datetime' kind='computed' name='expedDeliveryDate_1'><datetimeformat
+ show='date' date='yearmonthday' fourdigityearfor21stcentury='true' zone='never'
+ dateformat='weekdaydaymonthyear' dayformat='twodigitday' monthformat='twodigitmonth'
+ yearformat='fourdigityear' weekdayformat='shortname' dateseparator1=' ' dateseparator2='/'
+ dateseparator3='/' timeseparator=':' timeformat24='true' preference='usersetting'/><code
+ event='defaultvalue'><formula>server := @Subset( @DbName ; 1 );
+database := @Subset( @DbName ; -1 );
+view := "ExpedByOrderNo";
+key := orderNumber+ "-" +SupplierName;
+col := 2;
+tmp := @DbLookup( "" ; server : database ; view ; key ; col );
+@If( @IsError( tmp ) ; "" ; tmp )</formula></code></field></run><run><font
+ size='8pt' style='bold' name='Arial' pitch='variable' truetype='true' familyid='20'
+ color='maroon'/></run></par></tablecell></tablerow></table>
+<par def='45'><run><font size='8pt'/></run></par></tablecell></tablerow></table>
+<pardef id='60' keepwithnext='true' keeptogether='true'/>
+<par def='60'><run><font size='8pt' style='bold'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell columnspan='3' borderwidth='0px'>
+<pardef id='62' hide='notes web mobile' keepwithnext='true' keeptogether='true'/>
+<par def='62'><run><font size='12pt' style='bold'/></run></par></tablecell></tablerow></table>
+<pardef id='63' keepwithnext='true' keeptogether='true'/>
+<par def='63'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run></par>
+<par def='63'><run><font size='8pt' style='underline' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='blue'/></run><actionhotspot hotspotstyle='none'><run
+><font size='8pt' style='underline' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='blue'/>Open Associated Inspection Reports</run><code
+ event='options'><lotusscript>Use "Jord.General"
+
+</lotusscript></code><code event='click'><lotusscript>Sub Click(Source As Button)
+	Dim ws As New NotesUIWorkspace
+	Dim uidoc As notesuidocument
+	Dim s As New NotesSession
+	Dim db As NotesDatabase
+	Dim inspdb As NotesDatabase
+	Dim collection As NotesDocumentCollection
+	Dim inspdoc As NotesDocument
+	Dim doc As NotesDocument
+	
+	'..init
+	Set db = s.CurrentDatabase
+	Set uidoc = ws.CurrentDocument
+	Set doc = uidoc.Document
+	Set inspdb = getDb(s, "inspection_reports_db")
+	
+	Set collection = ws.PickListCollection( _
+	PICKLIST_CUSTOM, _
+	False, _
+	db.Server, _
+	inspdb.FilePath, _
+	"ByOrderNo", _
+	"Select Inspection Report to view", _
+	"If you can see the 'Purchase Order No' column it means that NO inspection report has been done.", doc.OrderNumber(0) )
+	
+	If collection.Count &lt;&gt; 0 Then
+		Set inspdoc = collection.GetFirstDocument		
+		Call ws.EditDocument(False, inspdoc)
+	End If	
+End Sub</lotusscript></code></actionhotspot><run><font size='8pt' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/>              </run><actionhotspot
+ hotspotstyle='none'><run><font size='8pt' style='underline' name='Arial'
+ pitch='variable' truetype='true' familyid='20' color='blue'/>Open Associated Release Certificates</run><code
+ event='click'><lotusscript>Sub Click(Source As Button)
+	Dim ws As New NotesUIWorkspace
+	Dim uidoc As NotesUIDocument
+	Dim s As New NotesSession
+	Dim db As NotesDatabase
+	Dim inspdb As NotesDatabase
+	Dim collection As NotesDocumentCollection
+	Dim doc As NotesDocument
+	Dim currdoc As NotesDocument	
+	'..init
+	Set db = s.CurrentDatabase
+	Set uidoc = ws.CurrentDocument
+	Set currdoc = uidoc.Document
+	Set inspdb = getDb(s, "release_certificate_db")
+	
+	Set collection = ws.PickListCollection( _
+	PICKLIST_CUSTOM, _
+	False, _
+	db.Server, _
+	inspdb.FilePath, _
+	"ByOrderNo", _
+	"Select Release Certificate", _
+	"If you can see the 'Purchase Order No' column it means that NO release certificate has been done.", currdoc.OrderNumber(0) )
+	
+	If collection.Count &lt;&gt; 0 Then
+		Set doc = collection.GetFirstDocument		
+		Call ws.EditDocument(False, doc)
+	End If	
+End Sub</lotusscript></code></actionhotspot><run><font size='8pt' style='underline'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='blue'/></run></par>
+<table widthtype='fitmargins' minrowheight='0.1965in' cellbordercolor='silver'
+ leftmargin='0' refwidth='13.0611in'><tablecolumn width='100%'/>
+<tablerow>
+<tablecell valign='center' borderwidth='1px 0px 0px 1px' bgcolor='#e9eae4'>
+<pardef id='65' leftmargin='0.0785in' keepwithnext='true' keeptogether='true'/>
+<par def='65'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='navy'/>Inspection History</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell borderwidth='0px 0px 0px 1px'>
+<pardef id='66' keepwithnext='true' keeptogether='true'/>
+<par def='66'><embeddedview widthtype='fitwindow' height='1.9688in' scrollbars='true'><code
+ event='value'><formula>"(EmbedInspections)"</formula></code><code event='showsinglecategory'><formula
+>orderID</formula></code></embeddedview><run><font size='8pt' name='Arial'
+ pitch='variable' truetype='true' familyid='20' color='navy'/></run></par></tablecell></tablerow></table>
+<par def='63'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='navy'/></run></par></tablecell></tablerow>
+<tablerow tablabel='Order Details'>
+<tablecell borderwidth='0px'>
+<par def='18'><run><font size='9pt' style='bold'/></run></par>
+<table widthtype='fitmargins' cellbordercolor='#4f4f4f' leftmargin='0' refwidth='13.0611in'><tablecolumn
+ width='51.2813%'/><tablecolumn width='2.1944%'/><tablecolumn width='46.5243%'/>
+<tablerow>
+<tablecell borderwidth='0px'>
+<pardef id='67' hide='notes web mobile' keepwithnext='true' keeptogether='true'/>
+<par def='67'><run><font size='8pt'/></run></par>
+<table widthtype='fitmargins' cellbordercolor='silver' leftmargin='0' refwidth='6.6979in'><tablecolumn
+ width='100%'/>
+<tablerow>
+<tablecell borderwidth='1px 0px 0px 1px'>
+<pardef id='69' hide='notes web mobile' keepwithnext='true' keeptogether='true'/>
+<par def='69'><run><font size='8pt'/></run></par>
+<table widthtype='fitmargins' minrowheight='0.1965in' cellbordercolor='#efefef'
+ leftmargin='0.0104in' refwidth='6.6875in'><tablecolumn width='1.3778in'/><tablecolumn
+ width='100%'/>
+<tablerow>
+<tablecell valign='center' borderwidth='0px 0px 1px' bgcolor='#e9eae4'>
+<pardef id='71' leftmargin='0.0785in' keepwithnext='true' keeptogether='true'/>
+<par def='71'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='navy'/>Order Details</run></par></tablecell>
+<tablecell valign='center' borderwidth='0px 0px 1px' bgcolor='#e9eae4'>
+<pardef id='72' align='right' keepwithnext='true' keeptogether='true'/>
+<par def='72'><run><font size='8pt' style='underline' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='blue'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell valign='center' borderwidth='0px' bgcolor='#f7f7f7'>
+<pardef id='73' leftmargin='0.0785in' keepwithnext='true' keeptogether='true'/>
+<par def='73'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='#4f4f4f'/>Order Number:</run></par></tablecell>
+<tablecell valign='center' borderwidth='0px 0px 1px' bgcolor='white'>
+<pardef id='74' leftmargin='0.0785in' keepwithnext='true' keeptogether='true'/>
+<par def='74'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run><actionhotspot hotspotstyle='none'><run><font size='8pt'
+ style='underline' name='Arial' pitch='variable' truetype='true' familyid='20'
+ color='blue'/></run><run><font size='8pt' color='blue' style='underline'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/><field type='text'
+ kind='editable' name='orderNumber'><code event='defaultvalue'><formula>orderNumber</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='14' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='8pt'
+ style='underline' name='Arial' pitch='variable' truetype='true' familyid='20'
+ color='blue'/></run><code event='click'><lotusscript>Sub Click(Source As Button)
+	
+	Dim ws As New NotesUIWorkspace
+	Dim s As New NotesSession
+	Dim ordersDb As NotesDatabase
+	Dim uidoc As NotesUIDocument
+	Dim docOrder As NotesDocument
+	
+	'...initialise
+	Set uidoc = ws.CurrentDocument
+	Set doc = uidoc.Document
+	If doc.currentRevUNID( 0 ) = "" Then
+		Msgbox "Order Not Found", , "The order could not be found."		
+	Else
+		Set ordersDb = getDB( s , "orders_db" )
+		Set docOrder = ordersDb.GetDocumentByUNID( doc.currentRevUNID( 0 ) )
+		If Not docOrder Is Nothing Then
+			Call ws.EditDocument( False , docOrder )
+		Else
+			Msgbox "Order Not Found", , "The order could not be found."		
+		End If
+	End If
+	
+End Sub</lotusscript></code></actionhotspot><run><font size='8pt' name='Arial'
+ pitch='variable' truetype='true' familyid='20' color='maroon'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell valign='center' borderwidth='0px' bgcolor='#f7f7f7'>
+<par def='73'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='#4f4f4f'/>Order Date:</run></par></tablecell>
+<tablecell valign='center' borderwidth='1px 0px 0px' bgcolor='white'>
+<par def='74'><run><font size='8pt'/></run><run><font size='8pt' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field type='text' kind='editable'
+ name='orderDate'><code event='defaultvalue'><formula>OrderDate</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='6' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='8pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='#4f4f4f'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell valign='center' borderwidth='0px' bgcolor='#f7f7f7'>
+<pardef id='75' leftmargin='0.0785in' keepwithnext='true' keeptogether='true'/>
+<par def='75'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='#4f4f4f'/>Order Description:</run></par></tablecell>
+<tablecell valign='center' borderwidth='1px 0px 0px' bgcolor='white'>
+<pardef id='76' leftmargin='0.0785in' keepwithnext='true' keeptogether='true'/>
+<par def='76'><run><font size='8pt'/></run><run><font size='8pt' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field type='text' kind='editable'
+ name='orderDescription'><code event='defaultvalue'><formula>orderDescription</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='7' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='8pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='#4f4f4f'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell valign='center' borderwidth='0px' bgcolor='#f7f7f7'>
+<par def='75'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='#4f4f4f'/>Order Initiator:</run></par></tablecell>
+<tablecell valign='center' borderwidth='1px 0px 0px' bgcolor='white'>
+<par def='76'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/><field type='text' kind='editable' name='orderInitiator'><code
+ event='defaultvalue'><formula>orderDescription</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='6' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='8pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='#4f4f4f'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell valign='center' borderwidth='0px' bgcolor='#f7f7f7'>
+<par def='75'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='#4f4f4f'/>Project Managers</run></par></tablecell>
+<tablecell valign='center' borderwidth='1px 0px 0px' bgcolor='white'>
+<pardef id='77' leftmargin='0.0785in' keepwithnext='true' keeptogether='true'><code
+ event='hidewhen' enabled='false'><formula>!@Contains(@UserRoles;"[ProjectManager]")</formula></code></pardef>
+<par def='77'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='maroon'/></run><run><font size='8pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field choicesdialog='addressbook' lookupeachchar='false'
+ lookupaddressonrefresh='false' type='names' allowmultivalues='true' kind='editable'
+ name='projectManagers' listinputseparators='comma' listdisplayseparator='comma'><code
+ event='inputtranslation'><formula>@Unique( @Name([CN];projectManagers))</formula></code></field></run></par>
+<pardef id='78' leftmargin='0.0785in' hide='notes web mobile' keepwithnext='true'
+ keeptogether='true'><code event='hidewhen'><formula>@Contains(@UserRoles;"[ProjectManager]")</formula></code></pardef>
+<par def='78'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='maroon'/></run><run><font size='8pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field type='text' allowmultivalues='true'
+ kind='computed' name='projectManagersView' listinputseparators='comma semicolon'
+ listdisplayseparator='semicolon'><code event='defaultvalue'><formula>ProjectManagers</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='11' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata></par></tablecell></tablerow>
+<tablerow>
+<tablecell valign='center' borderwidth='0px' bgcolor='#f7f7f7'>
+<par def='75'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='#4f4f4f'/>Job No(s):</run></par></tablecell>
+<tablecell valign='center' borderwidth='1px 0px 0px' bgcolor='white'>
+<pardef id='79' leftmargin='0.0785in' keepwithnext='true' keeptogether='true'><code
+ event='hidewhen'><formula>!@Contains(@UserRoles;"[ProjectManager]")</formula></code></pardef>
+<par def='79'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/><field type='text' allowmultivalues='true' kind='editable'
+ name='jobNoList' listinputseparators='comma' listdisplayseparator='comma'><code
+ event='defaultvalue'><formula>jobNoList</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='8' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='8pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='#4f4f4f'/></run></par>
+<pardef id='80' leftmargin='0.0785in' keepwithnext='true' keeptogether='true'><code
+ event='hidewhen'><formula>@Contains(@UserRoles;"[ProjectManager]")</formula></code></pardef>
+<par def='80'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/><field type='text' allowmultivalues='true' kind='computed'
+ name='jobNoListView' listinputseparators='comma' listdisplayseparator='comma'><code
+ event='defaultvalue'><formula>jobNoList</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='8' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='8pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='#4f4f4f'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell valign='center' borderwidth='0px' bgcolor='#f7f7f7'>
+<par def='75'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='#4f4f4f'/>Supplier:</run></par></tablecell>
+<tablecell valign='center' borderwidth='1px 0px 0px' bgcolor='white'>
+<par def='76'><run><font size='8pt'/></run><run><font size='8pt' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field type='text' kind='editable'
+ name='supplierName'><code event='defaultvalue'><formula>supplierName</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='6' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='8pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/></run></par>
+<pardef id='81' leftmargin='0.0785in' hide='notes web mobile' keepwithnext='true'
+ keeptogether='true'/>
+<par def='81'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run><run><font size='8pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field type='text' kind='editable' name='supplierID'><code
+ event='defaultvalue'><formula>supplierID</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='8' containertype='65418'
+ aftercontainercount='1' afterbegincount='4'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='8pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='maroon'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell valign='center' borderwidth='0px' bgcolor='#f7f7f7'>
+<par def='75'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='#4f4f4f'/>Contact:</run></par></tablecell>
+<tablecell valign='center' borderwidth='1px 0px 0px' bgcolor='white'>
+<par def='76'><run><font size='8pt'/></run><run><font size='8pt' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field type='text' kind='editable'
+ name='supplierContact'/></run><compositedata type='98' prevtype='65418' nexttype='222'
+ afterparcount='6' containertype='65418' aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run
+><font size='8pt' name='Arial' pitch='variable' truetype='true' familyid='20'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell valign='center' borderwidth='0px' bgcolor='#f7f7f7'>
+<par def='75'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='#4f4f4f'/>Contact Phone:</run></par></tablecell>
+<tablecell valign='center' borderwidth='1px 0px 0px' bgcolor='white'>
+<par def='76'><run><font size='8pt'/></run><run><font size='8pt' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field type='text' kind='editable'
+ name='supplierContactPhone'/></run><compositedata type='98' prevtype='65418'
+ nexttype='222' afterparcount='6' containertype='65418' aftercontainercount='1'
+ afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='8pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell valign='center' borderwidth='0px' bgcolor='#f7f7f7'>
+<par def='75'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='#4f4f4f'/>Contact Fax:</run></par></tablecell>
+<tablecell valign='center' borderwidth='1px 0px 0px' bgcolor='white'>
+<par def='76'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/><field type='text' kind='editable' name='supplierContactFax'/></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='6' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata></par></tablecell></tablerow>
+<tablerow>
+<tablecell valign='center' borderwidth='0px' bgcolor='#f7f7f7'>
+<par def='75'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='#4f4f4f'/>Contact Email:</run></par></tablecell>
+<tablecell valign='center' borderwidth='1px 0px 0px' bgcolor='white'>
+<par def='76'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/><field type='text' kind='editable' name='supplierContactEmail'/></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='6' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata></par></tablecell></tablerow>
+<tablerow>
+<tablecell valign='center' borderwidth='0px' bgcolor='#f7f7f7'>
+<par def='75'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='#4f4f4f'/>Original Delivery Date:</run></par></tablecell>
+<tablecell valign='center' borderwidth='1px 0px 0px' bgcolor='white'>
+<par def='76'><run><font size='8pt'/></run><run><font size='8pt' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field type='datetime' kind='editable'
+ name='originalDeliveryDate'><datetimeformat show='date' date='yearmonthday'
+ fourdigityearfor21stcentury='true' zone='never' dateformat='weekdaydaymonthyear'
+ dayformat='twodigitday' monthformat='twodigitmonth' yearformat='fourdigityear'
+ weekdayformat='shortname' dateseparator1=' ' dateseparator2='/' dateseparator3='/'
+ timeseparator=':' timeformat24='true' preference='usersetting'/><code event='defaultvalue'><formula
+>OriginalDeliveryDate</formula></code></field></run><run><font size='8pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell valign='center' borderwidth='0px' bgcolor='#f7f7f7'>
+<par def='75'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='#4f4f4f'/>Revised Delivery Date:</run></par></tablecell>
+<tablecell valign='center' borderwidth='1px 0px 0px' bgcolor='white'>
+<pardef id='82' leftmargin='0.0785in' keepwithnext='true' keeptogether='true'><code
+ event='hidewhen'><formula>expedDeliveryDate = revisedDeliveryDate</formula></code></pardef>
+<par def='82'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/>Expediting Revised Delivery Date: </run><run><font
+ size='8pt' name='Arial' pitch='variable' truetype='true' familyid='20'/><field
+ type='datetime' kind='computed' name='expedDeliveryDate'><datetimeformat
+ show='date' date='yearmonthday' fourdigityearfor21stcentury='true' zone='never'
+ dateformat='weekdaydaymonthyear' dayformat='twodigitday' monthformat='twodigitmonth'
+ yearformat='fourdigityear' weekdayformat='shortname' dateseparator1=' ' dateseparator2='/'
+ dateseparator3='/' timeseparator=':' timeformat24='true' preference='usersetting'/><code
+ event='defaultvalue'><formula>server := @Subset( @DbName ; 1 );
+database := @Subset( @DbName ; -1 );
+view := "ExpedByOrderNo";
+key := orderNumber+ "-" +SupplierName;
+col := 2;
+tmp := @DbLookup( "" ; server : database ; view ; key ; col );
+@If( @IsError( tmp ) ; "" ; tmp )</formula></code></field></run><run><font
+ size='8pt' name='Arial' pitch='variable' truetype='true' familyid='20' color='red'/></run></par>
+<pardef id='83' leftmargin='0.0785in' hide='read preview embedded' keepwithnext='true'
+ keeptogether='true'/>
+<par def='83'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run><run><font size='8pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field usenotesstyle='false' height='0.1847in'
+ width='1.1813in' heighttype='proportional' multiline='true' borderstyle='single'
+ type='datetime' kind='editable' name='revisedDeliveryDate' description='Date order was created'><datetimeformat
+ show='date' date='yearmonthday' fourdigityearfor21stcentury='true' zone='never'
+ dateformat='weekdaydaymonthyear' dayformat='twodigitday' monthformat='twodigitmonth'
+ yearformat='fourdigityear' weekdayformat='shortname' dateseparator1=' ' dateseparator2='/'
+ dateseparator3='/' timeseparator=':' preference='usersetting'/></field></run><run
+><font size='8pt' name='Arial' pitch='variable' truetype='true' familyid='20'/></run></par>
+<pardef id='84' leftmargin='0.0785in' hide='edit copy previewedit' keepwithnext='true'
+ keeptogether='true'/>
+<par def='84'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run><run><font size='8pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field type='text' kind='computed' name='revisedDeliveryDateView'><code
+ event='defaultvalue'><formula>RevisedDeliveryDate</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='7' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='8pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='#4f4f4f'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell borderwidth='0px' bgcolor='#f7f7f7'>
+<par def='75'><run><font size='1pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='#4f4f4f'/></run></par>
+<par def='75'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='#4f4f4f'/>Bill Of Material Links:</run></par></tablecell>
+<tablecell borderwidth='1px 0px 0px' bgcolor='white'>
+<par def='76'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='#4f4f4f'/></run><run><font size='8pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field type='text' allowmultivalues='true'
+ kind='computed' name='BillOfMaterialLinksText' listinputseparators='semicolon newline'
+ listdisplayseparator='newline'><code event='defaultvalue'><formula>BillOfMaterialLinksText</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='9' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='8pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='#4f4f4f'/></run></par>
+<par def='81'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/><field type='text' allowmultivalues='true' kind='computed'
+ name='BillOfMaterialLinks' listinputseparators='semicolon newline' listdisplayseparator='newline'><code
+ event='defaultvalue'><formula>BillOfMaterialLinks</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='6' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='8pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='#4f4f4f'/></run></par></tablecell></tablerow></table>
+<par def='69'><run><font size='8pt'/></run></par></tablecell></tablerow></table>
+<par def='67'><run><font size='8pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/></run></par></tablecell>
+<tablecell borderwidth='0px'>
+<pardef id='85' hide='read print preview' keepwithnext='true' keeptogether='true'/>
+<par def='85'><run><font size='8pt' style='bold'/></run></par></tablecell>
+<tablecell borderwidth='0px'>
+<pardef id='86' hide='notes web mobile' keepwithnext='true' keeptogether='true'/>
+<par def='86'/>
+<table widthtype='fitmargins' cellbordercolor='silver' leftmargin='0' refwidth='6.0764in'><tablecolumn
+ width='100%'/>
+<tablerow>
+<tablecell borderwidth='1px 0px 0px 1px'>
+<pardef id='88' hide='notes web mobile' keepwithnext='true' keeptogether='true'/>
+<par def='88'/>
+<table widthtype='fitmargins' minrowheight='0.1965in' cellbordercolor='#efefef'
+ leftmargin='0%' refwidth='6.0660in'><tablecolumn width='1.1021in'/><tablecolumn
+ width='100%'/>
+<tablerow>
+<tablecell valign='center' borderwidth='0px 0px 1px' bgcolor='#e9eae4'>
+<pardef id='90' leftmargin='0.0785in' keepwithnext='true' keeptogether='true'/>
+<par def='90'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='navy'/>Deliver To</run></par></tablecell>
+<tablecell valign='center' borderwidth='0px 0px 1px' bgcolor='#e9eae4'>
+<pardef id='91' leftmargin='0.0785in' keepwithnext='true' keeptogether='true'/>
+<par def='91'><run><font size='8pt' color='blue'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell valign='center' borderwidth='0px' bgcolor='#f7f7f7'>
+<pardef id='92' leftmargin='0.0785in' keepwithnext='true' keeptogether='true'/>
+<par def='92'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='#4f4f4f'/>Delivery:</run></par></tablecell>
+<tablecell valign='center' borderwidth='1px 0px' bgcolor='white'>
+<par def='91'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/><field type='text' kind='editable' name='deliveryName' description='Deliver To Company'><code
+ event='defaultvalue'><formula>supplierName</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='6' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='8pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='maroon'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell valign='center' borderwidth='0px' bgcolor='#f7f7f7'>
+<par def='92'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='#4f4f4f'/>Address Line 1:</run></par></tablecell>
+<tablecell valign='center' borderwidth='1px 0px' bgcolor='white'>
+<pardef id='93' leftmargin='0.0785in' keepwithnext='true' keeptogether='true'/>
+<par def='93'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/><field type='text' kind='editable' name='deliveryAddress'
+ description='Street address.'/></run><compositedata type='98' prevtype='65418'
+ nexttype='222' afterparcount='7' containertype='65418' aftercontainercount='1'
+ afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='8pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='maroon'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell valign='center' borderwidth='0px' bgcolor='#f7f7f7'>
+<pardef id='94' leftmargin='0.0785in' keepwithnext='true' keeptogether='true'/>
+<par def='94'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='#4f4f4f'/>Address Line 2:</run></par></tablecell>
+<tablecell valign='center' borderwidth='1px 0px' bgcolor='white'>
+<par def='93'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/><field type='text' kind='editable' name='deliveryAddressL2'
+ description='Street address.'/></run><compositedata type='98' prevtype='65418'
+ nexttype='222' afterparcount='6' containertype='65418' aftercontainercount='1'
+ afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='8pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='maroon'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell valign='center' borderwidth='0px' bgcolor='#f7f7f7'>
+<pardef id='95' leftmargin='0.0785in' keepwithnext='true' keeptogether='true'/>
+<par def='95'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='#4f4f4f'/>Suburb / City:</run></par></tablecell>
+<tablecell valign='center' borderwidth='1px 0px 0px' bgcolor='white'>
+<par def='93'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/><field type='text' kind='editable' name='deliveryCity' description='city.'/></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='6' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='8pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='maroon'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell valign='center' borderwidth='0px' bgcolor='#f7f7f7'>
+<par def='92'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='#4f4f4f'/>State:</run></par></tablecell>
+<tablecell valign='center' borderwidth='1px 0px 0px' bgcolor='white'>
+<par def='93'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/><field type='text' kind='editable' name='deliveryState' description='state.'/></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='6' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='8pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='maroon'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell valign='center' borderwidth='0px' bgcolor='#f7f7f7'>
+<par def='92'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='#4f4f4f'/>Country:</run></par></tablecell>
+<tablecell valign='center' borderwidth='1px 0px 0px' bgcolor='white'>
+<par def='93'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/><field type='text' kind='editable' name='deliveryCountry'
+ description='country'/></run><compositedata type='98' prevtype='65418' nexttype='222'
+ afterparcount='6' containertype='65418' aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run
+><font size='8pt' name='Arial' pitch='variable' truetype='true' familyid='20'
+ color='#4f4f4f'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell valign='center' borderwidth='0px' bgcolor='#f7f7f7'>
+<par def='90'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='#4f4f4f'/>Post Code:</run></par></tablecell>
+<tablecell valign='center' borderwidth='1px 0px 0px' bgcolor='white'>
+<pardef id='96' leftmargin='0.0785in' keepwithnext='true' keeptogether='true'/>
+<par def='96'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/><field type='text' kind='editable' name='deliveryPostCode'
+ description='post code'/></run><compositedata type='98' prevtype='65418'
+ nexttype='222' afterparcount='7' containertype='65418' aftercontainercount='1'
+ afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='8pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell borderwidth='0px' bgcolor='#f7f7f7'>
+<par def='92'><run><font size='1pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='#4f4f4f'/></run></par>
+<par def='92'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='#4f4f4f'/>Notes:</run></par></tablecell>
+<tablecell borderwidth='1px 0px 0px' bgcolor='white'>
+<par def='93'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/><field usenotesstyle='false' height='0.9840in' width='100%'
+ multiline='true' borderstyle='single' type='text' kind='editable' name='deliveryNotes'
+ description='Delivery Notes'/></run><run><font size='8pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='maroon'/></run></par></tablecell></tablerow></table></tablecell></tablerow></table>
+<par def='86'><run><font size='8pt' style='bold'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell columnspan='3' borderwidth='0px'>
+<pardef id='98' keepwithnext='true' keeptogether='true'/>
+<par def='98'><run><font size='8pt' style='bold'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell columnspan='3' borderwidth='0px'>
+<par def='18'/>
+<table widthtype='fitmargins' cellbordercolor='silver' leftmargin='0' refwidth='13.0611in'><tablecolumn
+ width='100%'/>
+<tablerow>
+<tablecell borderwidth='1px 0px 0px 1px'>
+<pardef id='99' hide='notes web mobile' keepwithnext='true' keeptogether='true'/>
+<par def='99'/>
+<table minrowheight='0.1965in' cellbordercolor='silver' leftmargin='0.0104in'
+ widthtype='fixedleft' refwidth='6.3028in'><tablecolumn width='0.5264in'/><tablecolumn
+ width='0.5625in'/><tablecolumn width='3.0875in'/><tablecolumn width='1.0632in'/><tablecolumn
+ width='1.0632in'/>
+<tablerow>
+<tablecell valign='center' borderwidth='0px 1px 1px 0px' bgcolor='#efefef'>
+<pardef id='101' align='center' keepwithnext='true' keeptogether='true'><code
+ event='hidewhen'><formula>@Contains(ordernumber;"-")</formula></code></pardef>
+<par def='101'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='#4f4f4f'/>Sort</run></par></tablecell>
+<tablecell valign='center' borderwidth='0px 1px 1px' bgcolor='#efefef'>
+<pardef id='102' align='center' keepwithnext='true' keeptogether='true'><code
+ event='hidewhen'><formula>@Contains(ordernumber;"-")</formula></code></pardef>
+<par def='102'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='#4f4f4f'/>Qty.</run></par></tablecell>
+<tablecell valign='center' borderwidth='0px 1px 1px' bgcolor='#efefef'>
+<pardef id='103' align='center' keepwithnext='true' keeptogether='true'><code
+ event='hidewhen'><formula>@Contains(ordernumber;"-")</formula></code></pardef>
+<par def='103'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='#4f4f4f'/>Description</run></par></tablecell>
+<tablecell valign='center' borderwidth='0px 1px 1px' bgcolor='#efefef'>
+<pardef id='104' align='center' keepwithnext='true' keeptogether='true'><code
+ event='hidewhen'><formula>@Contains(ordernumber;"-")</formula></code></pardef>
+<par def='104'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='#4f4f4f'/>Job No / PC</run></par></tablecell>
+<tablecell valign='center' borderwidth='0px 1px 1px' bgcolor='#efefef'>
+<pardef id='105' align='center' keepwithnext='true' keeptogether='true'><code
+ event='hidewhen'><formula>@Contains(ordernumber;"-")</formula></code></pardef>
+<par def='105'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='#4f4f4f'/>Cost Code</run></par></tablecell></tablerow></table>
+<par def='99'><run><font size='8pt'/></run></par>
+<pardef id='106' keepwithnext='true' keeptogether='true'/>
+<par def='106'><run><font size='1pt'/></run><run><font size='1pt' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field showdelimiters='false'
+ type='richtext' kind='editable' name='ItemTable'><code event='defaultvalue'><formula
+>ItemTable</formula></code></field></run><compositedata type='98' prevtype='65418'
+ nexttype='222' afterparcount='8' containertype='65418' aftercontainercount='1'
+ afterbegincount='4'>
+Yg4BAIQAAAAAAAEAAAA=
+</compositedata><run><font size='1pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/></run></par>
+<par def='99'/></tablecell></tablerow></table>
+<par def='18'><run><font size='12pt' style='bold'/></run></par></tablecell></tablerow></table>
+<par def='18'><run><font color='maroon'/></run></par></tablecell></tablerow>
+<tablerow tablabel='Doc Control'>
+<tablecell borderwidth='0px'>
+<pardef id='107' hide='notes web' tabs='L2.5000in L4.6875in' keepwithnext='true'
+ keeptogether='true'/>
+<par def='107'><run><font color='maroon'/></run></par><subformref name='01.Doc Control | DocControl'/>
+<pardef id='108' keepwithnext='true' keeptogether='true'><code event='hidewhen'
+ enabled='false'><formula>@IsNotMember( "[AdministrationA]" : "[AdministrationR]" ; @UserRoles )</formula></code></pardef>
+<par def='108'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='maroon'/></run></par>
+<table widthtype='fitmargins' cellbordercolor='silver' leftmargin='0' refwidth='13.0611in'><tablecolumn
+ width='16.6458%'/><tablecolumn width='83.3542%'/>
+<tablerow>
+<tablecell rowspan='7' columnspan='2' valign='center' borderwidth='1px 0px 0px 1px'>
+<pardef id='115' leftmargin='0%' rightmargin='100%' keepwithnext='true' keeptogether='true'><code
+ event='hidewhen' enabled='false'><formula>@IsNotMember( "[AdministrationA]" : "[AdministrationR]" ; @UserRoles )</formula></code></pardef>
+<par def='115'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='maroon'/></run></par>
+<table widthtype='fitmargins' cellbordercolor='#e1e1e1' user4spacing='true'
+ leftmargin='0%' rightmargin='100%' refwidth='13.0507in'><tablecolumn width='17.4653%'/><tablecolumn
+ width='27.1007%'/><tablecolumn width='24.5556%'/><tablecolumn width='30.8785%'/>
+<tablerow>
+<tablecell columnspan='2' borderwidth='0px' bgcolor='#e9eae4'>
+<pardef id='118' leftmargin='0.0785in' keepwithnext='true' keeptogether='true'><code
+ event='hidewhen' enabled='false'><formula>@IsNotMember( "[AdministrationA]" : "[AdministrationR]" ; @UserRoles )</formula></code></pardef>
+<par def='118'><run><font size='8pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='maroon'/>Code Approvers</run></par></tablecell>
+<tablecell borderwidth='0px' bgcolor='#e9eae4'>
+<pardef id='119' keepwithnext='true' keeptogether='true'><code event='hidewhen'
+ enabled='false'><formula>@IsNotMember( "[AdministrationA]" : "[AdministrationR]" ; @UserRoles )</formula></code></pardef>
+<par def='119'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='maroon'/></run></par></tablecell>
+<tablecell borderwidth='0px' bgcolor='#e9eae4'>
+<pardef id='120' keepwithnext='true' keeptogether='true'><code event='hidewhen'
+ enabled='false'><formula>@IsNotMember( "[AdministrationA]" : "[AdministrationR]" ; @UserRoles )</formula></code></pardef>
+<par def='120'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='maroon'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell borderwidth='0px'>
+<pardef id='121' leftmargin='0.0785in' rightmargin='100%' keepwithnext='true'
+ keeptogether='true'><code event='hidewhen' enabled='false'><formula>@IsNotMember( "[AdministrationA]" : "[AdministrationR]" ; @UserRoles )</formula></code></pardef>
+<par def='121'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='maroon'/>Form Author:</run></par></tablecell>
+<tablecell borderwidth='0px'>
+<pardef id='122' leftmargin='0.0201in' firstlineleftmargin='0' keepwithnext='true'
+ keeptogether='true'><code event='hidewhen' enabled='false'><formula>@IsNotMember( "[AdministrationA]" : "[AdministrationR]" ; @UserRoles )</formula></code></pardef>
+<par def='122'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='maroon'/></run><run><font size='8pt' color='maroon'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/><field type='authors'
+ allowmultivalues='true' kind='computed' name='formAuthor2' listinputseparators='comma newline'
+ listdisplayseparator='newline'><code event='defaultvalue'><formula>"*"</formula></code></field></run><run
+><font size='8pt' style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='maroon'/></run></par></tablecell>
+<tablecell borderwidth='0px'>
+<par def='119'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='maroon'/>Form Reader:</run></par></tablecell>
+<tablecell borderwidth='0px'>
+<pardef id='123' leftmargin='0%' rightmargin='100%' keepwithnext='true' keeptogether='true'><code
+ event='hidewhen' enabled='false'><formula>@IsNotMember( "[AdministrationA]" : "[AdministrationR]" ; @UserRoles )</formula></code></pardef>
+<par def='123'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='maroon'/></run><run><font size='8pt' color='maroon'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/><field type='readers'
+ allowmultivalues='true' kind='editable' name='formReader2' listinputseparators='comma newline'
+ listdisplayseparator='newline'><code event='defaultvalue'><formula>""</formula></code></field></run><run
+><font size='8pt' style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='maroon'/></run></par></tablecell></tablerow></table>
+<pardef id='124' leftmargin='2%' rightmargin='98%' keepwithnext='true' keeptogether='true'><code
+ event='hidewhen' enabled='false'><formula>@IsNotMember( "[AdministrationA]" : "[AdministrationR]" ; @UserRoles )</formula></code></pardef>
+<par def='124'><run><font size='8pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='maroon'/></run></par></tablecell></tablerow>
+<tablerow/>
+<tablerow/>
+<tablerow/>
+<tablerow/>
+<tablerow/>
+<tablerow/></table>
+<pardef id='125' keepwithnext='true' keeptogether='true'><code event='hidewhen'><formula
+>@IsNotMember( "[AdministrationA]" : "[AdministrationR]" ; @UserRoles )</formula></code></pardef>
+<par def='125'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='maroon'/></run></par></tablecell></tablerow></table>
+<pardef id='126' leftmargin='1in'/>
+<par def='126'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='blue'/></run></par>
+<pardef id='127' align='right'/>
+<par def='127'/></richtext></body>
+<item name='date' summary='false' sign='true'>
+<rawitemdata type='400'>
+AAAAAAAAAAA=
+</rawitemdata></item>
+<item name='time' summary='false' sign='true'>
+<rawitemdata type='400'>
+AAAAAAAAAAA=
+</rawitemdata></item>
+<item name='RetractedDateDT' summary='false' sign='true'>
+<rawitemdata type='400'>
+AAAAAAAAAAA=
+</rawitemdata></item>
+<item name='SurveyCountNo' summary='false' sign='true'><number>0</number></item>
+<item name='SurveyDateDT' summary='false' sign='true'>
+<rawitemdata type='400'>
+AAAAAAAAAAA=
+</rawitemdata></item>
+<item name='coAppDate' summary='false' sign='true'>
+<rawitemdata type='400'>
+AAAAAAAAAAA=
+</rawitemdata></item>
+<item name='dptMgrAppDate_2' summary='false' sign='true'>
+<rawitemdata type='400'>
+AAAAAAAAAAA=
+</rawitemdata></item>
+<item name='dptMgrAppDate_3' summary='false' sign='true'>
+<rawitemdata type='400'>
+AAAAAAAAAAA=
+</rawitemdata></item>
+<item name='dptMgrAppDate_4' summary='false' sign='true'>
+<rawitemdata type='400'>
+AAAAAAAAAAA=
+</rawitemdata></item>
+<item name='envAppDate_2' summary='false' sign='true'>
+<rawitemdata type='400'>
+AAAAAAAAAAA=
+</rawitemdata></item>
+<item name='envAppDate_3' summary='false' sign='true'>
+<rawitemdata type='400'>
+AAAAAAAAAAA=
+</rawitemdata></item>
+<item name='envAppDate_4' summary='false' sign='true'>
+<rawitemdata type='400'>
+AAAAAAAAAAA=
+</rawitemdata></item>
+<item name='sftAppDate_2' summary='false' sign='true'>
+<rawitemdata type='400'>
+AAAAAAAAAAA=
+</rawitemdata></item>
+<item name='sftAppDate_3' summary='false' sign='true'>
+<rawitemdata type='400'>
+AAAAAAAAAAA=
+</rawitemdata></item>
+<item name='sftAppDate_4' summary='false' sign='true'>
+<rawitemdata type='400'>
+AAAAAAAAAAA=
+</rawitemdata></item>
+<item name='supAppDate_1' summary='false' sign='true'>
+<rawitemdata type='400'>
+AAAAAAAAAAA=
+</rawitemdata></item>
+<item name='supAppDate_2' summary='false' sign='true'>
+<rawitemdata type='400'>
+AAAAAAAAAAA=
+</rawitemdata></item>
+<item name='supAppDate_3' summary='false' sign='true'>
+<rawitemdata type='400'>
+AAAAAAAAAAA=
+</rawitemdata></item>
+<item name='supAppDate_4' summary='false' sign='true'>
+<rawitemdata type='400'>
+AAAAAAAAAAA=
+</rawitemdata></item>
+<item name='commMgrAppDate_1' summary='false' sign='true'>
+<rawitemdata type='400'>
+AAAAAAAAAAA=
+</rawitemdata></item>
+<item name='commMgrAppDate_2' summary='false' sign='true'>
+<rawitemdata type='400'>
+AAAAAAAAAAA=
+</rawitemdata></item>
+<item name='commMgrAppDate_3' summary='false' sign='true'>
+<rawitemdata type='400'>
+AAAAAAAAAAA=
+</rawitemdata></item>
+<item name='commMgrAppDate_4' summary='false' sign='true'>
+<rawitemdata type='400'>
+AAAAAAAAAAA=
+</rawitemdata></item>
+<item name='mineGMAppDate_1' summary='false' sign='true'>
+<rawitemdata type='400'>
+AAAAAAAAAAA=
+</rawitemdata></item>
+<item name='mineGMAppDate_2' summary='false' sign='true'>
+<rawitemdata type='400'>
+AAAAAAAAAAA=
+</rawitemdata></item>
+<item name='mineGMAppDate_3' summary='false' sign='true'>
+<rawitemdata type='400'>
+AAAAAAAAAAA=
+</rawitemdata></item>
+<item name='mineGMAppDate_4' summary='false' sign='true'>
+<rawitemdata type='400'>
+AAAAAAAAAAA=
+</rawitemdata></item>
+<item name='dptMgrAppDate_1' summary='false' sign='true'>
+<rawitemdata type='400'>
+AAAAAAAAAAA=
+</rawitemdata></item>
+<item name='envAppDate_1' summary='false' sign='true'>
+<rawitemdata type='400'>
+AAAAAAAAAAA=
+</rawitemdata></item>
+<item name='sftAppDate_1' summary='false' sign='true'>
+<rawitemdata type='400'>
+AAAAAAAAAAA=
+</rawitemdata></item>
+<item name='NumberOfQuestionsEtcNO' summary='false' sign='true'><number>0</number></item>
+<item name='areaGMAppDate_1' summary='false' sign='true'>
+<rawitemdata type='400'>
+AAAAAAAAAAA=
+</rawitemdata></item>
+<item name='submittedDate' summary='false'>
+<rawitemdata type='400'>
+AAAAAAAAAAA=
+</rawitemdata></item>
+<item name='ReviewVersion' summary='false'><number>0</number></item>
+<item name='originAppDate' summary='false'>
+<rawitemdata type='400'>
+AAAAAAAAAAA=
+</rawitemdata></item>
+<item name='originatorAppDate' summary='false'>
+<rawitemdata type='400'>
+AAAAAAAAAAA=
+</rawitemdata></item>
+<item name='areaGMProcAppDate_1' summary='false'>
+<rawitemdata type='400'>
+AAAAAAAAAAA=
+</rawitemdata></item>
+<item name='area2GMProcAppDate_1' summary='false'>
+<rawitemdata type='400'>
+AAAAAAAAAAA=
+</rawitemdata></item>
+<item name='corpAppDate_1' summary='false'>
+<rawitemdata type='400'>
+AAAAAAAAAAA=
+</rawitemdata></item>
+<item name='ceoAppDate_1' summary='false'>
+<rawitemdata type='400'>
+AAAAAAAAAAA=
+</rawitemdata></item>
+<item name='ReviewOriginated' summary='false'>
+<rawitemdata type='400'>
+AAAAAAAAAAA=
+</rawitemdata></item>
+<item name='CommenceDate' summary='false'>
+<rawitemdata type='400'>
+AAAAAAAAAAA=
+</rawitemdata></item>
+<item name='ICSCreated' summary='false'>
+<rawitemdata type='400'>
+AAAAAAAAAAA=
+</rawitemdata></item>
+<item name='certCreated' summary='false'>
+<rawitemdata type='400'>
+AAAAAAAAAAA=
+</rawitemdata></item>
+<item name='cBF' summary='false'><number>0</number></item>
+<item name='subTotal' summary='false'><number>0</number></item>
+<item name='taxAmount' summary='false'><number>0</number></item>
+<item name='total' summary='false'><number>0</number></item>
+<item name='DeliveryDate' summary='false'>
+<rawitemdata type='400'>
+AAAAAAAAAAA=
+</rawitemdata></item>
+<item name='taxRate' summary='false'><number>0</number></item>
+<item name='approvedDate' summary='false'>
+<rawitemdata type='400'>
+AAAAAAAAAAA=
+</rawitemdata></item>
+<item name='conversionRate' summary='false'><number>0</number></item>
+<item name='authorisationLevel' summary='false'><number>0</number></item>
+<item name='OriginalInspectionDate' summary='false'>
+<rawitemdata type='400'>
+AAAAAAAAAAA=
+</rawitemdata></item>
+<item name='nextExpeditingDate' summary='false'>
+<rawitemdata type='400'>
+AAAAAAAAAAA=
+</rawitemdata></item>
+<item name='OriginalModTime'><datetime>20060822T165602,85+10</datetime></item>
+<item name='$SubForm_RepIDs' sign='true'><text>0000000000000000</text></item>
+<item name='$HFFlags'><text>1</text></item>
+<item name='$$ScriptName' summary='false' sign='true'><text>Inspection</text></item>
+<item name='$inspectionConducted_O' sign='true'>
+<rawitemdata type='14'>
+AQAAAkxTT0IDABQIZW4AAAQAKwBsAQQAAACgCBAFAAAAAAQAxAMkBogIAAA8AAwBAABQAGgBKAFs
+AAAAAAAAAAIAAAAYAGwBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAGABsAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAcAAADMACQGoARABcwAzADQA9ADAAAAAPAC8AIAAAAAAAAAACQGJAYAAAAA
+AAAAACACIAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAEABQBMb3R1cyBQcm9kdWN0AAAAVjAuMAAAAAAAAAAAAAAAAAAA
+AAAEAAAAbAEAAAAAAACgCAAAEAUAAAAAAAAAAAAAAQAAAAAAAAABAAAAAAAAAAEAAAAAAAAAAAAA
+AAUAAABXMzJJJAMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAwAUBQAAAAAwABUAJAAkAEkATgBTAFAARQBDAFQASQBPAE4AQwBPAE4ARABVAEMAVABFAEQA
+AACEAAMATgBFAFcAAACYAAYARABFAEwARQBUAEUAAAAAAKgBCgBJAE4ASQBUAEkAQQBMAEkAWgBF
+AAAAAADMAAkAVABFAFIATQBJAE4AQQBUAEUAAAAcAgYATwBCAEoARQBDAFQAAAAAAKAAAAAAAAAA
++AATACgARwBMAE8AQgBBAEwAUwApAEkATgBTAFAARQBDAFQASQBPAE4AAACAARMAKABHAGwAbwBi
+AGEAbABzACkASQBuAHMAcABlAGMAdABpAG8AbgAAAEQBBgBTAE8AVQBSAEMARQAAAAAAVAEKAEIA
+SQBOAEQARQBWAEUATgBUAFMAAAAAAIgBCwBPAEIASgBFAEMAVABOAEEATQBFAF8AAABwAwUARgBJ
+AEUATABEAAAA6AEGACUATABTAEkARABFAAAAAACQAggATwBOAEMASABBAE4ARwBFAAAAAAC8AQEA
+UwAAAPQBDABOAE8AVABFAFMAUwBFAFMAUwBJAE8ATgAAAAAAQAIGACUATABTAFgAQgBFAAAAAADI
+AQIARABCAAAAAAAwAg0ATgBPAFQARQBTAEQAQQBUAEEAQgBBAFMARQAAAAQDAgBXAFMAAAAAAKQC
+EABOAE8AVABFAFMAVQBJAFcATwBSAEsAUwBQAEEAQwBFAAAAAAB4AwYAJQBMAFMAWABVAEkAAAAA
+AGQCBQBVAEkARABPAEMAAAD8Aw8ATgBPAFQARQBTAFUASQBEAE8AQwBVAE0ARQBOAFQAAABwAgMA
+RABPAEMAAAA8Aw0ATgBPAFQARQBTAEQATwBDAFUATQBFAE4AVAAAAOACBgBUAE0AUABEAE8AQwAA
+AAAAyAIPAEMAVQBSAFIARQBOAFQARABPAEMAVQBNAEUATgBUAAAANAQIAEQATwBDAFUATQBFAE4A
+VAAAAAAAKAMPAEMAVQBSAFIARQBOAFQARABBAFQAQQBCAEEAUwBFAAAAqAQOAEMAUgBFAEEAVABF
+AEQATwBDAFUATQBFAE4AVAAAAAAAyAMGAEkARABGAEwAQQBHAAAAAABEAwEAMAAAAIAEEwBJAE4A
+UwBQAEUAQwBUAEkATwBOAEMATwBOAEQAVQBDAFQARQBEAAAA5AMBADEAAACcAw4ASQBOAFMAUABF
+AEMAVABJAE8ATgBEAEEAVABFAAAAAAD//xIASQBOAFMAUABFAEMAVABJAE8ATgBSAEUAUQBVAEkA
+UgBFAEQAAAAAAP//CwBQAHIAbwBnAHIAZQBzAHMAaQB2AGUAAAAcBAgARABBAFQARQBUAEkATQBF
+AAAAAABoBA0ATgBPAFQARQBTAEQAQQBUAEUAVABJAE0ARQAAAJAECQBBAEQASgBVAFMAVABEAEEA
+WQAAAP//FgBQAFIATwBHAFIARQBTAFMASQBOAFMAUABFAEMAVABJAE8ATgBSAEEAVABFAAAAAAD/
+/wgARABBAFQARQBPAE4ATABZAAAAAAD//wQARgBMAEEARwAAAAAA//8JAEQASQBBAEwATwBHAEIA
+TwBYAAAA1AQSAE4AZQB4AHQASQBuAHMAcABlAGMAdABpAG8AbgBEAGEAdABlAAAAAAD//xsAUwBl
+AGwAZQBjAHQAIABOAGUAeAB0ACAASQBuAHMAcABlAGMAdABpAG8AbgAgAEQAYQB0AGUAAAAFAKQI
+AAAAAEcG2VMYAAAAAACkACBSEQswfhELBAAAAAgAAABsAWwBEAEAAAAAAAACAAAAsABcAQAAAAAA
+AAAAAAAAAAAAAACwALAAAAAAAAAAAAAAAAAAAAAAAAAAAABcAVwBAAAAAAAAAAABAAAAAgAAAAYA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAwABAFwBAAAsAQYIAAAAABoAAABYAf//AAAAABAAAAAgAgAASAEAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD
+FhMp7S5pEL9dAN0BEYa3AAAAAAAAAAAAAAAAAAAAAGQAAAAAAAAAAAAAAAAAAAACAMAAAAD0BgAA
+AABcBAEA//8AAAMAIAAAAAAA/AAJAgAAzAAIAAAAAAAAAGwBAAAAAAAACQAAAAQCMAgAAAAAAAAA
+AAAAAAAUBjAIAAAAAOAC4AKQBAQGtAMwBQAAAAAAAAAABAIEAgAAAAAAAAAAAQAAABYAAAAkAAAA
+MAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAMAAQDgAgAA/AAJAgAAzAAaAMAArAH//wAAAAAQAAAA8AIAAIwBAAAAAAAAAQAAAEwH
+TAcAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEwHTAcAAAAAARQT
+Ke0uaRC/XQDdARGGtwAAAAAAAAAAAAAAAAAAAABkAAAAAAAAAAAAAAAAAAAAAgAUArACAADMAAAA
+AgABAP//AAASABQAAAAAAP//CQIAAAAAsgQAAAAAIAIUAv//AAAAAAQAAQAAAAkCIAIJAiACGQAD
+AAIAtAMAAIQBCQIAACACEAAAANADAADMAQAAAAAAAAEAAABwB3AHAAAAAAAAAAAAAAAAcAdwBwAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIUEyntLmkQv10A3QERhrcAAAAAAAAA
+AAAAAAAAAAAAZAAAAAAAAAAAAAAAAAAAAAIAFAKAAwAAIAIAAAIAAQD//wAAEgAUAAAAAAD//wkC
+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
+</rawitemdata></item>
+<item name='$projManagerSignoff_O' sign='true'>
+<rawitemdata type='14'>
+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
+</rawitemdata></item>
+<item name='$inspectionDate_O' sign='true'>
+<rawitemdata type='14'>
+AQAAAkxTT0IDABQIZW4AAAQACQAoAAQAAAAkAnQBAAAAAAQAwADMAAAAAAA0AAQBAABIAP//IAFk
+AAAAAAAAAAIAAAAYAGwBAAAAAGwBbAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAGAAYAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAEAAADMAMwAAAAAAMwAzAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAEABQBMb3R1cyBQcm9kdWN0AAAAVjAuMAAAAAAAAAAAAAAAAAAA
+AAAEAAAAKAAAAAAAAAAkAgAAdAEAAAAAAAAAAAAAAQAAAAAAAAABAAAAAAAAAAEAAAAAAAAAAAAA
+AAUAAABXMzJJJAMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAwB4AQAAAAAoABAAJAAkAEkATgBTAFAARQBDAFQASQBPAE4ARABBAFQARQAAAAAAfAADAE4A
+RQBXAAAAkAAGAEQARQBMAEUAVABFAAAAAAD//woASQBOAEkAVABJAEEATABJAFoARQAAAAAAxAAJ
+AFQARQBSAE0ASQBOAEEAVABFAAAA//8GAE8AQgBKAEUAQwBUAAAAAACYAAAAAAAAAPAAEwAoAEcA
+TABPAEIAQQBMAFMAKQBJAE4AUwBQAEUAQwBUAEkATwBOAAAA//8TACgARwBsAG8AYgBhAGwAcwAp
+AEkAbgBzAHAAZQBjAHQAaQBvAG4AAAA8AQYAUwBPAFUAUgBDAEUAAAAAAEwBCgBCAEkATgBEAEUA
+VgBFAE4AVABTAAAAAAD//wsATwBCAEoARQBDAFQATgBBAE0ARQBfAAAAYAEFAEYASQBFAEwARAAA
+AP//BgAlAEwAUwBJAEQARQAAAAAA//8HAEUAWABJAFQASQBOAEcAAAAFACgCAAAAAEuxX0QYAAAA
+AACcACBSEQswfhELBAAAAAgAAABsAQAACAEAAAAAAAACAAAAsABcAQAAAAAAAAAAAAAAAAAAAACw
+ALAAAAAAAAAAAAAAAAAAAAAAAAAAAABcAVwBAAAAAAAAAAABAAAAAgAAAAYAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAwAB
+AFwBAAAkAQYIAAAAABoAAABQAf//AAAAABAAAAAAAAAAQAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADFhMp7S5pEL9dAN0B
+EYa3AAAAAAAAAAAAAAAAAAAAAGQAAAAAAAAAAAAAAAAAAAACAMAAAAAUAgAAAABcBAEA//8AAAMA
+IAAAAAAA9AAJAgAAzAAIAAAAAAAAAGQBAAAAAAAAAQAAAAQCBAIAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAABAIEAgAAAAAAAAAAAQAAAAAAAAAkAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMAAQAA
+AAAA9AAJAgAAzAATAAAAZAEAANcAAAAAAAAABAAsAAAAAADSyAAdAAAaCwBbXAFJsADKzACmGgwA
+R1wBy9cAAABsARoNAB0aEgAdAgAAABEAGAAAAAAA//8BAAMAAwAAAAYACAEIAGQBDwAKAAAA
+</rawitemdata></item>
+<item name='IDFlag' summary='false'><number>0</number></item>
+<item name='ProgressInspectionRate' summary='false'><number>0</number></item>
+<item name='CreateDate' summary='false'>
+<rawitemdata type='400'>
+AAAAAAAAAAA=
+</rawitemdata></item>
+<item name='Modified' summary='false'>
+<rawitemdata type='400'>
+AAAAAAAAAAA=
+</rawitemdata></item></form>
+
