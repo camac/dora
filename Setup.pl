@@ -907,11 +907,12 @@ sub processArgs {
   my $numArgs = $#ARGV + 1;
 
   foreach my $argnum (0 .. $#ARGV) {
-    if ($ARGV[$argnum] eq '--no-color') {
-      $useColours = 0;
-    }
 
-    if ($ARGV[$argnum] eq '--test-filter' | $ARGV[$argnum] eq '-t') {
+    if ($ARGV[$argnum] eq '--no-color') {
+
+      $useColours = 0;
+
+    } elsif ($ARGV[$argnum] eq '--test-filter' | $ARGV[$argnum] eq '-t') {
 
       my $testFile = $ARGV[$argnum + 1];
 
@@ -924,9 +925,7 @@ sub processArgs {
       showFilterResult($testFile);
       exit 0;
 
-    }
-
-    if ($ARGV[$argnum] eq '--show-impurities' | $ARGV[$argnum] eq '-im') {
+    } elsif ($ARGV[$argnum] eq '--show-impurities' | $ARGV[$argnum] eq '-im') {
 
       my $testFile = $ARGV[$argnum + 1];
 
@@ -939,33 +938,36 @@ sub processArgs {
       showFilterImpurities($testFile);
       exit 0;
 
-    }
+    } elsif ($ARGV[$argnum] eq '--update-attributes') {
 
-    if ($ARGV[$argnum] eq '--update-attributes') {
       updateGitAttributes();
       exit 0;
-    }
 
-    if ($ARGV[$argnum] eq '--update-ignore') {
+    } elsif ($ARGV[$argnum] eq '--update-ignore') {
+
       updateGitIgnore();
       exit 0;
-    }
 
-    if ($ARGV[$argnum] eq '--dbprops-on') {
+    } elsif ($ARGV[$argnum] eq '--dbprops-on') {
+
       trackDbProps(1);
       exit 0;
-    }
 
-    if ($ARGV[$argnum] eq '--dbprops-off') {
+    } elsif ($ARGV[$argnum] eq '--dbprops-off') {
+
       trackDbProps(0);
       exit 0;
-    }
 
-    if ($ARGV[$argnum] eq '-v') {
+    } elsif ($ARGV[$argnum] eq '-v') {
+      
       $verbose = 1;
+
+    } else {
+
+      die "Invalid Argument: $ARGV[$argnum]";
+
     }
 
-    print "$ARGV[$argnum]\n";
   }
 
 }
