@@ -126,7 +126,7 @@
 
     <!-- not 100% but I don't like the sound of These! Not in the DTD in help anyway -->
     <xsl:template match="//n:folder/@formatnoteid"/> 
-    <xsl:template match="//n:imageresource/n:item[@name='$FileModDT']"/>
+    <xsl:template match="//n:view/@formatnoteid"/> 
 
     <!-- 
         For the Database Properties Non-Binary DXL.
@@ -146,9 +146,6 @@
     -->
     <xsl:template match="//n:database/n:acl"/>
 
-    <!-- Ignore the DesignerVersion Item -->
-    <xsl:template match="//n:item[@name='$DesignerVersion']"/>
-
     <!-- 
          Remove any items that begin with $ and end with _O
          for example
@@ -164,6 +161,10 @@
       </xsl:if>
     </xsl:template> 
 
+    <!-- Ignore the DesignerVersion Item  and this random FileModDT one -->
+    <xsl:template match="//n:item[@name='$DesignerVersion']"/>
+    <xsl:template match="//n:imageresource/n:item[@name='$FileModDT']"/>
+    <xsl:template match="//n:imageresource/n:item[@name='$EditFilePath']"/>
 
     <!-- 
          For any node not specified in one of the above templates, 
