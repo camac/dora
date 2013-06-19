@@ -158,7 +158,7 @@
          you freshly check out a repo version of the design element, but at
          least you won't get merge conflicts all the time
      -->
-     <xsl:template match="*">
+     <xsl:template match="//n:item">
        <xsl:if test="not(starts-with(@name,'$') and substring(@name,string-length(@name)-1,2) = '_O')">
         <xsl:call-template name="identity"/>
       </xsl:if>

@@ -1,5 +1,6 @@
 #!/bin/perl
 
+
 use strict;
 use Term::ANSIColor;
 
@@ -9,19 +10,29 @@ package GitFiltersForNSF;
 our $useColours = 1;
 our $verbose    = 0;
 
+our $productNameShort   = "dora";
+our $productNameLong    = "Domino ODP Repository Assistant";
+
 # Directory and File Locations
-our $homeDir      = $ENV{"HOME"};
-our $scriptDir    = "$homeDir/bin";
-our $xslSourceDir = "$homeDir/GitFilters";
-our $xslSource    = "$xslSourceDir/NonBinaryDxl.xsl";
-our $xslTargetDir = "xsl";
-our $xslTarget    = "$xslTargetDir/transform.xsl";
+our $homeDir            = $ENV{"HOME"};
+our $scriptDir          = "$homeDir/bin";
+our $xslSourceDir       = "$homeDir/GitFilters";
+
+# XSL Stylesheets, make sure first one is the filter
+our @xslSourceFilenames = (
+  "DXLFilter.xsl",
+  "DXLPretty.xsl"
+);
+
+our $xslTargetDir       = "xsl";
+our $xslFilterFilename  = $xslSourceFilenames[0];
+our $xslFilter          = "$xslTargetDir/$xslFilterFilename";
   
 our $attrFile     = ".gitattributes";
 our $ignoreFile   = ".gitignore";
 
 #Filter values
-our $cleanFilter  = "xsltproc $xslTarget -";
+our $cleanFilter  = "xsltproc $xslFilter -";
 our $smudgeFilter = "cat";
 
 # Markers to be used in Config files
@@ -29,8 +40,8 @@ our $cfgStartMark   = "# GitNSF Start";
 our $cfgFinishMark  = "# GitNSF Finish";
 
 # Variables for Checking repo setup
-our $gitDir       = "";
-our $gitRepoDir    = "";
+our $gitDir         = "";
+our $gitRepoDir     = "";
 
 our $chkIgnore   = 0;
 our $chkAttr     = 0;
@@ -208,64 +219,163 @@ sub checkFilter {
   
 }
 
+sub getXSLTarget {
+
+	# get input parameter
+	my ($srcFile) = @_;
+
+	# get full path of Source Binary
+	my $xslSource = "$xslSourceDir/$srcFile";
+
+	# Determine the FileName of the Stylesheet
+	my ($volume, $directories, $file) = File::Spec->splitpath($xslSource);
+
+	# Return the Target Source Path of the XSL Stylesheet
+	return "$xslTargetDir/$file";
+
+} 
+
 sub installXSL {
-
+  
   my ($silent) = @_;
+	my $xslSource = '';
+	my $xslTarget	= '';
+	my $xslExist  = 0;
 
-  heading("Install XSL Transformation file");
+  heading("Install XSL Stylesheets to this Repository");
 
-  print "Install XSL\n";
+  print "This step will install the XSL Stylesheets from:\n\n";
+  colorSet("bold white");
+  print "$xslSourceDir\n\n";
+  colorReset();
+  print "Into the:\n\n";
+  colorSet("bold white");
+  print "$xslTargetDir/\n\n";
+  colorReset();
+  print "directory in the current repository. The directory will be created if it does not exist.\n";
+
+  # Show the user that xsl files will be overwritten
+ 	foreach (@xslSourceFilenames) {
+
+	  $xslTarget = getXSLTarget($_);
+
+		if (-e $xslTarget) {
+	
+			colorSet("bold yellow");
+			if (!$xslExist) {
+				print "\nThe Following XSL Stylesheets are already installed and will be overwritten if you continue:\n";
+				$xslExist = 1;
+			}
+		  print "$xslTarget\n";
+	    colorReset();
+	
+    }
+  }	
 
   return 0 if !confirmContinue();
-
-  if (-e $xslSource) {
-
-    if (!-d $xslTargetDir) {    
-      mkdir $xslTargetDir;
-    }
-
-    use File::Copy;
-    copy($xslSource, $xslTarget) or warn "Failed to copy $xslTarget: $!\n";
-
-    printFileResult($xslTarget,"copied",1);
-
+  
+  # Check if the Home Bin directory exists
+  if (-d $xslTargetDir) {
+		printFileResult($xslTargetDir, "directory already exists", 0);
   } else {
+    mkdir $xslTargetDir or die "Could not create directory$xslTargetDir: $!";
+		printFileResult($xslTargetDir, "directory created", 1);
+  }
+  
+  foreach(@xslSourceFilenames) {
 
-    printf("$xslSource could not be found");
+    my $xslSource = "$xslSourceDir/$_";
+
+    if (-e $xslSource) {
+
+      my $xslTarget = getXSLTarget($_);
+
+      # Copy the xsl file to the Target Directory
+      use File::Copy;
+
+      copy($xslSource, $xslTarget) or die "Failed Copying: $!\n";
+	    printFileResult($xslTarget, "Installed", 1);
+
+    } else {
+      printf("ERROR: $xslSource could not be found, is $productNameShort properly?");
+    }
 
   }
 
 }
 
 sub uninstallXSL {
-
+  
   my ($silent) = @_;
+	my $xslSource = '';
+	my $xslTarget	= '';
+	my @xslExist = ();
 
   if (!$silent) {
-    heading("Uninstall XSL Transformation File");
+    heading("Uninstall the XSL Stylesheets");
     print "Uninstall XSL File\n";
     return 0 if !confirmContinue();
   }
 
-  if (-e $xslTarget) {
+	foreach(@xslSourceFilenames) {
+		$xslTarget = getXSLTarget($_);
+		push(@xslExist, $xslTarget) if (-e $xslTarget);
+	}
 
-    unlink($xslTarget) or warn "Failed to remove $xslTarget: $!\n";
+	if (!@xslExist) {
+		print "No XSL Stylesheets are currently installed, no action taken\n";
+		return 0;
+	}
 
-    printFileResult($xslTarget, "Removed", -1);
+	print "This step will remove the following XSL Stylesheets\n\n";
 
-  } else {
-    print "$xslTarget is already removed\n";
-  }
+	colorSet("bold white");
+	foreach(@xslExist) {
+		print "$_\n";
+	}
+	colorReset();
+
+	if (!confirmContinue()) {
+		print "aborting un-installation of XSL Stylesheets\n";
+		return 0;
+	}
+
+	# for each binary in the folder
+	foreach (@xslSourceFilenames)  {
+	
+		$xslTarget = getXSLTarget($_);
+
+		if (-e $xslTarget) {
+
+			my $noDelete = unlink $xslTarget or warn "Could not remove $xslTarget: $!\n";
+
+			if ($noDelete == 1) {
+				printFileResult($xslTarget,"Removed",-1);
+			}
+
+		} else {
+
+			printFileResult($xslTarget,"not there anyway",0);
+
+		}
+
+	}	
 
 }
 
 sub checkXSL {
 
-  if (-e $xslTarget) {
-    return 1;
-  } else {
-    return 0;
-  }
+	foreach (@xslSourceFilenames) {
+
+		my $xslTarget = getXSLTarget($_);
+
+		if (!-e $xslTarget) {
+			return 0;
+		}
+
+	}
+
+	return 1;
 
 }
 
@@ -827,7 +937,7 @@ sub menu {
     printInstallStatus(".gitignore entries",      $chkIgnore);
     printInstallStatus(".gitattributes entries",  $chkAttr);
 
-    print "------------------------------\n\n";
+    print "\n------------------------------\n\n";
 
   }
 

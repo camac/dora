@@ -17,7 +17,8 @@ use File::Copy 'copy';
 use File::Spec;
 use Term::ANSIColor;
 
-our $projname   = "Git Filters For NSF";
+our $projNameShart  = "dora";
+our $projNameLong   = "Domino ODP Repository Assistant";
 
 our $useColours = 1;
 our $verbose    = 0;
@@ -26,25 +27,26 @@ our $thisAbs = File::Spec->rel2abs(__FILE__);
 our ($thisVol, $thisDir, $thisFile) = File::Spec->splitpath($thisAbs);
 
 our $installScriptDir     = $thisDir;
-$installScriptDir =~ s:/$::;
+$installScriptDir =~ s:/$::; # remove trailing slash
 
 our $homeDir              = $ENV{"HOME"};
 
 our $setupSourceFilename  = "Setup.pl";
 our $setupSource          = "$installScriptDir/$setupSourceFilename";
 
-our $setupTargetDir = "$homeDir/bin";
-our $setupTargetFilename  = "dogh.pl";
+our $setupTargetDir       = "$homeDir/bin";
+our $setupTargetFilename  = "dora.pl";
 our $setupTarget          = "$setupTargetDir/$setupTargetFilename";
 
 our $binTargetDir					= $setupTargetDir;
 
-our $xslSourceFilename    = "xsl/NonBinaryDXL.xsl";
-our $xslSource            = "$installScriptDir/$xslSourceFilename";
+our $xslSourceDir         = "$installScriptDir/xsl";
+our @xslSourceFilenames   = (
+  "DXLFilter.xsl",
+  "DXLPretty.xsl"
+);
 
-our $xslTargetDir  = "$homeDir/GitFilters";
-our $xslTargetFilename   = "NonBinaryDxl.xsl";
-our $xslTarget           = "$xslTargetDir/$xslTargetFilename";
+our $xslTargetDir        = "$homeDir/GitFilters";
 
 our $libxsltDir		= "$installScriptDir/libxslt";
 our @libxsltBins  = (
@@ -143,28 +145,59 @@ sub checkHelper {
 
 }
 
+sub getXSLTarget {
+
+	# get input parameter
+	my ($srcFile) = @_;
+
+	# get full path of Source Binary
+	my $xslSource = "$xslSourceDir/$srcFile";
+
+	# Determine the FileName of the Stylesheet
+	my ($volume, $directories, $file) = File::Spec->splitpath($xslSource);
+
+	# Return the Target Source Path of the XSL Stylesheet
+	return "$xslTargetDir/$file";
+
+} 
 
 sub installXSL {
 
-	heading("Install the XSL File");
+	my $xslSource = '';
+	my $xslTarget	= '';
+	my $xslExist  = 0;
 
-	print "This step will install the XSL Stylesheet to:\n\n";
+	heading("Install the XSL Stylesheets");
+
+	print "This step will install the XSL Stylesheets to:\n\n";
 	colorSet("bold white");
-	print "  $xslTarget\n\n";
+	print "  $xslTargetDir\n\n";
 	colorReset();
-	print "The XSL file is used by the NSF Metadata filter\n";
-	print "When you use the helper script to setup a repository for NSF Metadata filtering,,\n";
+	print "The XSL Stylesheets are used by the NSF Metadata filter\n";
+	print "When you use the helper script to setup a repository for NSF Metadata filtering,\n";
 	print "the helper script will copy the above file to the ";
 	colorSet("bold white");
 	print "xsl/";
 	colorReset();
 	print " folder of the repository\n";
 
-	if (checkXSL()) {
-		colorSet("bold yellow");
-		print "\nThe XSL File is already installed, if you continue it will be overwritten.\n";
-		colorReset();
-	}
+  # Show the user that xsl files will be overwritten
+ 	foreach (@xslSourceFilenames) {
+
+	  $xslTarget = getXSLTarget($_);
+
+		if (-e $xslTarget) {
+	
+			colorSet("bold yellow");
+			if (!$xslExist) {
+				print "\nThe Following XSL Stylesheets are already installed and will be overwritten if you continue:\n";
+				$xslExist = 1;
+			}
+		  print "$xslTarget\n";
+	  colorReset();
+	
+    }
+  }	
 
 	return 0 if !confirmContinue();
 
@@ -176,11 +209,18 @@ sub installXSL {
 		printFileResult($xslTargetDir, "directory created", 1);
   }
 
-  # Copy the xsl file to the Target Directory
-  use File::Copy;
+  foreach(@xslSourceFilenames) {
 
-  copy($xslSource, $xslTarget) or die "Failed Copying: $!\n";
-	printFileResult($xslTarget, "Installed", 1);
+    my $xslSource = "$xslSourceDir/$_";
+    my $xslTarget = getXSLTarget($_);
+
+    # Copy the xsl file to the Target Directory
+    use File::Copy;
+
+    copy($xslSource, $xslTarget) or die "Failed Copying: $!\n";
+	  printFileResult($xslTarget, "Installed", 1);
+
+  }
 
   print "\n";
 
@@ -188,31 +228,72 @@ sub installXSL {
 
 sub uninstallXSL {
 
+	my $xslSource = '';
+	my $xslTarget	= '';
+	my @xslExist = ();
+
 	heading("Uninstall the XSL File");
 
-	if (-e $xslTarget) {
-
-		print "This step will remove the xsl script located at:\n";
-		colorSet("bold white");
-		print "\n$xslTarget\n";
-		colorReset();
-
-		return 0 if !confirmContinue();
-
-		unlink $xslTarget or warn "Could not remove $xslTarget: $!\n";
-		printFileResult($xslTarget,"removed",-1);
-
-	} else {
-
-		print "The XSL file is not currently installed, no action taken\n";
-
+	foreach(@xslSourceFilenames) {
+		$xslTarget = getXSLTarget($_);
+		push(@xslExist, $xslTarget) if (-e $xslTarget);
 	}
+
+	if (!@xslExist) {
+		print "No XSL Stylesheets are currently installed, no action taken\n";
+		return 0;
+	}
+
+	print "This step will remove the following XSL Stylesheets\n\n";
+
+	colorSet("bold white");
+	foreach(@xslExist) {
+		print "$_\n";
+	}
+	colorReset();
+	
+
+	if (!confirmContinue()) {
+		print "aborting un-installation of XSL Stylesheets\n";
+		return 0;
+	}
+
+	# for each binary in the folder
+	foreach (@xslSourceFilenames)  {
+	
+		$xslTarget = getXSLTarget($_);
+
+		if (-e $xslTarget) {
+
+			my $noDelete = unlink $xslTarget or warn "Could not remove $xslTarget: $!\n";
+
+			if ($noDelete == 1) {
+				printFileResult($xslTarget,"removed",-1);
+			}
+
+		} else {
+
+			printFileResult($xslTarget,"not there anyway",0);
+
+		}
+
+	}	
 
 }
 
 sub checkXSL {
 
-	return (-e $xslTarget);
+	foreach (@xslSourceFilenames) {
+
+		my $xslTarget = getXSLTarget($_);
+
+		if (!-e $xslTarget) {
+			return 0;
+		}
+
+	}
+
+	return 1;
 
 }
 
@@ -242,7 +323,6 @@ sub installLibxslt {
 
 	print ("\nThis step will install the binaries required to run xsltproc\n\n");
 	print ("xsltproc is the program used to filter the DXL using an xsl file\n");
-
 
 	foreach (@libxsltBins) {
 
@@ -408,7 +488,7 @@ sub main {
 
 		mycls();
 
-		heading("$projname Installation");
+		heading("$projNameLong Installation");
 
 		print "Current Status:\n\n";
 
@@ -422,10 +502,10 @@ sub main {
 		menuOption("2", "Uninstall Everything");
 		menuSeparator();
 		menuOption("3", "Install Git Helper Script");
-		menuOption("4", "Install xsl stylesheet");
+		menuOption("4", "Install XSL Stylesheets");
 		menuOption("5", "Install libxslt binaries");
 		menuOption("6", "Uninstall Git Helper Script");
-		menuOption("7", "Uninstall xsl stylesheet");
+		menuOption("7", "Uninstall XSL stylesheets");
 		menuOption("8", "Uninstall libxslt binaries");
 		menuSeparator();
 		menuOption("q", "Quit");
