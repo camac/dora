@@ -1,15 +1,30 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:n="http://www.lotus.com/dxl">
+  <!-- Indent the result tree for more consistency when doing a diff - and it looks much nicer :) -->
   <xsl:output indent="yes"/>
+  <!-- Strip whitespace so that when we remove elements it does not leave ugly blank gaps -->
   <xsl:strip-space elements="*"/>
 
-    <!-- Maybe want to do $DesignerVersion on Java MetaData?? -->
+<!-- 
+  Start: Removal templates
+    
+    Each of the following templates are designed to match an element or attribute that 
+    we do not want in the result tree.
 
+-->
+
+    <!-- We Don't want the NoteInfo element. We don't care who updated or signed the element  -->
     <xsl:template match="n:noteinfo|n:updatedby|n:wassignedby"/>
+
+    <!-- For binary DXL elements replicaid and version are stored on a <note> element -->
     <xsl:template match="//n:note/@replicaid"/>
     <xsl:template match="//n:note/@version"/>
 
-    <!-- For the Form Non-Binary DXL -->
+    <!-- 
+         The following templates cover the replicaid, version and designerversion
+         attributes on the Standard DXL elements.
+    -->
+
     <xsl:template match="//n:form/@replicaid"/>
     <xsl:template match="//n:form/@version"/>
     <xsl:template match="//n:form/@designerversion"/>
@@ -94,10 +109,11 @@
     <xsl:template match="//n:fileresource/@version"/>
     <xsl:template match="//n:fileresource/@designerversion"/>
 
+    <!-- END Standard DXL replicaid, version, designerversion templates -->
+    
     <!-- 
          For Agent Non-Binary DXL 
          For both LotusScript and Java agents
-
       
          For Java Agents You may also wish to look at some extra ones like javaproject->codepath or
          item->$JavaCompilerSource item->$JavaComplierTarget
@@ -108,15 +124,13 @@
 
     <xsl:template match="//n:javaproject/@codepath"/>
 
-    <xsl:template match="//n:folder/@formatnoteid"/> <!-- not 100% but I don't like the sound of it! Not in the DTD in help anyway -->
-
-    <xsl:template match="//n:imageresource/n:item[@name='$FileModDT']"/> <!-- not 100% sure but I don't like the sound of datetimes in there! double check -->
+    <!-- not 100% but I don't like the sound of These! Not in the DTD in help anyway -->
+    <xsl:template match="//n:folder/@formatnoteid"/> 
+    <xsl:template match="//n:imageresource/n:item[@name='$FileModDT']"/>
 
     <!-- 
         For the Database Properties Non-Binary DXL.
-        It is probably a better idea just to ignore database.proprties and add it using 
-        git add -f <filename>
-        when needed 
+        Most of these attributes/elements are guaranteed to be different on different developer copies
     -->
     <xsl:template match="//n:database/@path"/>
     <xsl:template match="//n:database/n:databaseinfo/@dbid"/>
@@ -124,21 +138,16 @@
     <xsl:template match="//n:database/n:databaseinfo/@numberofdocuments"/>
     <xsl:template match="//n:database/n:databaseinfo/@diskspace"/>
     <xsl:template match="//n:database/n:databaseinfo/@odsversion"/>
-
     <xsl:template match="//n:database/n:databaseinfo/n:datamodified"/>
     <xsl:template match="//n:database/n:databaseinfo/n:designmodified"/>
 
-    <!-- Ignore the database ACL -->
+    <!-- 
+         Ignore the database ACL 
+    -->
     <xsl:template match="//n:database/n:acl"/>
 
     <!-- Ignore the DesignerVersion Item -->
     <xsl:template match="//n:item[@name='$DesignerVersion']"/>
-
-    <xsl:template match="node() | @*" name="identity">
-        <xsl:copy>
-            <xsl:apply-templates select="node() | @*"/>
-        </xsl:copy>
-      </xsl:template> 
 
     <!-- 
          Remove any items that begin with $ and end with _O
@@ -148,11 +157,23 @@
          These Items are Script Object items, they are not source code!
          you freshly check out a repo version of the design element, but at
          least you won't get merge conflicts all the time
-         -->
+     -->
      <xsl:template match="*">
        <xsl:if test="not(starts-with(@name,'$') and substring(@name,string-length(@name)-1,2) = '_O')">
         <xsl:call-template name="identity"/>
       </xsl:if>
+    </xsl:template> 
+
+
+    <!-- 
+         For any node not specified in one of the above templates, 
+         simply copy it to the result tree.
+         This template is also named so it can be called by call-template
+    -->
+    <xsl:template match="node() | @*" name="identity">
+        <xsl:copy>
+            <xsl:apply-templates select="node() | @*"/>
+        </xsl:copy>
     </xsl:template> 
     
 </xsl:stylesheet>
