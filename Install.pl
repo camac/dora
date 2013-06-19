@@ -43,7 +43,8 @@ our $binTargetDir					= $setupTargetDir;
 our $xslSourceDir         = "$installScriptDir/xsl";
 our @xslSourceFilenames   = (
   "DXLFilter.xsl",
-  "DXLPretty.xsl"
+  "DXLPretty.xsl",
+  "DXLDeflate.xsl"
 );
 
 our $xslTargetDir        = "$homeDir/dora";

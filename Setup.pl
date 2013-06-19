@@ -20,11 +20,13 @@ our $xslSourceDir       = "$homeDir/dora";
 
 our $xslFilterFilename  = "DXLFilter.xsl";
 our $xslPrettyFilename  = "DXLPretty.xsl";
+our $xslDeflateFilename = "DXLDeflate.xsl";
 
 # XSL Stylesheets, make sure first one is the filter
 our @xslSourceFilenames = (
   $xslFilterFilename,
-  $xslPrettyFilename
+  $xslPrettyFilename,
+  $xslDeflateFilename
 );
 
 our $xslTargetDir       = "xsl";
@@ -686,6 +688,47 @@ sub showFilterResult {
 
 }
 
+sub deflateFile {
+  
+  my ($testFile) = @_;
+
+  # Fail if the Test File does not exist
+  die "$testFile not found: $!" unless (-e $testFile);
+
+  # Get the location of the XSL Stylesheets
+  my $xslDeflateTarget = getXSLTarget($xslDeflateFilename);
+  
+  # Fail if one of the XSL Stylesheets do not exist
+  die "XSL Stylesheet not found: $!" unless (-e $xslDeflateTarget);
+ 
+  my $tmpDir  = File::Spec->tmpdir();
+  print "$tmpDir\n";
+
+  my $tmpFile = "$tmpDir/dxldeflate.tmp";
+
+  # Run the git diff command on the 2 blobs
+  my @args = ('-o', $tmpFile, $xslDeflateTarget,$testFile);
+  system('xsltproc.exe',@args);
+
+  if ($? == -1) {
+    print "xsltproc.exe could not be run\n";
+  } else {
+
+    my $exitCode = $? >> 8;
+
+    print "exit code: $exitCode\n"
+
+  }
+
+  use File::Copy;
+  
+  copy($tmpFile, $testFile) or die "Failed to replace file: $!\n";
+  printFileResult($testFile, "Deflated", 1);
+
+  unlink($tmpFile) or warn "Could not remove temp file: $!\n";
+
+}
+
 # Terminal Helper Functions
 sub colorSet {
   my ($color) = @_;
@@ -936,6 +979,20 @@ sub processArgs {
       }
 
       showFilterImpurities($testFile);
+      exit 0;
+
+    } elsif ($ARGV[$argnum] eq '--deflate-file' | $ARGV[$argnum] eq '-df') {
+
+      my $testFile = $ARGV[$argnum + 1];
+
+      die "Please specify a file." unless ($testFile);
+
+      if (!-e $testFile) {
+        die "$testFile does not exist";
+      }
+
+      deflateFile($testFile);
+
       exit 0;
 
     } elsif ($ARGV[$argnum] eq '--update-attributes') {
