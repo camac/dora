@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xp:view xmlns:xp="http://www.ibm.com/xsp/core">
+	<xp:table>
+		<xp:tr>
+			<xp:td>
+				<xp:label value="Version" id="labelVersion"></xp:label>
+			</xp:td>
+			<xp:td>
+				<xp:text escape="true" id="doraVersion"></xp:text>
+			</xp:td>
+		</xp:tr>
+		<xp:tr>
+			<xp:td>
+				<xp:label value="Branch" id="labelBranch"></xp:label>
+			</xp:td>
+			<xp:td>
+				<xp:text escape="true" id="doraBranch"></xp:text>
+			</xp:td>
+		</xp:tr>
+	</xp:table>
+</xp:view>
+

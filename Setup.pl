@@ -15,23 +15,30 @@ our $productNameLong    = "Domino ODP Repository Assistant";
 
 # Directory and File Locations
 our $homeDir            = $ENV{"HOME"};
+our $tmpDir  						= File::Spec->tmpdir();
 our $scriptDir          = "$homeDir/bin";
 our $xslSourceDir       = "$homeDir/dora";
 
-our $xslFilterFilename  = "DXLFilter.xsl";
-our $xslPrettyFilename  = "DXLPretty.xsl";
-our $xslDeflateFilename = "DXLDeflate.xsl";
+our $xslFilterFilename  	= "DXLFilter.xsl";
+our $xslPrettyFilename  	= "DXLPretty.xsl";
+our $xslDeflateFilename 	= "DXLDeflate.xsl";
+our $xslVersionerFilename	= "AppVersioner.xsl";
 
 # XSL Stylesheets, make sure first one is the filter
 our @xslSourceFilenames = (
   $xslFilterFilename,
   $xslPrettyFilename,
-  $xslDeflateFilename
+  $xslDeflateFilename,
+	$xslVersionerFilename
 );
 
 our $xslTargetDir       = "xsl";
 our $xslFilter          = "$xslTargetDir/$xslFilterFilename";
-  
+our $xslVersioner				= "$xslTargetDir/$xslVersionerFilename";
+
+our $ccVersion		= "nsf/CustomControls/ccAppVersion.xsp";
+our $ccVersionCfg = "$ccVersion-config";  
+
 our $attrFile     = ".gitattributes";
 our $ignoreFile   = ".gitignore";
 
@@ -57,7 +64,8 @@ our @ignoreEntries = (
   'nsf/.classpath',
   'nsf/.project',
   'nsf/plugin.xml',
-  'nsf/.settings'
+  'nsf/.settings',
+	'nsf/CustomControls/ccAppVersion.xsp*'
 );
 
 # Entries for Git Attributes File
@@ -701,7 +709,6 @@ sub deflateFile {
   # Fail if one of the XSL Stylesheets do not exist
   die "XSL Stylesheet not found: $!" unless (-e $xslDeflateTarget);
  
-  my $tmpDir  = File::Spec->tmpdir();
   print "$tmpDir\n";
 
   my $tmpFile = "$tmpDir/dxldeflate.tmp";
@@ -726,6 +733,84 @@ sub deflateFile {
   printFileResult($testFile, "Deflated", 1);
 
   unlink($tmpFile) or warn "Could not remove temp file: $!\n";
+
+}
+
+# Updates the version number and Branch in the ccAppVersion custom control
+# assumes that it is already set up
+sub refreshAppVersion {
+
+	# Fail if we can't find the Custom Control to update
+	die "Could not find $ccVersion" 									unless (-e $ccVersion);
+	die "Could not find Temp Dir $tmpDir" 						unless (-d $tmpDir);
+	die "Could not find Versioner XSL $xslVersioner" 	unless (-e $xslVersioner);
+
+	my $appVersion 	= `git describe 2>/dev/null`;
+	my $currBranch	= `git rev-parse --abbrev-ref HEAD 2>/dev/null`;
+
+	chomp $appVersion;
+	chomp $currBranch;
+
+	my $tmpFile = "$tmpDir/doraVersioner.tmp";
+
+	my @args = (
+		"-o",
+		$tmpFile,
+		"--stringparam",
+		"appVersion",
+		$appVersion,
+		"--stringparam",
+		"currBranch",
+		$currBranch,
+		$xslVersioner,
+		$ccVersion
+	);
+	system('xsltproc.exe',@args);
+	
+	if ($? == -1) {
+		die "xsltproc.exe could not be run\n";
+	} else {
+		handleXSLTExit($?);
+	}
+
+	use File::Copy;
+	copy($tmpFile, $ccVersion) or warn "Failed to copy file: $!\n";
+	unlink($tmpFile) or warn "Could not remove temp file: $!\n";
+
+}
+
+sub handleXSLTExit {
+
+	my ($exitVal) = @_;
+
+	my $exitCode = $exitVal >> 8;
+
+	if ($exitCode == 0) {
+		return $exitCode;
+	} elsif ($exitCode == 1) {
+		print "no argument\n";
+	} elsif ($exitCode == 2) {
+		print "too many arguments\n";
+	} elsif ($exitCode == 3) {
+		print "unknown option\n";
+	} elsif ($exitCode == 4) {
+		print "failed to parse the stylesheet\n";
+	} elsif ($exitCode == 5) {
+		print "error in the stylesheet\n";
+	} elsif ($exitCode == 6) {
+		print "error in one of the documents\n";
+	} elsif ($exitCode == 7) {
+		print "unsupported xsl:output method\n";
+	} elsif ($exitCode == 8) {
+		print "string parameter contains both quote and double-quotes\n";
+	} elsif ($exitCode == 9) {
+		print "internal processing error\n";
+	} elsif ($exitCode == 10) {
+		print "processing was stopped by a terminating message\n";
+	} elsif ($exitCode == 11) {
+		print "Could not write the result to the output file\n";
+	}
+	return $exitCode;
 
 }
 
@@ -1019,6 +1104,11 @@ sub processArgs {
       
       $verbose = 1;
 
+		} elsif ($ARGV[$argnum] eq '--refresh-app-version') {
+			
+			refreshAppVersion();
+			exit 0;
+			
     } else {
 
       die "Invalid Argument: $ARGV[$argnum]";
