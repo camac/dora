@@ -128,6 +128,7 @@
     <xsl:template match="//n:folder/@formatnoteid"/> 
     <xsl:template match="//n:view/@formatnoteid"/> 
 
+
     <!-- 
         For the Database Properties Non-Binary DXL.
         Most of these attributes/elements are guaranteed to be different on different developer copies
@@ -163,6 +164,7 @@
 
     <!-- Ignore the DesignerVersion Item  and this random FileModDT one -->
     <xsl:template match="//n:item[@name='$DesignerVersion']"/>
+    <xsl:template match="//n:item[@name='$ScriptLib_error']"/>
     <xsl:template match="//n:imageresource/n:item[@name='$FileModDT']"/>
     <xsl:template match="//n:imageresource/n:item[@name='$EditFilePath']"/>
 
