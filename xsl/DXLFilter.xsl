@@ -164,6 +164,7 @@
 
     <!-- Ignore the DesignerVersion Item  and this random FileModDT one -->
     <xsl:template match="//n:item[@name='$DesignerVersion']"/>
+    <xsl:template match="//n:item[@name='$$ScriptName']"/>
     <xsl:template match="//n:item[@name='$ScriptLib_error']"/>
     <xsl:template match="//n:imageresource/n:item[@name='$FileModDT']"/>
     <xsl:template match="//n:imageresource/n:item[@name='$EditFilePath']"/>
