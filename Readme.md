@@ -224,3 +224,9 @@ git update-index --no-assume-unchanged nsf/Resources/IconNote
 Forms, System Actions showed up
 
 Filters fail in the merge conflict ...
+
+DXL Notes
+
+Frameset frame got a new Border style
+Forms don't like it when Background element has a text node
+Forms without action bar get a default set of actions
