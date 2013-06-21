@@ -18,33 +18,54 @@ our $homeDir            = $ENV{"HOME"};
 our $tmpDir  						= File::Spec->tmpdir();
 our $scriptDir          = "$homeDir/bin";
 our $xslSourceDir       = "$homeDir/dora";
+our $nsfDir							= "nsf";
 
-our $xslFilterFilename  	= "DXLFilter.xsl";
-our $xslPrettyFilename  	= "DXLPretty.xsl";
-our $xslDeflateFilename 	= "DXLDeflate.xsl";
-our $xslVersionerFilename	= "AppVersioner.xsl";
+# XSL DXL Filter file names
+our $xslFilterFilename  				= "DXLFilter.xsl";
+our $xslPrettyFilename  				= "DXLPretty.xsl";
+our $xslDeflateFilename 				= "DXLDeflate.xsl";
+our $xslVersionerFilename				= "AppVersioner.xsl";
+our $xslVersionCleanerFilename	= "AppVersionClean.xsl";
 
 # XSL Stylesheets, make sure first one is the filter
 our @xslSourceFilenames = (
   $xslFilterFilename,
   $xslPrettyFilename,
   $xslDeflateFilename,
-	$xslVersionerFilename
+	$xslVersionerFilename,
+	$xslVersionCleanerFilename
 );
 
 our $xslTargetDir       = "xsl";
 our $xslFilter          = "$xslTargetDir/$xslFilterFilename";
 our $xslVersioner				= "$xslTargetDir/$xslVersionerFilename";
+our $xslVersionCleaner	= "$xslTargetDir/$xslVersionCleanerFilename";
 
-our $ccVersion		= "nsf/CustomControls/ccAppVersion.xsp";
-our $ccVersionCfg = "$ccVersion-config";  
+# Details for the Version Custom Control
+our $ccVersionName 		= "ccAppVersion.xsp";
+our $ccVersionFolder	= "$nsfDir/CustomControls";
+our $ccVersion				= "$ccVersionFolder/$ccVersionName";
+our $ccVersionCfg 		= "$ccVersion-config";  
+
+# Vars for Hooks setup
+our $hookSourceDir						= "$homeDir/dora";
+our $hookTargetDir						= ".git/hooks";
+our $hookPostCommitFilename		= "post-commit";
+our $hookPostCheckoutFilename	= "post-checkout";
+
+our @hookSourceFilenames = (
+	$hookPostCommitFilename,
+	$hookPostCheckoutFilename
+);
 
 our $attrFile     = ".gitattributes";
 our $ignoreFile   = ".gitignore";
 
 #Filter values
-our $cleanFilter  = "xsltproc $xslFilter -";
-our $smudgeFilter = "cat";
+our $cleanFilter  					= "xsltproc $xslFilter -";
+our $smudgeFilter 					= "cat";
+our $appVersionCleanFilter	= "xsltproc $xslVersionCleaner - ";
+our $appVersionSmudgeFilter	= "cat";
 
 # Markers to be used in Config files
 our $cfgStartMark   = "# GitNSF Start";
@@ -58,6 +79,7 @@ our $chkIgnore   = 0;
 our $chkAttr     = 0;
 our $chkFilter   = 0;
 our $chkXSL      = 0;
+our $chkHooks		 = 0;
 
 # Entries for Git Ignore File
 our @ignoreEntries = (
@@ -93,7 +115,8 @@ our @attrEntries = (
   'database.properties',
   'IconNote',
   'Shared?Actions',
-  'UsingDocument' 
+  'UsingDocument',
+	$ccVersionName 
 );
 
 
@@ -188,6 +211,15 @@ sub installFilter {
   @args = ('config','--local','filter.nsf.required','true');
   system('git',@args);
 
+	@args = ('config','--local','filter.appversion.clean',$appVersionCleanFilter);
+	system('git',@args);
+
+	@args = ('config','--local','filter.appversion.smudge',$appVersionSmudgeFilter);
+	system('git',@args);
+
+	@args = ('config','--local','filter.appversion.required','true');
+	system('git',@args);
+
   print "\nAdded git filters\n";
 
 }
@@ -202,6 +234,7 @@ sub uninstallFilter {
     return 0 if !confirmContinue();
   }
   
+	# Remove the normal nsf filter
   my @args = ('config','--local','--unset','filter.nsf.clean');
   system('git',@args);
 
@@ -211,12 +244,23 @@ sub uninstallFilter {
   @args = ('config','--local','--unset','filter.nsf.required');
   system('git',@args);
 
+	# Removed the App Version filter
+  my @args = ('config','--local','--unset','filter.appversion.clean');
+  system('git',@args);
+
+  @args = ('config','--local','--unset','filter.appversion.smudge');
+  system('git',@args);
+
+  @args = ('config','--local','--unset','filter.appversion.required');
+  system('git',@args);
+
   print "\nRemoved Git Filters\n";
 
 }
 
 sub checkFilter {
 
+	# Check NSF Filter
   my $currClean     = `git config --local --get filter.nsf.clean`;
   my $currSmudge    = `git config --local --get filter.nsf.smudge`;
   my $currRequired  = `git config --local --get filter.nsf.required`;
@@ -225,6 +269,17 @@ sub checkFilter {
 
   return 0 if ($currClean ne $cleanFilter);
   return 0 if ($currSmudge ne $smudgeFilter);
+  return 0 if ($currRequired ne "true");
+
+	# Check NSF Filter
+  my $currClean     = `git config --local --get filter.appversion.clean`;
+  my $currSmudge    = `git config --local --get filter.appversion.smudge`;
+  my $currRequired  = `git config --local --get filter.appversion.required`;
+
+  chomp($currClean, $currSmudge, $currRequired);
+
+  return 0 if ($currClean ne $appVersionCleanFilter);
+  return 0 if ($currSmudge ne $appVersionSmudgeFilter);
   return 0 if ($currRequired ne "true");
 
   return 1;
@@ -508,7 +563,8 @@ sub installAttr {
   # Add all the entries
   foreach (@attrEntries) {
 
-    my $pattern = "$_ filter=nsf text eol=lf\n";
+		my $filter 	= ($_ eq $ccVersionName) ? "appversion" : "nsf";
+    my $pattern = "$_ filter=$filter text eol=lf\n";
     print GITATTR $pattern;
 
   }
@@ -547,7 +603,9 @@ sub checkAttr {
 
   foreach (@attrEntries) {
 
-    my $pattern = "$_ filter=nsf text eol=lf";
+		my $filter = ($_ eq $ccVersionName) ? "appversion" : "nsf";
+	
+    my $pattern = "$_ filter=$filter text eol=lf";
 
     my @matchedLines = grep /\Q$pattern\E/,@fileLines;
 
@@ -628,12 +686,173 @@ sub checkIgnore {
 
 }
 
+sub getHookTarget {
+
+	# get input parameter
+	my ($srcFile) = @_;
+
+	# get full path of Source Binary
+	my $hookSource = "$hookSourceDir/$srcFile";
+
+	# Determine the FileName of the Stylesheet
+	my ($volume, $directories, $file) = File::Spec->splitpath($hookSource);
+
+	# Return the Target Source Path of the XSL Stylesheet
+	return "$hookTargetDir/$file";
+
+} 
+
+sub installHooks {
+  
+  my ($silent) = @_;
+	my $hookSource 	= '';
+	my $hookTarget	= '';
+	my $hookExist  	= 0;
+
+  heading("Install Hooks to this Repository");
+
+  print "This step will install the Hooks from:\n\n";
+  colorSet("bold white");
+  print "$hookSourceDir\n\n";
+  colorReset();
+  print "Into the:\n\n";
+  colorSet("bold white");
+  print "$hookTargetDir/\n\n";
+  colorReset();
+  print "directory in the current repository.\n";
+
+  # Show the user that hook files will be overwritten
+ 	foreach (@hookSourceFilenames) {
+
+	  $hookTarget = getHookTarget($_);
+
+		if (-e $hookTarget) {
+	
+			colorSet("bold yellow");
+			if (!$hookExist) {
+				print "\nThe Following Hooks are already installed and will be overwritten if you continue:\n";
+				$hookExist = 1;
+			}
+		  print "$hookTarget\n";
+	    colorReset();
+	
+    }
+  }	
+
+  return 0 if !confirmContinue();
+  
+  # Check if the Home Bin directory exists
+  if (!-d $hookTargetDir) {
+		die "Error: $hookTargetDir does not exist!";	
+  }
+  
+  foreach(@hookSourceFilenames) {
+
+    my $hookSource = "$hookSourceDir/$_";
+
+    if (-e $hookSource) {
+
+      my $hookTarget = getHookTarget($_);
+
+      # Copy the hook file to the Target Directory
+      use File::Copy;
+
+      copy($hookSource, $hookTarget) or die "Failed Copying: $!\n";
+	    printFileResult($hookTarget, "Installed", 1);
+
+    } else {
+			printFileResult($hookTarget, "File not found", -1);
+    }
+
+  }
+
+
+
+}
+
+sub uninstallHooks {
+ 
+  my ($silent) = @_;
+	my $hookSource = '';
+	my $hookTarget	= '';
+	my @hookExist = ();
+
+  if (!$silent) {
+    heading("Uninstall the Hooks");
+    print "Uninstall Hooks\n";
+    return 0 if !confirmContinue();
+  }
+
+	foreach(@hookSourceFilenames) {
+		$hookTarget = getHookTarget($_);
+		push(@hookExist, $hookTarget) if (-e $hookTarget);
+	}
+
+	if (!@hookExist) {
+		print "No Hooks are currently installed, no action taken\n";
+		return 0;
+	}
+
+	print "This step will remove the following Hooks\n\n";
+
+	colorSet("bold white");
+	foreach(@hookExist) {
+		print "$_\n";
+	}
+	colorReset();
+
+	if (!confirmContinue()) {
+		print "aborting un-installation of Hooks\n";
+		return 0;
+	}
+
+	# for each hook in the folder
+	foreach (@hookSourceFilenames)  {
+	
+		$hookTarget = getHookTarget($_);
+
+		if (-e $hookTarget) {
+
+			my $noDelete = unlink $hookTarget or warn "Could not remove $hookTarget: $!\n";
+
+			if ($noDelete == 1) {
+				printFileResult($hookTarget,"Removed",-1);
+			}
+
+		} else {
+
+			printFileResult($hookTarget,"not there anyway",0);
+
+		}
+
+	}	
+
+
+}
+
+sub checkHooks {
+
+	foreach (@hookSourceFilenames) {
+
+		my $hookTarget = getHookTarget($_);
+
+		if (!-e $hookTarget) {
+			return 0;
+		}
+
+	}
+
+	return 1;
+
+}
+
 sub installEverything {
 
   installFilter();
   installXSL();
   installIgnore();
   installAttr();
+	installHooks();
 
 }
 
@@ -643,6 +862,7 @@ sub uninstallEverything {
   uninstallXSL();
   uninstallIgnore();
   uninstallAttr();
+	uninstallHooks();
 
 }
 
@@ -763,7 +983,7 @@ sub refreshAppVersion {
 		"currBranch",
 		$currBranch,
 		$xslVersioner,
-		$ccVersion
+		$ccVersionName
 	);
 	system('xsltproc.exe',@args);
 	
@@ -1131,11 +1351,14 @@ sub checkRepoSetup {
     $chkIgnore  = checkIgnore(); 
     #check XSL File
     $chkXSL     = checkXSL();
+		#check Hooks
+		$chkHooks		= checkHooks();
   } else {
     $chkFilter  = 0;
     $chkAttr    = 0;
     $chkIgnore  = 0;
     $chkXSL     = 0;
+		$chkHooks		= 0;
   }
 
 }
@@ -1167,6 +1390,7 @@ sub menu {
     printInstallStatus("XSL Stylesheets",         $chkXSL);
     printInstallStatus(".gitignore entries",      $chkIgnore);
     printInstallStatus(".gitattributes entries",  $chkAttr);
+		printInstallStatus("Hooks",										$chkHooks);
 
     print "\n------------------------------\n\n";
 
@@ -1186,7 +1410,10 @@ sub menu {
   menuOption("9", "Remove  .gitignore entries");
   menuOption("10", "Remove  .gitattributes entries");
   print "-----\n";
-  menuOption("11", "Prepare a new Git repository for an NSF On-Disk Project...");
+	menuOption("11", 	"Install Hooks");
+	menuOption("12",	"Remove  Hooks");
+	print "-----\n";
+  menuOption("13", "Prepare a new Git repository for an NSF On-Disk Project...");
 
   print "\n";
   menuOption("q", "quit");
@@ -1230,7 +1457,13 @@ sub menu {
   } elsif($opt eq "10") {
     mycls();
     uninstallAttr();
-  } elsif($opt eq "11") {
+  } elsif($opt eq  "11") {
+    mycls();
+    installHooks();
+  } elsif($opt eq "12") {
+    mycls();
+    uninstallHooks();
+  } elsif($opt eq "13") {
     mycls();
     setupNewNSFFolder();
   }

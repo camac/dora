@@ -44,10 +44,21 @@ our $xslSourceDir         = "$installScriptDir/xsl";
 our @xslSourceFilenames   = (
   "DXLFilter.xsl",
   "DXLPretty.xsl",
-  "DXLDeflate.xsl"
+  "DXLDeflate.xsl",
+	"AppVersioner.xsl",
+	"AppVersionClean.xsl"
 );
 
 our $xslTargetDir        = "$homeDir/dora";
+
+# Vars for Hook installation
+our $hookSourceDir				= "$installScriptDir/hooks";
+our $hookTargetDir				= "$homeDir/dora";
+
+our @hookSourceFilenames 	= (
+	'post-commit',
+	'post-checkout'
+);
 
 our $libxsltDir		= "$installScriptDir/libxslt";
 our @libxsltBins  = (
@@ -67,12 +78,14 @@ our @libxsltBins  = (
 our $chkHelper 	= 0;
 our $chkXSL			= 0;
 our $chkLibxslt = 0;
+our $chkHooks		= 0;
 
 sub installEverything {
 
   installHelper();
   installXSL();
 	installLibxslt();
+	installHooks();
 
 }
 
@@ -81,6 +94,7 @@ sub uninstallEverything {
 	uninstallHelper();
 	uninstallXSL();
 	uninstallLibxslt();
+	uninstallHooks();
 
 }
 
@@ -298,6 +312,160 @@ sub checkXSL {
 
 }
 
+sub getHookTarget {
+
+	# get input parameter
+	my ($srcFile) = @_;
+
+	# get full path of Source Binary
+	my $hookSource = "$hookSourceDir/$srcFile";
+
+	# Determine the FileName of the Stylesheet
+	my ($volume, $directories, $file) = File::Spec->splitpath($hookSource);
+
+	# Return the Target Source Path of the Hook Stylesheet
+	return "$hookTargetDir/$file";
+
+} 
+
+
+sub installHooks {
+
+	my $hookSource 	= '';
+	my $hookTarget	= '';
+	my $hookExist  	= 0;
+
+	heading("Install the Hooks");
+
+	print "This step will install the Hooks to:\n\n";
+	colorSet("bold white");
+	print "  $hookTargetDir\n\n";
+	colorReset();
+	print "The Hooks are used by Auto-Version system to keep a custom control updated with the latest version number.\n";
+	print "When you use the helper script to setup a repository for version tagging,\n";
+	print "the helper script will copy the above file to the ";
+	colorSet("bold white");
+	print ".git/hooks";
+	colorReset();
+	print " folder of the repository\n";
+
+  # Show the user that hook files will be overwritten
+ 	foreach (@hookSourceFilenames) {
+
+	  $hookTarget = getHookTarget($_);
+
+		if (-e $hookTarget) {
+	
+			colorSet("bold yellow");
+			if (!$hookExist) {
+				print "\nThe Following Hooks are already installed and will be overwritten if you continue:\n";
+				$hookExist = 1;
+			}
+		  print "$hookTarget\n";
+	  colorReset();
+	
+    }
+  }	
+
+	return 0 if !confirmContinue();
+
+  # Check if the Home Bin directory exists
+  if (-d $hookTargetDir) {
+		printFileResult($hookTargetDir, "directory already exists", 0);
+  } else {
+    mkdir $hookTargetDir or die "Could not create directory$hookTargetDir: $!";
+		printFileResult($hookTargetDir, "directory created", 1);
+  }
+
+  foreach(@hookSourceFilenames) {
+
+    my $hookSource = "$hookSourceDir/$_";
+    my $hookTarget = getHookTarget($_);
+
+    # Copy the hook file to the Target Directory
+    use File::Copy;
+
+    copy($hookSource, $hookTarget) or die "Failed Copying: $!\n";
+	  printFileResult($hookTarget, "Installed", 1);
+
+  }
+
+  print "\n";
+
+}
+
+sub uninstallHooks {
+
+	my $hookSource = '';
+	my $hookTarget	= '';
+	my @hookExist = ();
+
+	heading("Uninstall the Hooks");
+
+	foreach(@hookSourceFilenames) {
+		$hookTarget = getHookTarget($_);
+		push(@hookExist, $hookTarget) if (-e $hookTarget);
+	}
+
+	if (!@hookExist) {
+		print "No Hooks are currently installed, no action taken\n";
+		return 0;
+	}
+
+	print "This step will remove the following Hooks\n\n";
+
+	colorSet("bold white");
+	foreach(@hookExist) {
+		print "$_\n";
+	}
+	colorReset();
+	
+
+	if (!confirmContinue()) {
+		print "aborting un-installation of Hooks\n";
+		return 0;
+	}
+
+	# for each hook in the folder
+	foreach (@hookSourceFilenames)  {
+	
+		$hookTarget = getHookTarget($_);
+
+		if (-e $hookTarget) {
+
+			my $noDelete = unlink $hookTarget or warn "Could not remove $hookTarget: $!\n";
+
+			if ($noDelete == 1) {
+				printFileResult($hookTarget,"removed",-1);
+			}
+
+		} else {
+
+			printFileResult($hookTarget,"not there anyway",0);
+
+		}
+
+	}	
+
+}
+
+sub checkHooks {
+
+	foreach (@hookSourceFilenames) {
+
+		my $hookTarget = getHookTarget($_);
+
+		if (!-e $hookTarget) {
+			return 0;
+		}
+
+	}
+
+	return 1;
+
+}
+
+
 sub getLibxsltTarget {
 
 	# get input parameter
@@ -471,6 +639,7 @@ sub checkSetup {
 	$chkHelper	= checkHelper();
 	$chkXSL 		= checkXSL();
 	$chkLibxslt	= checkLibxslt();
+	$chkHooks		= checkHooks();
 
 }
 
@@ -496,6 +665,7 @@ sub main {
 		printInstallStatus("Git Helper Script", $chkHelper);
 		printInstallStatus("XSL Stylesheet",		$chkXSL);
 		printInstallStatus("libxslt binaries", 	$chkLibxslt);
+		printInstallStatus("Hooks",							$chkHooks);
 
 		print "\nChoose a Menu Option\n\n";
 
@@ -508,6 +678,9 @@ sub main {
 		menuOption("6", "Uninstall Git Helper Script");
 		menuOption("7", "Uninstall XSL stylesheets");
 		menuOption("8", "Uninstall libxslt binaries");
+		menuSeparator();
+		menuOption("9", "Install Hooks");
+		menuOption("10", "Uninstall Hooks");
 		menuSeparator();
 		menuOption("q", "Quit");
 
@@ -565,6 +738,16 @@ sub main {
 
 			mycls();
 			uninstallLibxslt();
+
+		} elsif ($opt eq "9") {
+
+			mycls();
+			installHooks();
+
+		} elsif ($opt eq "10") {
+
+			mycls();
+			uninstallHooks();
 
 		} else {
 			$invalidOpt = 1;
