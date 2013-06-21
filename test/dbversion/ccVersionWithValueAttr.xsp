@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<xp:view xmlns:xp="http://www.ibm.com/xsp/core">
+  <xp:table>
+    <xp:tr>
+      <xp:td>
+        <xp:label value="Version" id="labelVersion"/>
+      </xp:td>
+      <xp:td>
+        <xp:text value="TestAfterMinorChange-1-g7bd97a1" escape="true" id="sourceVersion"/>
+      </xp:td>
+    </xp:tr>
+    <xp:tr>
+      <xp:td>
+        <xp:label value="Branch" id="labelBranch"/>
+      </xp:td>
+      <xp:td>
+        <xp:text value="master" escape="true" id="sourceBranch"/>
+      </xp:td>
+    </xp:tr>
+  </xp:table>
+</xp:view>
