@@ -1,10 +1,9 @@
 #!/bin/perl
 
 # Script to keep the version updated in the Version CustomControl
-print "Hanging on branch.. $branch\n";
 
 my @args = (
 	'--refresh-app-version'
 );
 
-system ('../dora/Setup.pl', @args);
+system ('dora', @args);

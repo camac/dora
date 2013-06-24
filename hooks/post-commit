@@ -1,9 +1,7 @@
 #!/bin/perl
 
-print "Nice to know you are committed...\n";
-
 my @args = (
 	'--refresh-app-version'
 );
 
-system ('../dora/Setup.pl', @args);
+system ('dora', @args);

@@ -1,5 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xp:view xmlns:xp="http://www.ibm.com/xsp/core">
+
+<!-- 
+	You can modify this custom control any way you like providing
+	you keep the 2 xp:text controls with ids sourceVersion and sourceBranch
+	These 2 controls will have there value attributes set when the version
+	sync script runs on post-commit and post-checkout
+
+	You must also make sure this remains a well-formed xml document.
+	
+-->
+
 	<xp:table>
 		<xp:tr>
 			<xp:td>
