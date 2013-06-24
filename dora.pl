@@ -9,6 +9,7 @@ package GitFiltersForNSF;
 # Program behaviour variables
 our $useColours = 1;
 our $verbose    = 0;
+our $subMenu		= "main";
 
 our $productNameShort   = "dora";
 our $productNameLong    = "Domino ODP Repository Assistant";
@@ -43,8 +44,8 @@ our $xslVersionCleaner	= "$xslTargetDir/$xslVersionCleanerFilename";
 
 # Details for the Version Custom Control
 our $ccVersionName 		= "ccAppVersion.xsp";
-our $ccVersionFolder	= "$nsfDir/CustomControls";
-our $ccVersion				= "$ccVersionFolder/$ccVersionName";
+our $ccVersionDir			= "$nsfDir/CustomControls";
+our $ccVersion				= "$ccVersionDir/$ccVersionName";
 our $ccVersionCfg 		= "$ccVersion-config";  
 
 # Vars for Hooks setup
@@ -56,6 +57,15 @@ our $hookPostCheckoutFilename	= "post-checkout";
 our @hookSourceFilenames = (
 	$hookPostCommitFilename,
 	$hookPostCheckoutFilename
+);
+
+# These vars used for installing CC Default Template
+our $ccSourceDir		= "$homeDir/dora";
+our $ccTargetDir		= $ccVersionDir;
+
+our @ccSourceFilenames = (
+	'ccAppVersion.xsp',
+	'ccAppVersion.xsp-config'
 );
 
 our $attrFile     = ".gitattributes";
@@ -161,8 +171,8 @@ sub checkInGitRepo {
   # make sure in we are in a Git Repo
   if ($verbose) { print "\nChecking if we are in a git repository: "};
 
-  $gitDir     = "";
-  $gitRepoDir  = "";
+  $gitDir     	= "";
+  $gitRepoDir  	= "";
 
   my @args = ('rev-parse','--git-dir');
   system('git',@args);
@@ -702,6 +712,22 @@ sub getHookTarget {
 
 } 
 
+sub getCCTarget {
+
+	# get input parameter
+	my ($srcFile) = @_;
+
+	# get full path of Source Binary
+	my $ccSource = "$ccSourceDir/$srcFile";
+
+	# Determine the FileName of the Stylesheet
+	my ($volume, $directories, $file) = File::Spec->splitpath($ccSource);
+
+	# Return the Target Source Path of the XSL Stylesheet
+	return "$ccTargetDir/$file";
+
+} 
+
 sub installHooks {
   
   my ($silent) = @_;
@@ -739,7 +765,7 @@ sub installHooks {
     }
   }	
 
-  return 0 if !confirmContinue();
+  return 0 unless confirmContinue();
   
   # Check if the Home Bin directory exists
   if (!-d $hookTargetDir) {
@@ -766,7 +792,64 @@ sub installHooks {
 
   }
 
+}
 
+sub installDefCCVersion {
+
+	heading("Install Default App Version Custom Control");
+
+	print "This step will install the Default Custom Control for displaying the current\n";
+	print "app version and branch name. You can customise the custom control to your liking\n";
+	print "after installation\n";
+	print "The default Custom control (and it's .xsp-config file) will be installed to \n\n";
+	
+	colorSet("bold white");
+	print "$ccVersion\n";
+	print "$ccVersionCfg\n\n";
+	colorReset();
+
+	print "If the ";
+	colorSet("bold white");
+	print $ccVersionDir;
+	colorReset();
+	print " does not exist it will be attempted to be created\n";
+
+	if (-e $ccVersion) {
+		colorSet("yellow");
+		print "\nYou already have a file named $ccVersion in your repo. If you continue this will overwrite that file.\n";
+		colorReset();
+	}
+
+	return 0 unless confirmContinue();
+
+  # Check if the Custom Control directory exists
+  if (!-d $ccTargetDir) {
+
+		if (!mkdir $ccTargetDir) {
+			die "Error: $ccTargetDir does not exist!";
+		}
+
+  }
+  
+  foreach(@ccSourceFilenames) {
+
+    my $ccSource = "$ccSourceDir/$_";
+
+    if (-e $ccSource) {
+
+      my $ccTarget = getCCTarget($_);
+
+      # Copy the cc file to the Target Directory
+      use File::Copy;
+
+      copy($ccSource, $ccTarget) or die "Failed Copying: $!\n";
+	    printFileResult($ccTarget, "Installed", 1);
+
+    } else {
+			printFileResult($ccSource, "File not found", -1);
+    }
+
+  }
 
 }
 
@@ -853,6 +936,7 @@ sub installEverything {
   installIgnore();
   installAttr();
 	installHooks();
+	installDefCCVersion();
 
 }
 
@@ -1371,15 +1455,120 @@ sub menu {
 
   while (1) {
 
-  mycls();
-
-	heading("Gregorbyte Git Helper");
-
-  if ($gitDir eq "") {
-    print "You are currently not in a git repository.";
-  } else {
-
     checkRepoSetup();
+
+ 		mycls();
+
+		heading($productNameLong);
+
+	  if ($gitDir eq "") {
+			menuNonGitRepo();
+	  } else {
+			menuGitRepo();
+  	}
+
+	  print "\n";
+	  menuOption("q", "quit");
+	  print "\n";
+
+	  print "Enter Choice: ";
+	  my $opt = <>;
+	  chomp($opt);
+
+	  exit 0 if $opt =~ m/^q/i;
+
+		my $skipConfirmAnyKey = 0;
+
+		if ($gitDir eq "") {
+		
+			if($opt eq "1") {
+				mycls();
+    		setupNewNSFFolder();
+	  	}
+
+		} elsif ($subMenu eq "main") {
+
+			$subMenu = "install" 		if ($opt eq "1");
+			$subMenu = "uninstall" 	if ($opt eq "2");
+
+			$skipConfirmAnyKey = 1;
+
+		} elsif ($subMenu eq "install") {
+		
+			if ($opt eq "1") {
+    		mycls();
+		    installEverything();
+				$subMenu = "main";
+			} elsif ($opt eq "2") {
+    		mycls();
+    		installFilter();
+	  	} elsif($opt eq  "3") {
+  	  	mycls();
+    		installXSL();
+	  	} elsif($opt eq  "4") {
+  	  	mycls();
+    		installIgnore();
+	  	} elsif($opt eq  "5") {
+  	  	mycls();
+    		installAttr();
+	  	} elsif($opt eq  "6") {
+  	  	mycls();
+    		installHooks();
+				installDefCCVersion();
+	  	} elsif($opt =~ m/^b/i) {
+				$subMenu = "main";
+				$skipConfirmAnyKey = 1;
+			}
+ 
+		} elsif ($subMenu eq "uninstall") {
+  	
+			if ($opt eq "1") {
+    		mycls();
+	    	uninstallEverything();    
+				$subMenu = "main";
+  		} elsif($opt eq  "2") {
+    		mycls();
+	    	uninstallFilter();
+  		} elsif($opt eq  "3") {
+    		mycls();
+    		uninstallXSL();
+	  	} elsif($opt eq  "4") {
+  	  	mycls();
+	    	uninstallIgnore();
+  		} elsif($opt eq "5") {
+   			mycls();
+    		uninstallAttr();
+	  	} elsif($opt eq "6") {
+  	  	mycls();
+    		uninstallHooks(); 
+	  	} elsif($opt =~ m/^b/i) {
+				$subMenu = "main";
+				$skipConfirmAnyKey = 1;
+			}
+		}
+
+   	confirmAnyKey() unless $skipConfirmAnyKey;
+
+	}
+
+}
+
+sub menuNonGitRepo{
+
+  menuOption("1", "Prepare a new Git repository for an NSF On-Disk Project...");
+}
+
+sub menuGitRepo {
+	
+		printGitRepoInstallSummary();
+
+		menuGitMain() if $subMenu eq "main";
+		menuGitInstall() if $subMenu eq "install";
+		menuGitUninstall() if $subMenu eq "uninstall";
+		
+}
+
+sub printGitRepoInstallSummary {
 
     print "------------------------------\n\n";
     printf("%-25s : ","Setup status for repo");
@@ -1391,96 +1580,46 @@ sub menu {
     printInstallStatus("XSL Stylesheets",         $chkXSL);
     printInstallStatus(".gitignore entries",      $chkIgnore);
     printInstallStatus(".gitattributes entries",  $chkAttr);
-		printInstallStatus("Hooks",										$chkHooks);
+		printInstallStatus("App Version Sync",				$chkHooks);
 
     print "\n------------------------------\n\n";
 
-  }
-
-  print "Please Choose the operation you would like to perform\n\n";
-
-  menuOption("1", "Install   Everything for this Repository");
-  menuOption("2", "Uninstall Everything from this Repository");
-  print "-----\n";
-  menuOption("3", "Install DXL Metadata Filter");
-  menuOption("4", "Install XSL File");
-  menuOption("5", "Install .gitignore entries");
-  menuOption("6", "Install .gitattributes entries");
-  menuOption("7", "Remove  DXL Metadata Filter from .git/config");
-  menuOption("8", "Remove  XSL File");
-  menuOption("9", "Remove  .gitignore entries");
-  menuOption("10", "Remove  .gitattributes entries");
-  print "-----\n";
-	menuOption("11", 	"Install Hooks");
-	menuOption("12",	"Remove  Hooks");
-	print "-----\n";
-  menuOption("13", "Prepare a new Git repository for an NSF On-Disk Project...");
-
-  print "\n";
-  menuOption("q", "quit");
-  print "\n";
-
-  print "Enter Choice: ";
-  my $opt = <>;
-  chomp($opt);
-
-  exit 0 if $opt =~ m/^q/i;
-
-  #TODO Check it is an enable option
-
-  if ($opt eq "1") {
-    mycls();
-    installEverything();
-  } elsif ($opt eq "2") {
-    mycls();
-    uninstallEverything();    
-  } elsif ($opt eq "3") {
-    mycls();
-    installFilter();
-  } elsif($opt eq  "4") {
-    mycls();
-    installXSL();
-  } elsif($opt eq  "5") {
-    mycls();
-    installIgnore();
-  } elsif($opt eq  "6") {
-    mycls();
-    installAttr();
-  } elsif($opt eq  "7") {
-    mycls();
-    uninstallFilter();
-  } elsif($opt eq  "8") {
-    mycls();
-    uninstallXSL();
-  } elsif($opt eq  "9") {
-    mycls();
-    uninstallIgnore();
-  } elsif($opt eq "10") {
-    mycls();
-    uninstallAttr();
-  } elsif($opt eq  "11") {
-    mycls();
-    installHooks();
-  } elsif($opt eq "12") {
-    mycls();
-    uninstallHooks();
-  } elsif($opt eq "13") {
-    mycls();
-    setupNewNSFFolder();
-  }
-
-  confirmAnyKey();
-
 }
 
+sub menuGitMain {
+  menuOption("1", "Install   Something...");
+  menuOption("2", "Uninstall Something...");
+}
+
+sub menuGitInstall {
+  menuOption("1", "Install Everything for this Repository");
+  print "-----\n";
+  menuOption("2", "Install DXL Metadata Filter");
+  menuOption("3", "Install XSL Stylesheets");
+  menuOption("4", "Install .gitignore entries");
+  menuOption("5", "Install .gitattributes entries");
+	menuOption("6",	"Install App Version Sync");
+  print "-----\n";
+	menuOption("b", "Back to main menu");
+ 
+}
+
+sub menuGitUninstall {
+  menuOption("1", "Uninstall Everything from this Repository");
+  print "-----\n";
+  menuOption("2", "Uninstall DXL Metadata Filter from .git/config");
+  menuOption("3", "Uninstall XSL Stylesheets");
+  menuOption("4", "Uninstall .gitignore entries");
+  menuOption("5", "Uninstall .gitattributes entries");
+	menuOption("6",	"Uninstall App Version Sync");
+	print "-----\n";
+	menuOption("b", "Back to main menu");
+ 
 }
 
 sub main {
 
   processArgs();
-
-  checkInGitRepo();
-  checkRepoSetup();
 
   menu();
 

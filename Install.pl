@@ -55,9 +55,12 @@ our $xslTargetDir        = "$homeDir/dora";
 our $hookSourceDir				= "$installScriptDir/hooks";
 our $hookTargetDir				= "$homeDir/dora";
 
+# Install these hooks
 our @hookSourceFilenames 	= (
 	'post-commit',
-	'post-checkout'
+	'post-checkout',
+	'ccAppVersion.xsp',
+	'ccAppVersion.xsp-config'
 );
 
 our $libxsltDir		= "$installScriptDir/libxslt";
@@ -335,13 +338,13 @@ sub installHooks {
 	my $hookTarget	= '';
 	my $hookExist  	= 0;
 
-	heading("Install the Hooks");
+	heading("Install the App Version Sync Hooks");
 
 	print "This step will install the Hooks to:\n\n";
 	colorSet("bold white");
 	print "  $hookTargetDir\n\n";
 	colorReset();
-	print "The Hooks are used by Auto-Version system to keep a custom control updated with the latest version number.\n";
+	print "The Hooks are used by App Version sync system to keep a custom control updated with the latest version number.\n";
 	print "When you use the helper script to setup a repository for version tagging,\n";
 	print "the helper script will copy the above file to the ";
 	colorSet("bold white");
@@ -663,24 +666,24 @@ sub main {
 		print "Current Status:\n\n";
 
 		printInstallStatus("Git Helper Script", $chkHelper);
-		printInstallStatus("XSL Stylesheet",		$chkXSL);
+		printInstallStatus("XSL Stylesheets",		$chkXSL);
 		printInstallStatus("libxslt binaries", 	$chkLibxslt);
-		printInstallStatus("Hooks",							$chkHooks);
+		printInstallStatus("App Version Sync",	$chkHooks);
 
 		print "\nChoose a Menu Option\n\n";
 
-		menuOption("1", "Install Everything");
+		menuOption("1", "Install   Everything");
 		menuOption("2", "Uninstall Everything");
 		menuSeparator();
-		menuOption("3", "Install Git Helper Script");
-		menuOption("4", "Install XSL Stylesheets");
-		menuOption("5", "Install libxslt binaries");
-		menuOption("6", "Uninstall Git Helper Script");
-		menuOption("7", "Uninstall XSL stylesheets");
-		menuOption("8", "Uninstall libxslt binaries");
+		menuOption("3", "Install   Git Helper Script");
+		menuOption("4", "Install   XSL Stylesheets");
+		menuOption("5", "Install   libxslt binaries");
+		menuOption("6", "Install   App Version Sync");
 		menuSeparator();
-		menuOption("9", "Install Hooks");
-		menuOption("10", "Uninstall Hooks");
+		menuOption("7", "Uninstall Git Helper Script");
+		menuOption("8", "Uninstall XSL stylesheets");
+		menuOption("9", "Uninstall libxslt binaries");
+		menuOption("10", "Uninstall App Version Sync");
 		menuSeparator();
 		menuOption("q", "Quit");
 
@@ -727,22 +730,22 @@ sub main {
 		} elsif ($opt eq "6") {
 
 			mycls();
-			uninstallHelper();
+			installHooks();
 
 		} elsif ($opt eq "7") {
 
 			mycls();
-			uninstallXSL();
+			uninstallHelper();
 
 		} elsif ($opt eq "8") {
 
 			mycls();
-			uninstallLibxslt();
+			uninstallXSL();
 
 		} elsif ($opt eq "9") {
 
 			mycls();
-			installHooks();
+			uninstallLibxslt();
 
 		} elsif ($opt eq "10") {
 

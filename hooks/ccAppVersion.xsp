@@ -6,7 +6,7 @@
 				<xp:label value="Version" id="labelVersion"></xp:label>
 			</xp:td>
 			<xp:td>
-				<xp:text escape="true" id="doraVersion"></xp:text>
+				<xp:text escape="true" id="sourceVersion"></xp:text>
 			</xp:td>
 		</xp:tr>
 		<xp:tr>
@@ -14,7 +14,7 @@
 				<xp:label value="Branch" id="labelBranch"></xp:label>
 			</xp:td>
 			<xp:td>
-				<xp:text escape="true" id="doraBranch"></xp:text>
+				<xp:text escape="true" id="sourceBranch"></xp:text>
 			</xp:td>
 		</xp:tr>
 	</xp:table>
