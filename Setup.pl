@@ -977,14 +977,15 @@ sub refreshAppVersion {
 		"-o",
 		$tmpFile,
 		"--stringparam",
-		"appVersion",
+		"sourceVersion",
 		$appVersion,
 		"--stringparam",
-		"currBranch",
+		"sourceBranch",
 		$currBranch,
 		$xslVersioner,
-		$ccVersionName
+		$ccVersion
 	);
+
 	system('xsltproc.exe',@args);
 	
 	if ($? == -1) {
