@@ -31,7 +31,7 @@ $installScriptDir =~ s:/$::; # remove trailing slash
 
 our $homeDir              = $ENV{"HOME"};
 
-our $setupSourceFilename  = "Setup.pl";
+our $setupSourceFilename  = "dora.pl";
 our $setupSource          = "$installScriptDir/$setupSourceFilename";
 
 our $setupTargetDir       = "$homeDir/bin";
