@@ -1,0 +1,22 @@
+Dora - Domino ODP Repository Helper
+Copyright 2013 Cameron Gregor
+
+This product includes software developed for
+OpenNTF – (http://www.OpenNTF.org/)
+Licensed under Apache
+
+3rd Party packages
+------------------
+This project includes binaries from the windows port of XSLT C library for GNOME 
+
+The website of the XSLT C library for GNOME project is http://xmlsoft.org/XSLT/index.html and source code can be downloaded from here.
+
+The url of the Windows port is http://www.zlatkovic.com/libxml.en.html and provides binaries only.
+
+Package Name 		Version 	Licence	URL
+zlib 						1.2.5			MIT			ftp://ftp.zlatkovic.com/libxml/
+iconv 					1.9.2			MIT			ftp://ftp.zlatkovic.com/libxml/
+libxml2 				2.7.8			MIT			ftp://ftp.zlatkovic.com/libxml/
+libxslt 				1.1.26		MIT			ftp://ftp.zlatkovic.com/libxml/
+
+
