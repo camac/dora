@@ -1482,7 +1482,7 @@ sub menu {
 	  menuOption("q", "quit");
 	  print "\n";
 
-	  print "Enter Choice: ";
+	  print "Enter Menu Option: ";
 	  my $opt = <>;
 	  chomp($opt);
 

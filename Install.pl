@@ -33,8 +33,10 @@ use Term::ANSIColor;
 our $projNameShart  = "dora";
 our $projNameLong   = "Domino ODP Repository Assistant";
 
+# Program Behaviour variables
 our $useColours = 1;
 our $verbose    = 0;
+our $subMenu		= "main";
 
 our $thisAbs = File::Spec->rel2abs(__FILE__);
 our ($thisVol, $thisDir, $thisFile) = File::Spec->splitpath($thisAbs);
@@ -676,29 +678,17 @@ sub main {
 
 		heading("$projNameLong Installation");
 
-		print "Current Status:\n\n";
-
-		printInstallStatus("Git Helper Script", $chkHelper);
-		printInstallStatus("XSL Stylesheets",		$chkXSL);
-		printInstallStatus("libxslt binaries", 	$chkLibxslt);
-		printInstallStatus("App Version Sync",	$chkHooks);
+		menuStatus();
 
 		print "\nChoose a Menu Option\n\n";
 
-		menuOption("1", "Install   Everything");
-		menuOption("2", "Uninstall Everything");
-		menuSeparator();
-		menuOption("3", "Install   Git Helper Script");
-		menuOption("4", "Install   XSL Stylesheets");
-		menuOption("5", "Install   libxslt binaries");
-		menuOption("6", "Install   App Version Sync");
-		menuSeparator();
-		menuOption("7", "Uninstall Git Helper Script");
-		menuOption("8", "Uninstall XSL stylesheets");
-		menuOption("9", "Uninstall libxslt binaries");
-		menuOption("10", "Uninstall App Version Sync");
-		menuSeparator();
+		menuMain() 			if $subMenu eq "main";
+		menuInstall() 	if $subMenu eq "install";
+		menuUninstall()	if $subMenu eq "uninstall";
+
+		print "\n";
 		menuOption("q", "Quit");
+		print "\n";
 
 		if ($invalidOpt) {
 			printf ("%s is an invalid option\n", $opt);
@@ -715,64 +705,123 @@ sub main {
 
 		exit 0 if $opt =~ m/^q/i;
 
-		if ($opt eq "1") {
+		my $skipConfirmAnyKey = 0;
 
-			mycls();
-			installEverything();
+		if ($subMenu eq "main") {
 
-		} elsif ($opt eq "2") {
+			$subMenu = "install"		if 	($opt eq "1");
+			$subMenu = "uninstall"	if 	($opt eq "2");
+			
+			$skipConfirmAnyKey = 1;
 
-			mycls();
-			uninstallEverything();
+		} elsif ($subMenu eq "install") {
+			
+			if ($opt eq "1") {
+				mycls();
+				installEverything();
+				$subMenu = "main";
+			} elsif ($opt eq "2") {
+				mycls();
+				installHelper();	
+			} elsif ($opt eq "3") {
+				mycls();
+				installXSL();
+			} elsif ($opt eq "4") {
+				mycls();
+				installLibxslt();
+			} elsif ($opt eq "5") {
+				mycls();
+				installHooks();
+			} elsif($opt =~ m/^b/i) {
+				$subMenu = "main";
+				$skipConfirmAnyKey = 1;
+			} else {
+				$invalidOpt = 1;
+			}
 
-		} elsif ($opt eq "3") {
 
-			mycls();
-			installHelper();	
+		} elsif ($subMenu eq "uninstall") {
 
-		} elsif ($opt eq "4") {
+			if ($opt eq "1") {
+				mycls();	
+				uninstallEverything();
+				$subMenu = "main";
+			} elsif ($opt eq "2") {
+				mycls();
+				uninstallHelper();
+			} elsif ($opt eq "3") {
+				mycls();
+				uninstallXSL();
+			} elsif ($opt eq "4") {
+				mycls();
+				uninstallLibxslt();
+			} elsif ($opt eq "5") {
+				mycls();
+				uninstallHooks();
+			} elsif ($opt =~ m/^b/i) {
+				$subMenu = "main";
+				$skipConfirmAnyKey = 1;
+			} else {
+				$invalidOpt = 1;
+			}
 
-			mycls();
-			installXSL();
-
-		} elsif ($opt eq "5") {
-
-			mycls();
-			installLibxslt();
-
-		} elsif ($opt eq "6") {
-
-			mycls();
-			installHooks();
-
-		} elsif ($opt eq "7") {
-
-			mycls();
-			uninstallHelper();
-
-		} elsif ($opt eq "8") {
-
-			mycls();
-			uninstallXSL();
-
-		} elsif ($opt eq "9") {
-
-			mycls();
-			uninstallLibxslt();
-
-		} elsif ($opt eq "10") {
-
-			mycls();
-			uninstallHooks();
-
-		} else {
-			$invalidOpt = 1;
 		}
 
-		confirmAnyKey() if !$invalidOpt;
+		confirmAnyKey() unless $skipConfirmAnyKey;
 
 	}
 
+}
+
+sub menuStatus {
+	
+		print "Target Directories:\n\n";
+
+		print "Binaries : ";
+		colorSet("bold white");
+		printf("%-40s\n",$binTargetDir);
+		colorReset();
+
+		print "Resources: ";
+		colorSet("bold white");
+		printf("%-40s\n",$xslTargetDir);
+		colorReset();
+
+		print "\nCurrent Status:\n\n";
+
+		printInstallStatus("Git Helper Script", $chkHelper);
+		printInstallStatus("XSL Stylesheets",		$chkXSL);
+		printInstallStatus("libxslt binaries", 	$chkLibxslt);
+		printInstallStatus("App Version Sync",	$chkHooks);
+
+
+}
+
+sub menuMain {
+		menuOption("1", "Install   Something...");
+		menuOption("2", "Uninstall Something...");
+}
+
+sub menuInstall {
+		menuOption("1", "Install Everything");
+		menuSeparator();
+		menuOption("2", "Install Git Helper Script");
+		menuOption("3", "Install XSL Stylesheets");
+		menuOption("4", "Install libxslt binaries");
+		menuOption("5", "Install App Version Sync");
+		menuSeparator();
+		menuOption("b", "Back to main menu");
+}
+
+sub menuUninstall {
+		menuOption("1", "Uninstall Everything");
+		menuSeparator();
+		menuOption("2", "Uninstall Git Helper Script");
+		menuOption("3", "Uninstall XSL stylesheets");
+		menuOption("4", "Uninstall libxslt binaries");
+		menuOption("5", "Uninstall App Version Sync");
+		menuSeparator();
+		menuOption("b", "Back to main menu");
 }
 
 # Terminal Helper Functions
