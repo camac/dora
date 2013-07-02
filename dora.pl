@@ -50,6 +50,7 @@ our @xslSourceFilenames = (
 
 our $xslTargetDir       = "xsl";
 our $xslFilter          = "$xslTargetDir/$xslFilterFilename";
+our $xslDeflate					= "$xslTargetDir/$xslDeflateFilename";
 our $xslVersioner				= "$xslTargetDir/$xslVersionerFilename";
 our $xslVersionCleaner	= "$xslTargetDir/$xslVersionCleanerFilename";
 
@@ -84,7 +85,7 @@ our $ignoreFile   = ".gitignore";
 
 #Filter values
 our $cleanFilter  					= "xsltproc $xslFilter -";
-our $smudgeFilter 					= "cat";
+our $smudgeFilter 					= "xsltproc $xslDeflate -";
 our $appVersionCleanFilter	= "xsltproc $xslVersionCleaner - ";
 our $appVersionSmudgeFilter	= "cat";
 
