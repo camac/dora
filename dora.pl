@@ -567,9 +567,7 @@ sub installAttr {
   heading("Associate File Extensions with Filter");
 
   print "This step will update the .gitattributes of the current repository.\n";
-  print "WARNING: This function will sort and deduplicate your .gitattributes file.\n";
-  print "If you have comments or keep your .gitattributes in a particular order, this will destroy that order\n";
-  print "It will associate certain files with the nsf filter that was configure in the .gitconfig file.\n\n";
+  print "It will associate certain files / file extensions, with the nsf filter that was configured in the .gitconfig file.\n\n";
 
   return 0 if !confirmContinue();
 
