@@ -12,15 +12,6 @@ Unless required by applicable law or agreed to in writing, software distributed 
 
 =cut
 
-#
-# Installation Script for GitNsfFilters
-#
-# Copies the GNF script to the ~/bin directory
-# Copies the XSL file to the ~/GitFilter/xsl directory
-# TODO Use FTP to download latest libxslt
-# TODO Unzip libxslt packages
-# TODO MD5 checksum the libxslt packages after download
-
 use strict;
 
 package Dora;
