@@ -23,7 +23,7 @@ Unless required by applicable law or agreed to in writing, software distributed 
 
 use strict;
 
-package GitFiltersForNSF;
+package Dora;
 
 use File::Basename 'dirname';
 use File::Copy 'copy';
@@ -60,8 +60,6 @@ our @xslSourceFilenames   = (
   "DXLFilter.xsl",
   "DXLPretty.xsl",
   "DXLDeflate.xsl",
-	"AppVersioner.xsl",
-	"AppVersionClean.xsl"
 );
 
 our $xslTargetDir        = "$homeDir/dora";
@@ -75,7 +73,9 @@ our @hookSourceFilenames 	= (
 	'post-commit',
 	'post-checkout',
 	'ccAppVersion.xsp',
-	'ccAppVersion.xsp-config'
+	'ccAppVersion.xsp-config',
+	'AppVersionUpdate.xsl',
+	'AppVersionClean.xsl'
 );
 
 our $libxsltDir		= "$installScriptDir/libxslt";
@@ -120,10 +120,21 @@ sub uninstallEverything {
 sub installHelper {
 
 
-	heading("Install the Helper");
+	heading("Install the Dora Helper Script");
 
-	print "This step will install the $setupTargetFilename script into $setupTargetDir\n";
+	print "This step will attemp to copy the main helper script ";
+	colorSet("bold white");
+	print $setupTargetFilename;
+	colorReset();
+	print " script into the following directory:\n\n";
+
+	colorSet("bold white");
+	print "$setupTargetDir\n\n";
+	colorReset();
+
 	print "The helper script is used to help set up and configure git repositories for nsf use\n";
+	print "You should ensure that this directory is on your 'PATH' so that you can run this script from anywhere\n";
+	print "The directory will be attempted to be created if it does not exist\n";
 
   if (-e $setupTarget) {
 		colorSet("bold yellow");
@@ -150,7 +161,7 @@ sub installHelper {
 
 sub uninstallHelper {
 
-	heading("Uninstall the Helper");
+	heading("Uninstall the Helper Script");
 
 	if (-e $setupTarget) {
 
@@ -200,19 +211,13 @@ sub installXSL {
 	my $xslTarget	= '';
 	my $xslExist  = 0;
 
-	heading("Install the XSL Stylesheets");
+	heading("Install the XSL Stylesheets for Metadata Filtering");
 
-	print "This step will install the XSL Stylesheets to:\n\n";
+	print "This step will install the XSL Transformation Stylesheets that are used for Metadata Filtering to:\n\n";
 	colorSet("bold white");
 	print "  $xslTargetDir\n\n";
 	colorReset();
-	print "The XSL Stylesheets are used by the NSF Metadata filter\n";
-	print "When you use the helper script to setup a repository for NSF Metadata filtering,\n";
-	print "the helper script will copy the above file to the ";
-	colorSet("bold white");
-	print "xsl/";
-	colorReset();
-	print " folder of the repository\n";
+	print "The XSL Stylesheets are used by the Git Metadata filter\n";
 
   # Show the user that xsl files will be overwritten
  	foreach (@xslSourceFilenames) {
@@ -265,7 +270,7 @@ sub uninstallXSL {
 	my $xslTarget	= '';
 	my @xslExist = ();
 
-	heading("Uninstall the XSL File");
+	heading("Uninstall the XSL Files");
 
 	foreach(@xslSourceFilenames) {
 		$xslTarget = getXSLTarget($_);
@@ -277,7 +282,7 @@ sub uninstallXSL {
 		return 0;
 	}
 
-	print "This step will remove the following XSL Stylesheets\n\n";
+	print "This step will remove the following XSL Stylesheets:\n\n";
 
 	colorSet("bold white");
 	foreach(@xslExist) {
@@ -353,19 +358,16 @@ sub installHooks {
 	my $hookTarget	= '';
 	my $hookExist  	= 0;
 
-	heading("Install the App Version Sync Hooks");
+	heading("Install the App Version Sync Files");
 
-	print "This step will install the Hooks to:\n\n";
+	print "This step will install the necessary files for setting up the App Version Sync to:\n\n";
 	colorSet("bold white");
 	print "  $hookTargetDir\n\n";
 	colorReset();
-	print "The Hooks are used by App Version sync system to keep a custom control updated with the latest version number.\n";
-	print "When you use the helper script to setup a repository for version tagging,\n";
-	print "the helper script will copy the above file to the ";
-	colorSet("bold white");
-	print ".git/hooks";
-	colorReset();
-	print " folder of the repository\n";
+	print "The App Version sync system keeps a custom control updated with the current Version number as determined\n";
+	print "by `git describe` and the current branch. The files to be copied include 2 git hooks, a default template\n";
+	print "for the Custom Control (and its xsp-config file) and the, necessary XSL Transform stylesheets used to\n";
+	print "make modifications to the Custom Control.\n ";
 
   # Show the user that hook files will be overwritten
  	foreach (@hookSourceFilenames) {
@@ -418,7 +420,7 @@ sub uninstallHooks {
 	my $hookTarget	= '';
 	my @hookExist = ();
 
-	heading("Uninstall the Hooks");
+	heading("Uninstall the App Version Sync files");
 
 	foreach(@hookSourceFilenames) {
 		$hookTarget = getHookTarget($_);
@@ -426,11 +428,11 @@ sub uninstallHooks {
 	}
 
 	if (!@hookExist) {
-		print "No Hooks are currently installed, no action taken\n";
+		print "The App Version Sync files are not currently installed, no action taken\n";
 		return 0;
 	}
 
-	print "This step will remove the following Hooks\n\n";
+	print "This step will remove the following App Version Sync files\n\n";
 
 	colorSet("bold white");
 	foreach(@hookExist) {
@@ -440,7 +442,7 @@ sub uninstallHooks {
 	
 
 	if (!confirmContinue()) {
-		print "aborting un-installation of Hooks\n";
+		print "aborting un-installation of App Version Sync\n";
 		return 0;
 	}
 
@@ -508,8 +510,17 @@ sub installLibxslt {
 
 	heading("Install libxslt win 32 binaries");
 
-	print ("\nThis step will install the binaries required to run xsltproc\n\n");
-	print ("xsltproc is the program used to filter the DXL using an xsl file\n");
+	print ("This step will install the binaries for libxslt, they will be installed to the following directory:\n\n");
+
+	colorSet("bold white");
+	print "$binTargetDir\n\n";
+	colorReset();
+
+	print "This directory should be on your PATH so that the binaries can be executed from anywhere.\n";
+	colorSet("bold white");
+	print "xsltproc.exe";
+	colorReset();
+	print " is the program used to filter the DXL using the XSL Transformation Stylesheets\n";
 
 	foreach (@libxsltBins) {
 
@@ -688,13 +699,6 @@ sub main {
 
 		print "\n";
 		menuOption("q", "Quit");
-		print "\n";
-
-		if ($invalidOpt) {
-			printf ("%s is an invalid option\n", $opt);
-		} else {
-			print "\n";
-		}
 
 		print "\nEnter Menu Option: ";
 
@@ -798,8 +802,8 @@ sub menuStatus {
 }
 
 sub menuMain {
-		menuOption("1", "Install   Something...");
-		menuOption("2", "Uninstall Something...");
+		menuOption("1", "Installation   submenu...");
+		menuOption("2", "Uninstallation submenu...");
 }
 
 sub menuInstall {
@@ -930,7 +934,7 @@ sub installRemoveOption {
 
 sub heading {
 
-  my $maxwidth  = 50;
+  my $maxwidth  = 70;
   my $fillerChar = "*";
 
   # Get the Title from the sub arguments

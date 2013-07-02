@@ -15,7 +15,7 @@ Unless required by applicable law or agreed to in writing, software distributed 
 use strict;
 use Term::ANSIColor;
 
-package GitFiltersForNSF;
+package Dora;
 
 # Program behaviour variables
 our $useColours = 1;
@@ -36,7 +36,7 @@ our $nsfDir							= "nsf";
 our $xslFilterFilename  				= "DXLFilter.xsl";
 our $xslPrettyFilename  				= "DXLPretty.xsl";
 our $xslDeflateFilename 				= "DXLDeflate.xsl";
-our $xslVersionerFilename				= "AppVersioner.xsl";
+our $xslVersionerFilename				= "AppVersionUpdate.xsl";
 our $xslVersionCleanerFilename	= "AppVersionClean.xsl";
 
 # XSL Stylesheets, make sure first one is the filter
