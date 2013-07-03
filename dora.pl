@@ -609,9 +609,13 @@ sub uninstallAttr {
     return 0 if !confirmContinue();
   }
 
-  # tell sed to remove all lines between our Section start/finish markers in the attributes file
-  my @sedargs = ('-i', "/$cfgStartMark/,/$cfgFinishMark/d", $attrFile);  
-  system('sed', @sedargs);
+  if (-e $attrFile) {
+    # tell sed to remove all lines between our Section start/finish markers in the attributes file
+    my @sedargs = ('-i', "/$cfgStartMark/,/$cfgFinishMark/d", $attrFile);  
+    system('sed', @sedargs);
+  } else {
+    print "$attrFile does not exist, no action taken\n";
+  }
   
 }
 
@@ -678,8 +682,12 @@ sub uninstallIgnore {
     return 0 if !confirmContinue();
   }
 
-  my @sedargs = ('-i', "/$cfgStartMark/,/$cfgFinishMark/d", $ignoreFile);
-  system('sed', @sedargs);
+  if (-e $ignoreFile) {
+    my @sedargs = ('-i', "/$cfgStartMark/,/$cfgFinishMark/d", $ignoreFile);
+    system('sed', @sedargs);
+  } else {
+    print "$ignoreFile does not exist, no action taken\n";
+  }
 
 }
 

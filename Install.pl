@@ -21,8 +21,11 @@ use File::Copy 'copy';
 use File::Spec;
 use Term::ANSIColor;
 
-our $projNameShart  = "dora";
+our $projNameShort  = "dora";
 our $projNameLong   = "Domino ODP Repository Assistant";
+
+# Check if we are on a Mac OSX system
+our $IsMacOSX  = ($^O eq 'darwin') ? 1 : 0;
 
 # Program Behaviour variables
 our $useColours = 1;
@@ -501,6 +504,19 @@ sub installLibxslt {
 
 	heading("Install libxslt win 32 binaries");
 
+  if ($IsMacOSX) {
+
+    print "The installation script has detected that this is computer is running Mac OSX\n";
+    print "If this is the case, the necessary files for libxslt should be already installed\n";
+    print "If this is not the case, you can re-run this install script using the ";
+    colorSet("bold white");
+    print "--os-windows";
+    colorReset();
+    print " option\n\n";
+
+    return 0;
+  }
+
 	print ("This step will install the binaries for libxslt, they will be installed to the following directory:\n\n");
 
 	colorSet("bold white");
@@ -567,6 +583,21 @@ sub uninstallLibxslt {
 
 	heading("Uninstall libxslt win 32 binaries");
 
+  if ($IsMacOSX) {
+
+    print "The installation script has detected that this is computer is running Mac OSX\n";
+    print "If this is the case, the binaries for libxslt would not have been installed by $projNameShort\n";
+    print "Therfore they should not need to be uninstalled. If this is not the case, you can re-run this\n";
+    print "uninstall script using the ";
+    colorSet("bold white");
+    print "--os-windows";
+    colorReset();
+    print " option\n\n";
+
+    return 0;
+  }
+
+
 	foreach(@libxsltBins) {
 		$binTarget = getLibxsltTarget($_);
 		push(@binsExist, $binTarget) if (-e $binTarget);
@@ -630,18 +661,80 @@ sub checkLibxslt {
 
 }
 
+sub usage {
+
+  print "\n$projNameLong Installation Script\n\n";
+#  print "  --dir-binaries <directory>\n\n";
+#  print "            Specifies the Directory to install the binaries to\n";
+#  print "            Default is ~\\bin\n\n";
+#  print "  --dir-resources <directory>\n\n";
+#  print "            Specifies the Directory to install the Resource Files to\n";
+#  print "            Default is ~\\dora\n\n";
+  print "  --help\n\n";
+  print "            Show this help screen\n\n";
+  print "  --install\n\n";
+  print "            Install Everything\n\n";
+  print "  --uninstall\n\n";
+  print "            Uninstall Everything\n\n";
+  print "  --os-mac\n\n";
+  print "            Force the script to think it is running on Mac OSX\n\n";
+  print "  --os-windows\n\n";
+  print "            Force the script to think it is running on Windows\n\n";
+  print "  --no-color\n\n";
+  print "            Don't use color text in the terminal\n\n";
+  print "  -v\n\n";
+  print "            Be Verbose with output\n\n";
+
+  exit 0;
+
+}
+
 sub processArgs {
 
   my $numArgs = $#ARGV + 1;
 
+  # Check for first argument 
+  usage if ($ARGV[0] eq '--help');
+
   foreach my $argnum (0 .. $#ARGV) {
+
+#    if ($ARGV[$argnum] eq '--dir-binaries') {
+#  
+#      my $argBinTarget = $ARGV[$argnum + 1];
+#      
+#      if (-d $argBinTarget) {
+#        print "woohoo $argBinTarget exists\n";
+#      } else {
+#        print "doh! $argBinTarget does not exist\n";
+#      }
+#      
+#      confirmAnyKey();
+#
+#    }
+#
+#    if ($ARGV[$argnum] eq '--dir-resources') {
+#
+#    }
 
     if ($ARGV[$argnum] eq '--no-color') {
       $useColours = 0;
     }
 
-    if ($ARGV[$argnum] eq '--remove') {
-      uninstall();
+    if ($ARGV[$argnum] eq '--os-mac') {
+      $IsMacOSX = 1;
+    } 
+
+    if ($ARGV[$argnum] eq '--os-windows') {
+      $IsMacOSX = 0;
+    }
+
+    if ($ARGV[$argnum] eq '--install') {
+      installEverything();
+      exit 0;
+    } 
+
+    if ($ARGV[$argnum] eq '--uninstall') {
+      uninstallEverything();
       exit 0;
     }
 
@@ -649,7 +742,6 @@ sub processArgs {
       $verbose = 1;
     }
 
-    print "$ARGV[$argnum]\n";
   }
 
 }
@@ -658,7 +750,13 @@ sub checkSetup {
 
 	$chkHelper	= checkHelper();
 	$chkXSL 		= checkXSL();
-	$chkLibxslt	= checkLibxslt();
+
+  if ($IsMacOSX) { 
+    $chkLibxslt = 2;
+  } else {
+  	$chkLibxslt	= checkLibxslt();
+  }
+
 	$chkHooks		= checkHooks();
 
 }
@@ -769,25 +867,31 @@ sub main {
 }
 
 sub menuStatus {
-	
+
+    my $osname = ($IsMacOSX) ? "Mac OSX" : "Windows";
+    print "Operating System Detected: ";
+    colorSet("bold white");
+    print "$osname\n\n";
+    colorReset();
+
 		print "Target Directories:\n\n";
 
-		print "Binaries : ";
+		print "  Binaries : ";
 		colorSet("bold white");
 		printf("%-40s\n",$binTargetDir);
 		colorReset();
 
-		print "Resources: ";
+		print "  Resources: ";
 		colorSet("bold white");
 		printf("%-40s\n",$xslTargetDir);
 		colorReset();
 
 		print "\nCurrent Status:\n\n";
 
-		printInstallStatus("Git Helper Script", $chkHelper);
-		printInstallStatus("XSL Stylesheets",		$chkXSL);
-		printInstallStatus("libxslt binaries", 	$chkLibxslt);
-		printInstallStatus("App Version Sync",	$chkHooks);
+		printInstallStatus("  Git Helper Script", $chkHelper);
+		printInstallStatus("  XSL Stylesheets",		$chkXSL);
+		printInstallStatus("  libxslt binaries", 	$chkLibxslt);
+		printInstallStatus("  App Version Sync",	$chkHooks);
 
 
 }
@@ -863,11 +967,16 @@ sub printInstallStatus {
 
   my ($element, $status) = @_;
 
+  
   my $statusText = ($status) ? "Installed" : "Not Installed";
+
+  # Special Case for Mac OSX libxslt, binaries should already be installed
+  $statusText = "Not Applicable" if ($status eq 2);
 
   printf("%-25s : ",$element);
 
-  colorSet("bold green")  if ($status);
+  colorSet("bold blue")   if ($status eq 2);
+  colorSet("bold green")  if ($status eq 1);
   colorSet("bold")        if (!$status);
 
   print("$statusText\n");
