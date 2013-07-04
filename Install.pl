@@ -1118,7 +1118,7 @@ sub confirmContinue {
 
     print("\nInvalid option: $opt, please choose y/n/q\n\n") if $invalid;
 
-    print "\nContinue? y/n/q: ";
+    print "\nContinue? (y)/n/q: ";
     $opt = <STDIN>;
     chomp($opt);
 
