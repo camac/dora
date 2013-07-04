@@ -25,6 +25,9 @@ our $subMenu		= "main";
 our $productNameShort   = "dora";
 our $productNameLong    = "Domino ODP Repository Assistant";
 
+# Check if we are on a Mac OSX system
+our $IsMacOSX  = ($^O eq 'darwin') ? 1 : 0;
+
 # Directory and File Locations
 our $homeDir            = $ENV{"HOME"};
 our $tmpDir  						= File::Spec->tmpdir();
@@ -1353,9 +1356,42 @@ sub finish {
 
 }
 
+sub usage {
+
+  print "\n$productNameLong Script\n\n";
+  print "  --help\n\n";
+  print "            Show this help screen\n\n";
+  print "  --install\n\n";
+  print "            Install Everything\n\n";
+  print "  --no-color\n\n";
+  print "            Don't use color text in the terminal\n\n";
+  print "  --os-mac\n\n";
+  print "            Force the script to think it is running on Mac OSX\n\n";
+  print "  --os-windows\n\n";
+  print "            Force the script to think it is running on Windows\n\n";
+  print "  --refresh-app-version\n\n";
+  print "            Re-run the App Version Sync\n\n";
+  print "  --test-clean <file>\n\n";
+  print "            Show what the result of the DXLClean filter on a file would be\n\n";
+  print "  --test-impurities <file>\n\n";
+  print "            Show what would be cleaned out of a file if it was filtered with DXLClean\n\n";
+  print "  --uninstall\n\n";
+  print "            Uninstall Everything\n\n";
+  print "  -v\n\n";
+  print "            Be Verbose with output\n\n";
+
+  exit 0;
+
+
+
+}
+
 sub processArgs {
 
   my $numArgs = $#ARGV + 1;
+
+  # Print help usage and quit
+  usage() if $ARGV[0] eq '--help';
 
   foreach my $argnum (0 .. $#ARGV) {
 
@@ -1363,7 +1399,7 @@ sub processArgs {
 
       $useColours = 0;
 
-    } elsif ($ARGV[$argnum] eq '--test-filter' | $ARGV[$argnum] eq '-t') {
+    } elsif ($ARGV[$argnum] eq '--test-clean' | $ARGV[$argnum] eq '-tc') {
 
       my $testFile = $ARGV[$argnum + 1];
 
@@ -1376,7 +1412,7 @@ sub processArgs {
       showFilterResult($testFile);
       exit 0;
 
-    } elsif ($ARGV[$argnum] eq '--show-impurities' | $ARGV[$argnum] eq '-im') {
+    } elsif ($ARGV[$argnum] eq '--test-impurities' | $ARGV[$argnum] eq '-ti') {
 
       my $testFile = $ARGV[$argnum + 1];
 
@@ -1431,7 +1467,15 @@ sub processArgs {
 			
 			refreshAppVersion();
 			exit 0;
-			
+
+    } elsif ($ARGV[$argnum] eq '--os-mac') {
+
+      $IsMacOSX = 1;
+
+    } elsif ($ARGV[$argnum] eq '--os-windows') {
+
+      $IsMacOSX = 0;
+	
     } else {
 
       die "Invalid Argument: $ARGV[$argnum]";
@@ -1594,11 +1638,11 @@ sub printGitRepoInstallSummary {
     print "$gitRepoDir\n";
     colorReset();
 
-    printInstallStatus("DXL Filter",              $chkFilter);
-    printInstallStatus("XSL Stylesheets",         $chkXSL);
-    printInstallStatus(".gitignore entries",      $chkIgnore);
-    printInstallStatus(".gitattributes entries",  $chkAttr);
-		printInstallStatus("App Version Sync",				$chkHooks);
+    printInstallStatus("  DXL Filter",              $chkFilter);
+    printInstallStatus("  XSL Stylesheets",         $chkXSL);
+    printInstallStatus("  .gitignore entries",      $chkIgnore);
+    printInstallStatus("  .gitattributes entries",  $chkAttr);
+		printInstallStatus("  App Version Sync",				$chkHooks);
 
     print "\n------------------------------\n\n";
 

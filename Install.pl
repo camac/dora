@@ -32,38 +32,45 @@ our $useColours = 1;
 our $verbose    = 0;
 our $subMenu		= "main";
 
+# Figure out what directory the Install Script is in
 our $thisAbs = File::Spec->rel2abs(__FILE__);
 our ($thisVol, $thisDir, $thisFile) = File::Spec->splitpath($thisAbs);
-
 our $installScriptDir     = $thisDir;
 $installScriptDir =~ s:/$::; # remove trailing slash
 
+# Figure out the Home Dir
 our $homeDir              = $ENV{"HOME"};
 
+# Helper script source location
 our $setupSourceFilename  = "dora.pl";
 our $setupSource          = "$installScriptDir/$setupSourceFilename";
 
+# Helper script target location
 our $setupTargetDir       = "$homeDir/bin";
-our $setupTargetFilename  = "dora.pl";
+our $setupTargetFilename  = "dora";
 our $setupTarget          = "$setupTargetDir/$setupTargetFilename";
 
+# Target Directory for the Binaries
 our $binTargetDir					= $setupTargetDir;
 
+# Source directory for XSL Stylesheets
 our $xslSourceDir         = "$installScriptDir/xsl";
 our @xslSourceFilenames   = (
-  "DXLFilter.xsl",
+  "DXLClean.xsl",
   "DXLPretty.xsl",
-  "DXLDeflate.xsl",
+  "DXLSmudge.xsl",
 );
 
+# Target Directory for the XSL Stylesheets
 our $xslTargetDir        = "$homeDir/dora";
 
-# Vars for Hook installation
-our $hookSourceDir				= "$installScriptDir/hooks";
-our $hookTargetDir				= "$homeDir/dora";
+# Source Directory for App Version Sync Resources 
+our $avsSourceDir				= "$installScriptDir/AppVersionSync";
+# Target Directory for App Version Sync Resources
+our $avsTargetDir				= "$homeDir/dora";
 
-# Install these hooks
-our @hookSourceFilenames 	= (
+# Install these resources for App Version Sync
+our @avsSourceFilenames 	= (
 	'post-commit',
 	'post-checkout',
 	'ccAppVersion.xsp',
@@ -72,6 +79,7 @@ our @hookSourceFilenames 	= (
 	'AppVersionClean.xsl'
 );
 
+# Source of libxslt win32 Binaries
 our $libxsltDir		= "$installScriptDir/libxslt";
 our @libxsltBins  = (
 	'iconv-1.9.2.win32/bin/iconv.dll', 
@@ -87,26 +95,45 @@ our @libxsltBins  = (
 );
 
 # Variables used to check current configuration
-our $chkHelper 	= 0;
-our $chkXSL			= 0;
-our $chkLibxslt = 0;
-our $chkHooks		= 0;
+our $chkHelper 	          = 0;
+our $chkXSL			          = 0;
+our $chkLibxslt           = 0;
+our $chkAppVersionSync		= 0;
 
 sub installEverything {
 
   installHelper();
   installXSL();
 	installLibxslt();
-	installHooks();
+	installAppVersionSync();
 
 }
 
 sub uninstallEverything {
 
+  remindAboutRepositoryUninstall();
+  return 0 if !confirmContinue();
+
 	uninstallHelper();
 	uninstallXSL();
 	uninstallLibxslt();
-	uninstallHooks();
+	uninstallAppVersionSync();
+
+}
+
+sub remindAboutRepositoryUninstall() {
+
+  colorSet("white on_red");
+  print " ** NOTE ** \n";
+  colorReset();
+
+  print "This uninstallation process only removes the Dora script and resources from it's installed locations.\n";
+  print "It does not uninstall the Dora setup from any repositories that it has been setup in.\n";
+  print "If you want to uninstall Dora from a repository, you should do that first by running:\n";
+  colorSet("bold white");
+  print  "\ndora.pl\n\n";
+  colorReset();
+  print "from within the repository first\n\n"; 
 
 }
 
@@ -329,34 +356,34 @@ sub checkXSL {
 
 }
 
-sub getHookTarget {
+sub getAppVersionSyncTarget {
 
 	# get input parameter
 	my ($srcFile) = @_;
 
 	# get full path of Source Binary
-	my $hookSource = "$hookSourceDir/$srcFile";
+	my $avsSource = "$avsSourceDir/$srcFile";
 
 	# Determine the FileName of the Stylesheet
-	my ($volume, $directories, $file) = File::Spec->splitpath($hookSource);
+	my ($volume, $directories, $file) = File::Spec->splitpath($avsSource);
 
-	# Return the Target Source Path of the Hook Stylesheet
-	return "$hookTargetDir/$file";
+	# Return the Target Source Path of the AppVersionSync Stylesheet
+	return "$avsTargetDir/$file";
 
 } 
 
 
-sub installHooks {
+sub installAppVersionSync {
 
-	my $hookSource 	= '';
-	my $hookTarget	= '';
-	my $hookExist  	= 0;
+	my $avsSource 	= '';
+	my $avsTarget	= '';
+	my $avsExist  	= 0;
 
 	heading("Install the App Version Sync Files");
 
 	print "This step will install the necessary files for setting up the App Version Sync to:\n\n";
 	colorSet("bold white");
-	print "  $hookTargetDir\n\n";
+	print "  $avsTargetDir\n\n";
 	colorReset();
 	print "The App Version sync system keeps a custom control updated with the current Version number as determined\n";
 	print "by `git describe` and the current branch. The files to be copied include 2 git hooks, a default template\n";
@@ -364,18 +391,18 @@ sub installHooks {
 	print "make modifications to the Custom Control.\n ";
 
   # Show the user that hook files will be overwritten
- 	foreach (@hookSourceFilenames) {
+ 	foreach (@avsSourceFilenames) {
 
-	  $hookTarget = getHookTarget($_);
+	  $avsTarget = getAppVersionSyncTarget($_);
 
-		if (-e $hookTarget) {
+		if (-e $avsTarget) {
 	
 			colorSet("bold yellow");
-			if (!$hookExist) {
-				print "\nThe Following Hooks are already installed and will be overwritten if you continue:\n";
-				$hookExist = 1;
+			if (!$avsExist) {
+				print "\nThe Following AppVersionSync are already installed and will be overwritten if you continue:\n";
+				$avsExist = 1;
 			}
-		  print "$hookTarget\n";
+		  print "$avsTarget\n";
 	  colorReset();
 	
     }
@@ -384,23 +411,23 @@ sub installHooks {
 	return 0 if !confirmContinue();
 
   # Check if the Home Bin directory exists
-  if (-d $hookTargetDir) {
-		printFileResult($hookTargetDir, "directory already exists", 0);
+  if (-d $avsTargetDir) {
+		printFileResult($avsTargetDir, "directory already exists", 0);
   } else {
-    mkdir $hookTargetDir or die "Could not create directory$hookTargetDir: $!";
-		printFileResult($hookTargetDir, "directory created", 1);
+    mkdir $avsTargetDir or die "Could not create directory$avsTargetDir: $!";
+		printFileResult($avsTargetDir, "directory created", 1);
   }
 
-  foreach(@hookSourceFilenames) {
+  foreach(@avsSourceFilenames) {
 
-    my $hookSource = "$hookSourceDir/$_";
-    my $hookTarget = getHookTarget($_);
+    my $avsSource = "$avsSourceDir/$_";
+    my $avsTarget = getAppVersionSyncTarget($_);
 
     # Copy the hook file to the Target Directory
     use File::Copy;
 
-    copy($hookSource, $hookTarget) or die "Failed Copying: $!\n";
-	  printFileResult($hookTarget, "Installed", 1);
+    copy($avsSource, $avsTarget) or die "Failed Copying: $!\n";
+	  printFileResult($avsTarget, "Installed", 1);
 
   }
 
@@ -408,20 +435,20 @@ sub installHooks {
 
 }
 
-sub uninstallHooks {
+sub uninstallAppVersionSync {
 
-	my $hookSource = '';
-	my $hookTarget	= '';
-	my @hookExist = ();
+	my $avsSource = '';
+	my $avsTarget	= '';
+	my @avsExist = ();
 
 	heading("Uninstall the App Version Sync files");
 
-	foreach(@hookSourceFilenames) {
-		$hookTarget = getHookTarget($_);
-		push(@hookExist, $hookTarget) if (-e $hookTarget);
+	foreach(@avsSourceFilenames) {
+		$avsTarget = getAppVersionSyncTarget($_);
+		push(@avsExist, $avsTarget) if (-e $avsTarget);
 	}
 
-	if (!@hookExist) {
+	if (!@avsExist) {
 		print "The App Version Sync files are not currently installed, no action taken\n";
 		return 0;
 	}
@@ -429,7 +456,7 @@ sub uninstallHooks {
 	print "This step will remove the following App Version Sync files\n\n";
 
 	colorSet("bold white");
-	foreach(@hookExist) {
+	foreach(@avsExist) {
 		print "$_\n";
 	}
 	colorReset();
@@ -441,21 +468,21 @@ sub uninstallHooks {
 	}
 
 	# for each hook in the folder
-	foreach (@hookSourceFilenames)  {
+	foreach (@avsSourceFilenames)  {
 	
-		$hookTarget = getHookTarget($_);
+		$avsTarget = getAppVersionSyncTarget($_);
 
-		if (-e $hookTarget) {
+		if (-e $avsTarget) {
 
-			my $noDelete = unlink $hookTarget or warn "Could not remove $hookTarget: $!\n";
+			my $noDelete = unlink $avsTarget or warn "Could not remove $avsTarget: $!\n";
 
 			if ($noDelete == 1) {
-				printFileResult($hookTarget,"removed",-1);
+				printFileResult($avsTarget,"removed",-1);
 			}
 
 		} else {
 
-			printFileResult($hookTarget,"not there anyway",0);
+			printFileResult($avsTarget,"not there anyway",0);
 
 		}
 
@@ -463,13 +490,13 @@ sub uninstallHooks {
 
 }
 
-sub checkHooks {
+sub checkAppVersionSync {
 
-	foreach (@hookSourceFilenames) {
+	foreach (@avsSourceFilenames) {
 
-		my $hookTarget = getHookTarget($_);
+		my $avsTarget = getAppVersionSyncTarget($_);
 
-		if (!-e $hookTarget) {
+		if (!-e $avsTarget) {
 			return 0;
 		}
 
@@ -699,17 +726,7 @@ sub processArgs {
   foreach my $argnum (0 .. $#ARGV) {
 
 #    if ($ARGV[$argnum] eq '--dir-binaries') {
-#  
-#      my $argBinTarget = $ARGV[$argnum + 1];
-#      
-#      if (-d $argBinTarget) {
-#        print "woohoo $argBinTarget exists\n";
-#      } else {
-#        print "doh! $argBinTarget does not exist\n";
-#      }
-#      
-#      confirmAnyKey();
-#
+# TODO allow specifying target directories via args
 #    }
 #
 #    if ($ARGV[$argnum] eq '--dir-resources') {
@@ -757,7 +774,7 @@ sub checkSetup {
   	$chkLibxslt	= checkLibxslt();
   }
 
-	$chkHooks		= checkHooks();
+	$chkAppVersionSync		= checkAppVersionSync();
 
 }
 
@@ -824,7 +841,7 @@ sub main {
 				installLibxslt();
 			} elsif ($opt eq "5") {
 				mycls();
-				installHooks();
+				installAppVersionSync();
 			} elsif($opt =~ m/^b/i) {
 				$subMenu = "main";
 				$skipConfirmAnyKey = 1;
@@ -850,7 +867,7 @@ sub main {
 				uninstallLibxslt();
 			} elsif ($opt eq "5") {
 				mycls();
-				uninstallHooks();
+				uninstallAppVersionSync();
 			} elsif ($opt =~ m/^b/i) {
 				$subMenu = "main";
 				$skipConfirmAnyKey = 1;
@@ -891,7 +908,7 @@ sub menuStatus {
 		printInstallStatus("  Git Helper Script", $chkHelper);
 		printInstallStatus("  XSL Stylesheets",		$chkXSL);
 		printInstallStatus("  libxslt binaries", 	$chkLibxslt);
-		printInstallStatus("  App Version Sync",	$chkHooks);
+		printInstallStatus("  App Version Sync",	$chkAppVersionSync);
 
 
 }
