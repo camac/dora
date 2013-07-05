@@ -105,7 +105,7 @@ sub installEverything {
   installHelper();
   installXSL();
 	installLibxslt();
-	installAppVersionSync();
+	#installAppVersionSync();
 
 }
 
@@ -117,7 +117,7 @@ sub uninstallEverything {
 	uninstallHelper();
 	uninstallXSL();
 	uninstallLibxslt();
-	uninstallAppVersionSync();
+	#uninstallAppVersionSync();
 
 }
 
@@ -908,7 +908,7 @@ sub menuStatus {
 		printInstallStatus("  Git Helper Script", $chkHelper);
 		printInstallStatus("  XSL Stylesheets",		$chkXSL);
 		printInstallStatus("  libxslt binaries", 	$chkLibxslt);
-		printInstallStatus("  App Version Sync",	$chkAppVersionSync);
+		#printInstallStatus("  App Version Sync",	$chkAppVersionSync);
 
 
 }
@@ -924,7 +924,7 @@ sub menuInstall {
 		menuOption("2", "Install Git Helper Script");
 		menuOption("3", "Install XSL Stylesheets");
 		menuOption("4", "Install libxslt binaries");
-		menuOption("5", "Install App Version Sync");
+		#menuOption("5", "Install App Version Sync");
 		menuSeparator();
 		menuOption("b", "Back to main menu");
 }
@@ -935,7 +935,7 @@ sub menuUninstall {
 		menuOption("2", "Uninstall Git Helper Script");
 		menuOption("3", "Uninstall XSL stylesheets");
 		menuOption("4", "Uninstall libxslt binaries");
-		menuOption("5", "Uninstall App Version Sync");
+		#menuOption("5", "Uninstall App Version Sync");
 		menuSeparator();
 		menuOption("b", "Back to main menu");
 }

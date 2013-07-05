@@ -145,9 +145,6 @@ our @attrEntries = (
 );
 
 
-use File::Basename;
-my $setupScriptDirname = dirname(__FILE__);
-
 sub setupNewNSFFolder {
   
   # Ask for the Application name
@@ -956,8 +953,8 @@ sub installEverything {
   installXSL();
   installIgnore();
   installAttr();
-	installHooks();
-	installDefCCVersion();
+	#installHooks();
+	#installDefCCVersion();
 
 }
 
@@ -967,7 +964,7 @@ sub uninstallEverything {
   uninstallXSL();
   uninstallIgnore();
   uninstallAttr();
-	uninstallHooks();
+	#uninstallHooks();
 
 }
 
@@ -1642,7 +1639,7 @@ sub printGitRepoInstallSummary {
     printInstallStatus("  XSL Stylesheets",         $chkXSL);
     printInstallStatus("  .gitignore entries",      $chkIgnore);
     printInstallStatus("  .gitattributes entries",  $chkAttr);
-		printInstallStatus("  App Version Sync",				$chkHooks);
+		#printInstallStatus("  App Version Sync",				$chkHooks);
 
     print "\n------------------------------\n\n";
 
@@ -1660,7 +1657,7 @@ sub menuGitInstall {
   menuOption("3", "Install XSL Stylesheets");
   menuOption("4", "Install .gitignore entries");
   menuOption("5", "Install .gitattributes entries");
-	menuOption("6",	"Install App Version Sync");
+	#menuOption("6",	"Install App Version Sync");
   print "-----\n";
 	menuOption("b", "Back to main menu");
  
@@ -1673,7 +1670,7 @@ sub menuGitUninstall {
   menuOption("3", "Uninstall XSL Stylesheets");
   menuOption("4", "Uninstall .gitignore entries");
   menuOption("5", "Uninstall .gitattributes entries");
-	menuOption("6",	"Uninstall App Version Sync");
+	#menuOption("6",	"Uninstall App Version Sync");
 	print "-----\n";
 	menuOption("b", "Back to main menu");
  
