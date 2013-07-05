@@ -46,9 +46,7 @@ our $xslVersionCleanerFilename	= "AppVersionClean.xsl";
 our @xslSourceFilenames = (
   $xslFilterFilename,
   $xslPrettyFilename,
-  $xslDeflateFilename,
-	$xslVersionerFilename,
-	$xslVersionCleanerFilename
+  $xslDeflateFilename
 );
 
 our $xslTargetDir       = "xsl";
@@ -71,7 +69,9 @@ our $hookPostCheckoutFilename	= "post-checkout";
 
 our @hookSourceFilenames = (
 	$hookPostCommitFilename,
-	$hookPostCheckoutFilename
+	$hookPostCheckoutFilename,
+ 	$xslVersionerFilename,
+	$xslVersionCleanerFilename
 );
 
 # These vars used for installing CC Default Template
@@ -233,14 +233,14 @@ sub installFilter {
   @args = ('config','--local','filter.nsf.required','true');
   system('git',@args);
 
-	@args = ('config','--local','filter.appversion.clean',$appVersionCleanFilter);
-	system('git',@args);
+#	@args = ('config','--local','filter.appversion.clean',$appVersionCleanFilter);
+#	system('git',@args);
 
-	@args = ('config','--local','filter.appversion.smudge',$appVersionSmudgeFilter);
-	system('git',@args);
+#	@args = ('config','--local','filter.appversion.smudge',$appVersionSmudgeFilter);
+#	system('git',@args);
 
-	@args = ('config','--local','filter.appversion.required','true');
-	system('git',@args);
+#	@args = ('config','--local','filter.appversion.required','true');
+#	system('git',@args);
 
   print "\nAdded git filters\n";
 
@@ -267,14 +267,14 @@ sub uninstallFilter {
   system('git',@args);
 
 	# Removed the App Version filter
-  my @args = ('config','--local','--unset','filter.appversion.clean');
-  system('git',@args);
+#  my @args = ('config','--local','--unset','filter.appversion.clean');
+#  system('git',@args);
 
-  @args = ('config','--local','--unset','filter.appversion.smudge');
-  system('git',@args);
+#  @args = ('config','--local','--unset','filter.appversion.smudge');
+#  system('git',@args);
 
-  @args = ('config','--local','--unset','filter.appversion.required');
-  system('git',@args);
+#  @args = ('config','--local','--unset','filter.appversion.required');
+#  system('git',@args);
 
   print "\nRemoved Git Filters\n";
 
@@ -294,15 +294,15 @@ sub checkFilter {
   return 0 if ($currRequired ne "true");
 
 	# Check NSF Filter
-  my $currClean     = `git config --local --get filter.appversion.clean`;
-  my $currSmudge    = `git config --local --get filter.appversion.smudge`;
-  my $currRequired  = `git config --local --get filter.appversion.required`;
+ # my $currClean     = `git config --local --get filter.appversion.clean`;
+ # my $currSmudge    = `git config --local --get filter.appversion.smudge`;
+ # my $currRequired  = `git config --local --get filter.appversion.required`;
 
-  chomp($currClean, $currSmudge, $currRequired);
+ # chomp($currClean, $currSmudge, $currRequired);
 
-  return 0 if ($currClean ne $appVersionCleanFilter);
-  return 0 if ($currSmudge ne $appVersionSmudgeFilter);
-  return 0 if ($currRequired ne "true");
+ # return 0 if ($currClean ne $appVersionCleanFilter);
+ # return 0 if ($currSmudge ne $appVersionSmudgeFilter);
+ # return 0 if ($currRequired ne "true");
 
   return 1;
   
