@@ -36,9 +36,9 @@ our $xslSourceDir       = "$homeDir/dora";
 our $nsfDir							= "nsf";
 
 # XSL DXL Filter file names
-our $xslFilterFilename  				= "DXLFilter.xsl";
+our $xslFilterFilename  				= "DXLClean.xsl";
 our $xslPrettyFilename  				= "DXLPretty.xsl";
-our $xslDeflateFilename 				= "DXLDeflate.xsl";
+our $xslDeflateFilename 				= "DXLSmudge.xsl";
 our $xslVersionerFilename				= "AppVersionUpdate.xsl";
 our $xslVersionCleanerFilename	= "AppVersionClean.xsl";
 
