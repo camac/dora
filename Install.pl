@@ -12,72 +12,74 @@ Unless required by applicable law or agreed to in writing, software distributed 
 
 =cut
 
-#
-# Installation Script for GitNsfFilters
-#
-# Copies the GNF script to the ~/bin directory
-# Copies the XSL file to the ~/GitFilter/xsl directory
-# TODO Use FTP to download latest libxslt
-# TODO Unzip libxslt packages
-# TODO MD5 checksum the libxslt packages after download
-
 use strict;
 
-package GitFiltersForNSF;
+package Dora;
 
 use File::Basename 'dirname';
 use File::Copy 'copy';
 use File::Spec;
 use Term::ANSIColor;
 
-our $projNameShart  = "dora";
+our $projNameShort  = "dora";
 our $projNameLong   = "Domino ODP Repository Assistant";
+
+# Check if we are on a Mac OSX system
+our $IsMacOSX  = ($^O eq 'darwin') ? 1 : 0;
 
 # Program Behaviour variables
 our $useColours = 1;
 our $verbose    = 0;
 our $subMenu		= "main";
 
+# Figure out what directory the Install Script is in
 our $thisAbs = File::Spec->rel2abs(__FILE__);
 our ($thisVol, $thisDir, $thisFile) = File::Spec->splitpath($thisAbs);
-
 our $installScriptDir     = $thisDir;
 $installScriptDir =~ s:/$::; # remove trailing slash
 
+# Figure out the Home Dir
 our $homeDir              = $ENV{"HOME"};
 
+# Helper script source location
 our $setupSourceFilename  = "dora.pl";
 our $setupSource          = "$installScriptDir/$setupSourceFilename";
 
+# Helper script target location
 our $setupTargetDir       = "$homeDir/bin";
-our $setupTargetFilename  = "dora.pl";
+our $setupTargetFilename  = "dora";
 our $setupTarget          = "$setupTargetDir/$setupTargetFilename";
 
+# Target Directory for the Binaries
 our $binTargetDir					= $setupTargetDir;
 
+# Source directory for XSL Stylesheets
 our $xslSourceDir         = "$installScriptDir/xsl";
 our @xslSourceFilenames   = (
-  "DXLFilter.xsl",
+  "DXLClean.xsl",
   "DXLPretty.xsl",
-  "DXLDeflate.xsl",
-	"AppVersioner.xsl",
-	"AppVersionClean.xsl"
+  "DXLSmudge.xsl",
 );
 
+# Target Directory for the XSL Stylesheets
 our $xslTargetDir        = "$homeDir/dora";
 
-# Vars for Hook installation
-our $hookSourceDir				= "$installScriptDir/hooks";
-our $hookTargetDir				= "$homeDir/dora";
+# Source Directory for App Version Sync Resources 
+our $avsSourceDir				= "$installScriptDir/AppVersionSync";
+# Target Directory for App Version Sync Resources
+our $avsTargetDir				= "$homeDir/dora";
 
-# Install these hooks
-our @hookSourceFilenames 	= (
+# Install these resources for App Version Sync
+our @avsSourceFilenames 	= (
 	'post-commit',
 	'post-checkout',
 	'ccAppVersion.xsp',
-	'ccAppVersion.xsp-config'
+	'ccAppVersion.xsp-config',
+	'AppVersionUpdate.xsl',
+	'AppVersionClean.xsl'
 );
 
+# Source of libxslt win32 Binaries
 our $libxsltDir		= "$installScriptDir/libxslt";
 our @libxsltBins  = (
 	'iconv-1.9.2.win32/bin/iconv.dll', 
@@ -93,26 +95,45 @@ our @libxsltBins  = (
 );
 
 # Variables used to check current configuration
-our $chkHelper 	= 0;
-our $chkXSL			= 0;
-our $chkLibxslt = 0;
-our $chkHooks		= 0;
+our $chkHelper 	          = 0;
+our $chkXSL			          = 0;
+our $chkLibxslt           = 0;
+our $chkAppVersionSync		= 0;
 
 sub installEverything {
 
   installHelper();
   installXSL();
 	installLibxslt();
-	installHooks();
+	#installAppVersionSync();
 
 }
 
 sub uninstallEverything {
 
+  remindAboutRepositoryUninstall();
+  return 0 if !confirmContinue();
+
 	uninstallHelper();
 	uninstallXSL();
 	uninstallLibxslt();
-	uninstallHooks();
+	#uninstallAppVersionSync();
+
+}
+
+sub remindAboutRepositoryUninstall() {
+
+  colorSet("white on_red");
+  print " ** NOTE ** \n";
+  colorReset();
+
+  print "This uninstallation process only removes the Dora script and resources from it's installed locations.\n";
+  print "It does not uninstall the Dora setup from any repositories that it has been setup in.\n";
+  print "If you want to uninstall Dora from a repository, you should do that first by running:\n";
+  colorSet("bold white");
+  print  "\ndora.pl\n\n";
+  colorReset();
+  print "from within the repository first\n\n"; 
 
 }
 
@@ -120,10 +141,21 @@ sub uninstallEverything {
 sub installHelper {
 
 
-	heading("Install the Helper");
+	heading("Install the Dora Helper Script");
 
-	print "This step will install the $setupTargetFilename script into $setupTargetDir\n";
+	print "This step will attemp to copy the main helper script ";
+	colorSet("bold white");
+	print $setupTargetFilename;
+	colorReset();
+	print " script into the following directory:\n\n";
+
+	colorSet("bold white");
+	print "$setupTargetDir\n\n";
+	colorReset();
+
 	print "The helper script is used to help set up and configure git repositories for nsf use\n";
+	print "You should ensure that this directory is on your 'PATH' so that you can run this script from anywhere\n";
+	print "The directory will be attempted to be created if it does not exist\n";
 
   if (-e $setupTarget) {
 		colorSet("bold yellow");
@@ -150,7 +182,7 @@ sub installHelper {
 
 sub uninstallHelper {
 
-	heading("Uninstall the Helper");
+	heading("Uninstall the Helper Script");
 
 	if (-e $setupTarget) {
 
@@ -162,7 +194,7 @@ sub uninstallHelper {
 		return 0 if !confirmContinue();
 
 		unlink $setupTarget or warn "Could not remove $setupTarget: $!\n";
-		printFileResult($setupTarget, "removed", -1);
+		printFileResult($setupTarget, "removed", 1);
 
 	} else {
 
@@ -200,19 +232,13 @@ sub installXSL {
 	my $xslTarget	= '';
 	my $xslExist  = 0;
 
-	heading("Install the XSL Stylesheets");
+	heading("Install the XSL Stylesheets for Metadata Filtering");
 
-	print "This step will install the XSL Stylesheets to:\n\n";
+	print "This step will install the XSL Transformation Stylesheets that are used for Metadata Filtering to:\n\n";
 	colorSet("bold white");
 	print "  $xslTargetDir\n\n";
 	colorReset();
-	print "The XSL Stylesheets are used by the NSF Metadata filter\n";
-	print "When you use the helper script to setup a repository for NSF Metadata filtering,\n";
-	print "the helper script will copy the above file to the ";
-	colorSet("bold white");
-	print "xsl/";
-	colorReset();
-	print " folder of the repository\n";
+	print "The XSL Stylesheets are used by the Git Metadata filter\n";
 
   # Show the user that xsl files will be overwritten
  	foreach (@xslSourceFilenames) {
@@ -265,7 +291,7 @@ sub uninstallXSL {
 	my $xslTarget	= '';
 	my @xslExist = ();
 
-	heading("Uninstall the XSL File");
+	heading("Uninstall the XSL Files");
 
 	foreach(@xslSourceFilenames) {
 		$xslTarget = getXSLTarget($_);
@@ -277,7 +303,7 @@ sub uninstallXSL {
 		return 0;
 	}
 
-	print "This step will remove the following XSL Stylesheets\n\n";
+	print "This step will remove the following XSL Stylesheets:\n\n";
 
 	colorSet("bold white");
 	foreach(@xslExist) {
@@ -301,7 +327,7 @@ sub uninstallXSL {
 			my $noDelete = unlink $xslTarget or warn "Could not remove $xslTarget: $!\n";
 
 			if ($noDelete == 1) {
-				printFileResult($xslTarget,"removed",-1);
+				printFileResult($xslTarget,"removed",1);
 			}
 
 		} else {
@@ -330,56 +356,53 @@ sub checkXSL {
 
 }
 
-sub getHookTarget {
+sub getAppVersionSyncTarget {
 
 	# get input parameter
 	my ($srcFile) = @_;
 
 	# get full path of Source Binary
-	my $hookSource = "$hookSourceDir/$srcFile";
+	my $avsSource = "$avsSourceDir/$srcFile";
 
 	# Determine the FileName of the Stylesheet
-	my ($volume, $directories, $file) = File::Spec->splitpath($hookSource);
+	my ($volume, $directories, $file) = File::Spec->splitpath($avsSource);
 
-	# Return the Target Source Path of the Hook Stylesheet
-	return "$hookTargetDir/$file";
+	# Return the Target Source Path of the AppVersionSync Stylesheet
+	return "$avsTargetDir/$file";
 
 } 
 
 
-sub installHooks {
+sub installAppVersionSync {
 
-	my $hookSource 	= '';
-	my $hookTarget	= '';
-	my $hookExist  	= 0;
+	my $avsSource 	= '';
+	my $avsTarget	= '';
+	my $avsExist  	= 0;
 
-	heading("Install the App Version Sync Hooks");
+	heading("Install the App Version Sync Files");
 
-	print "This step will install the Hooks to:\n\n";
+	print "This step will install the necessary files for setting up the App Version Sync to:\n\n";
 	colorSet("bold white");
-	print "  $hookTargetDir\n\n";
+	print "  $avsTargetDir\n\n";
 	colorReset();
-	print "The Hooks are used by App Version sync system to keep a custom control updated with the latest version number.\n";
-	print "When you use the helper script to setup a repository for version tagging,\n";
-	print "the helper script will copy the above file to the ";
-	colorSet("bold white");
-	print ".git/hooks";
-	colorReset();
-	print " folder of the repository\n";
+	print "The App Version sync system keeps a custom control updated with the current Version number as determined\n";
+	print "by `git describe` and the current branch. The files to be copied include 2 git hooks, a default template\n";
+	print "for the Custom Control (and its xsp-config file) and the, necessary XSL Transform stylesheets used to\n";
+	print "make modifications to the Custom Control.\n ";
 
   # Show the user that hook files will be overwritten
- 	foreach (@hookSourceFilenames) {
+ 	foreach (@avsSourceFilenames) {
 
-	  $hookTarget = getHookTarget($_);
+	  $avsTarget = getAppVersionSyncTarget($_);
 
-		if (-e $hookTarget) {
+		if (-e $avsTarget) {
 	
 			colorSet("bold yellow");
-			if (!$hookExist) {
-				print "\nThe Following Hooks are already installed and will be overwritten if you continue:\n";
-				$hookExist = 1;
+			if (!$avsExist) {
+				print "\nThe Following AppVersionSync are already installed and will be overwritten if you continue:\n";
+				$avsExist = 1;
 			}
-		  print "$hookTarget\n";
+		  print "$avsTarget\n";
 	  colorReset();
 	
     }
@@ -388,23 +411,23 @@ sub installHooks {
 	return 0 if !confirmContinue();
 
   # Check if the Home Bin directory exists
-  if (-d $hookTargetDir) {
-		printFileResult($hookTargetDir, "directory already exists", 0);
+  if (-d $avsTargetDir) {
+		printFileResult($avsTargetDir, "directory already exists", 0);
   } else {
-    mkdir $hookTargetDir or die "Could not create directory$hookTargetDir: $!";
-		printFileResult($hookTargetDir, "directory created", 1);
+    mkdir $avsTargetDir or die "Could not create directory$avsTargetDir: $!";
+		printFileResult($avsTargetDir, "directory created", 1);
   }
 
-  foreach(@hookSourceFilenames) {
+  foreach(@avsSourceFilenames) {
 
-    my $hookSource = "$hookSourceDir/$_";
-    my $hookTarget = getHookTarget($_);
+    my $avsSource = "$avsSourceDir/$_";
+    my $avsTarget = getAppVersionSyncTarget($_);
 
     # Copy the hook file to the Target Directory
     use File::Copy;
 
-    copy($hookSource, $hookTarget) or die "Failed Copying: $!\n";
-	  printFileResult($hookTarget, "Installed", 1);
+    copy($avsSource, $avsTarget) or die "Failed Copying: $!\n";
+	  printFileResult($avsTarget, "Installed", 1);
 
   }
 
@@ -412,54 +435,54 @@ sub installHooks {
 
 }
 
-sub uninstallHooks {
+sub uninstallAppVersionSync {
 
-	my $hookSource = '';
-	my $hookTarget	= '';
-	my @hookExist = ();
+	my $avsSource = '';
+	my $avsTarget	= '';
+	my @avsExist = ();
 
-	heading("Uninstall the Hooks");
+	heading("Uninstall the App Version Sync files");
 
-	foreach(@hookSourceFilenames) {
-		$hookTarget = getHookTarget($_);
-		push(@hookExist, $hookTarget) if (-e $hookTarget);
+	foreach(@avsSourceFilenames) {
+		$avsTarget = getAppVersionSyncTarget($_);
+		push(@avsExist, $avsTarget) if (-e $avsTarget);
 	}
 
-	if (!@hookExist) {
-		print "No Hooks are currently installed, no action taken\n";
+	if (!@avsExist) {
+		print "The App Version Sync files are not currently installed, no action taken\n";
 		return 0;
 	}
 
-	print "This step will remove the following Hooks\n\n";
+	print "This step will remove the following App Version Sync files\n\n";
 
 	colorSet("bold white");
-	foreach(@hookExist) {
+	foreach(@avsExist) {
 		print "$_\n";
 	}
 	colorReset();
 	
 
 	if (!confirmContinue()) {
-		print "aborting un-installation of Hooks\n";
+		print "aborting un-installation of App Version Sync\n";
 		return 0;
 	}
 
 	# for each hook in the folder
-	foreach (@hookSourceFilenames)  {
+	foreach (@avsSourceFilenames)  {
 	
-		$hookTarget = getHookTarget($_);
+		$avsTarget = getAppVersionSyncTarget($_);
 
-		if (-e $hookTarget) {
+		if (-e $avsTarget) {
 
-			my $noDelete = unlink $hookTarget or warn "Could not remove $hookTarget: $!\n";
+			my $noDelete = unlink $avsTarget or warn "Could not remove $avsTarget: $!\n";
 
 			if ($noDelete == 1) {
-				printFileResult($hookTarget,"removed",-1);
+				printFileResult($avsTarget,"removed",1);
 			}
 
 		} else {
 
-			printFileResult($hookTarget,"not there anyway",0);
+			printFileResult($avsTarget,"not there anyway",0);
 
 		}
 
@@ -467,13 +490,13 @@ sub uninstallHooks {
 
 }
 
-sub checkHooks {
+sub checkAppVersionSync {
 
-	foreach (@hookSourceFilenames) {
+	foreach (@avsSourceFilenames) {
 
-		my $hookTarget = getHookTarget($_);
+		my $avsTarget = getAppVersionSyncTarget($_);
 
-		if (!-e $hookTarget) {
+		if (!-e $avsTarget) {
 			return 0;
 		}
 
@@ -508,8 +531,30 @@ sub installLibxslt {
 
 	heading("Install libxslt win 32 binaries");
 
-	print ("\nThis step will install the binaries required to run xsltproc\n\n");
-	print ("xsltproc is the program used to filter the DXL using an xsl file\n");
+  if ($IsMacOSX) {
+
+    print "The installation script has detected that this is computer is running Mac OSX\n";
+    print "If this is the case, the necessary files for libxslt should be already installed\n";
+    print "If this is not the case, you can re-run this install script using the ";
+    colorSet("bold white");
+    print "--os-windows";
+    colorReset();
+    print " option\n\n";
+
+    return 0;
+  }
+
+	print ("This step will install the binaries for libxslt, they will be installed to the following directory:\n\n");
+
+	colorSet("bold white");
+	print "$binTargetDir\n\n";
+	colorReset();
+
+	print "This directory should be on your PATH so that the binaries can be executed from anywhere.\n";
+	colorSet("bold white");
+	print "xsltproc.exe";
+	colorReset();
+	print " is the program used to filter the DXL using the XSL Transformation Stylesheets\n";
 
 	foreach (@libxsltBins) {
 
@@ -565,6 +610,21 @@ sub uninstallLibxslt {
 
 	heading("Uninstall libxslt win 32 binaries");
 
+  if ($IsMacOSX) {
+
+    print "The installation script has detected that this is computer is running Mac OSX\n";
+    print "If this is the case, the binaries for libxslt would not have been installed by $projNameShort\n";
+    print "Therfore they should not need to be uninstalled. If this is not the case, you can re-run this\n";
+    print "uninstall script using the ";
+    colorSet("bold white");
+    print "--os-windows";
+    colorReset();
+    print " option\n\n";
+
+    return 0;
+  }
+
+
 	foreach(@libxsltBins) {
 		$binTarget = getLibxsltTarget($_);
 		push(@binsExist, $binTarget) if (-e $binTarget);
@@ -599,8 +659,10 @@ sub uninstallLibxslt {
 			my $noDelete = unlink $binTarget or warn "Could not remove $binTarget: $!\n";
 
 			if ($noDelete == 1) {
-				printFileResult($binTarget,"removed",-1);
-			}
+				printFileResult($binTarget,"removed",1);
+			} else {
+        printFileResult($binTarget,'failed',-1);
+      }
 
 		} else {
 
@@ -628,18 +690,70 @@ sub checkLibxslt {
 
 }
 
+sub usage {
+
+  print "\n$projNameLong Installation Script\n\n";
+#  print "  --dir-binaries <directory>\n\n";
+#  print "            Specifies the Directory to install the binaries to\n";
+#  print "            Default is ~\\bin\n\n";
+#  print "  --dir-resources <directory>\n\n";
+#  print "            Specifies the Directory to install the Resource Files to\n";
+#  print "            Default is ~\\dora\n\n";
+  print "  --help\n\n";
+  print "            Show this help screen\n\n";
+  print "  --install\n\n";
+  print "            Install Everything\n\n";
+  print "  --uninstall\n\n";
+  print "            Uninstall Everything\n\n";
+  print "  --os-mac\n\n";
+  print "            Force the script to think it is running on Mac OSX\n\n";
+  print "  --os-windows\n\n";
+  print "            Force the script to think it is running on Windows\n\n";
+  print "  --no-color\n\n";
+  print "            Don't use color text in the terminal\n\n";
+  print "  -v\n\n";
+  print "            Be Verbose with output\n\n";
+
+  exit 0;
+
+}
+
 sub processArgs {
 
   my $numArgs = $#ARGV + 1;
 
+  # Check for first argument 
+  usage if ($ARGV[0] eq '--help');
+
   foreach my $argnum (0 .. $#ARGV) {
+
+#    if ($ARGV[$argnum] eq '--dir-binaries') {
+# TODO allow specifying target directories via args
+#    }
+#
+#    if ($ARGV[$argnum] eq '--dir-resources') {
+#
+#    }
 
     if ($ARGV[$argnum] eq '--no-color') {
       $useColours = 0;
     }
 
-    if ($ARGV[$argnum] eq '--remove') {
-      uninstall();
+    if ($ARGV[$argnum] eq '--os-mac') {
+      $IsMacOSX = 1;
+    } 
+
+    if ($ARGV[$argnum] eq '--os-windows') {
+      $IsMacOSX = 0;
+    }
+
+    if ($ARGV[$argnum] eq '--install') {
+      installEverything();
+      exit 0;
+    } 
+
+    if ($ARGV[$argnum] eq '--uninstall') {
+      uninstallEverything();
       exit 0;
     }
 
@@ -647,7 +761,6 @@ sub processArgs {
       $verbose = 1;
     }
 
-    print "$ARGV[$argnum]\n";
   }
 
 }
@@ -656,8 +769,14 @@ sub checkSetup {
 
 	$chkHelper	= checkHelper();
 	$chkXSL 		= checkXSL();
-	$chkLibxslt	= checkLibxslt();
-	$chkHooks		= checkHooks();
+
+  if ($IsMacOSX) { 
+    $chkLibxslt = 2;
+  } else {
+  	$chkLibxslt	= checkLibxslt();
+  }
+
+	$chkAppVersionSync		= checkAppVersionSync();
 
 }
 
@@ -688,13 +807,6 @@ sub main {
 
 		print "\n";
 		menuOption("q", "Quit");
-		print "\n";
-
-		if ($invalidOpt) {
-			printf ("%s is an invalid option\n", $opt);
-		} else {
-			print "\n";
-		}
 
 		print "\nEnter Menu Option: ";
 
@@ -731,7 +843,7 @@ sub main {
 				installLibxslt();
 			} elsif ($opt eq "5") {
 				mycls();
-				installHooks();
+				installAppVersionSync();
 			} elsif($opt =~ m/^b/i) {
 				$subMenu = "main";
 				$skipConfirmAnyKey = 1;
@@ -757,7 +869,7 @@ sub main {
 				uninstallLibxslt();
 			} elsif ($opt eq "5") {
 				mycls();
-				uninstallHooks();
+				uninstallAppVersionSync();
 			} elsif ($opt =~ m/^b/i) {
 				$subMenu = "main";
 				$skipConfirmAnyKey = 1;
@@ -774,32 +886,38 @@ sub main {
 }
 
 sub menuStatus {
-	
+
+    my $osname = ($IsMacOSX) ? "Mac OSX" : "Windows";
+    print "Operating System Detected: ";
+    colorSet("bold white");
+    print "$osname\n\n";
+    colorReset();
+
 		print "Target Directories:\n\n";
 
-		print "Binaries : ";
+		print "  Binaries : ";
 		colorSet("bold white");
 		printf("%-40s\n",$binTargetDir);
 		colorReset();
 
-		print "Resources: ";
+		print "  Resources: ";
 		colorSet("bold white");
 		printf("%-40s\n",$xslTargetDir);
 		colorReset();
 
 		print "\nCurrent Status:\n\n";
 
-		printInstallStatus("Git Helper Script", $chkHelper);
-		printInstallStatus("XSL Stylesheets",		$chkXSL);
-		printInstallStatus("libxslt binaries", 	$chkLibxslt);
-		printInstallStatus("App Version Sync",	$chkHooks);
+		printInstallStatus("  Git Helper Script", $chkHelper);
+		printInstallStatus("  XSL Stylesheets",		$chkXSL);
+		printInstallStatus("  libxslt binaries", 	$chkLibxslt);
+		#printInstallStatus("  App Version Sync",	$chkAppVersionSync);
 
 
 }
 
 sub menuMain {
-		menuOption("1", "Install   Something...");
-		menuOption("2", "Uninstall Something...");
+		menuOption("1", "Installation   submenu...");
+		menuOption("2", "Uninstallation submenu...");
 }
 
 sub menuInstall {
@@ -808,7 +926,7 @@ sub menuInstall {
 		menuOption("2", "Install Git Helper Script");
 		menuOption("3", "Install XSL Stylesheets");
 		menuOption("4", "Install libxslt binaries");
-		menuOption("5", "Install App Version Sync");
+		#menuOption("5", "Install App Version Sync");
 		menuSeparator();
 		menuOption("b", "Back to main menu");
 }
@@ -819,7 +937,7 @@ sub menuUninstall {
 		menuOption("2", "Uninstall Git Helper Script");
 		menuOption("3", "Uninstall XSL stylesheets");
 		menuOption("4", "Uninstall libxslt binaries");
-		menuOption("5", "Uninstall App Version Sync");
+		#menuOption("5", "Uninstall App Version Sync");
 		menuSeparator();
 		menuOption("b", "Back to main menu");
 }
@@ -868,11 +986,16 @@ sub printInstallStatus {
 
   my ($element, $status) = @_;
 
+  
   my $statusText = ($status) ? "Installed" : "Not Installed";
+
+  # Special Case for Mac OSX libxslt, binaries should already be installed
+  $statusText = "Not Applicable" if ($status eq 2);
 
   printf("%-25s : ",$element);
 
-  colorSet("bold green")  if ($status);
+  colorSet("bold blue")   if ($status eq 2);
+  colorSet("bold green")  if ($status eq 1);
   colorSet("bold")        if (!$status);
 
   print("$statusText\n");
@@ -930,7 +1053,7 @@ sub installRemoveOption {
 
 sub heading {
 
-  my $maxwidth  = 50;
+  my $maxwidth  = 70;
   my $fillerChar = "*";
 
   # Get the Title from the sub arguments
@@ -997,7 +1120,7 @@ sub confirmContinue {
 
     print("\nInvalid option: $opt, please choose y/n/q\n\n") if $invalid;
 
-    print "\nContinue? y/n/q: ";
+    print "\nContinue? (y)/n/q: ";
     $opt = <STDIN>;
     chomp($opt);
 

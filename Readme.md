@@ -1,37 +1,48 @@
 Domino ODP Repository Helper (dora)
-===================
+===================================
+
+Dora is a helper script with the intention of providing some automation for some common tasks involved in setting up a git repository
+
+* 	Initialising a new repository for NSF use
+*		Setting the .gitignore file consistently
+* 	Installing metadata filters for better source control
+* 	Temporarily ignore some configuration files
+
+and more!
+
+
+This project is only in it's beginning. Currently dora is implemented as a Perl script (dora.pl) which runs in the linux-like *Git Bash* on Windows.
+
+*note* If you don't want to use dora and just want to manually configure the Git Metadata filters yourself please see the **Manually Configuring Git Filters** section below.
+
+System Requirements
+-------------------
+
+This project has been tested using Windows 7 64-bit and Windows 8 64-bit.
+To git Git for windows goto 
+http://git-scm.com/download/win
+
+When you are given the choice of which command line method choose 'Use Git Bash Only'
+
+using Git Bash v 1.8.1.2-preview20130201
+Perl (tested with 5.8.8 which is bundled in Git Bash)
+
+
+Git Filter
+----------
+
+
+Testing scripts
+
+App Version Sync
+----------------
+
+New Repo Setup
+--------------
 
 This project contains a set of git filters and scripts which assist when collaborating on a Domino Project.
 
 The set up information describes how to install and use them when using Git Bash which is the linux-like command prompt tool for using git under windows.
-
-I have yet to test for eGit for Domino Designer however I don't see a reason why it won't work for that too, as the setup is based on git config and native git functionality.
-
-* How to hide any updates from Git Status which are Meta Information only
-* How to deal with Merge Conflict
-* Remove the noteinfo element
-* Remove the replicaid attribute from the note element
-* Remove the version attribute from the note element
-* Diff filter to ignore NoteInfo and check in standard values for 
-* Clean Filter for checking in values
-  * Sequence Number
-  * Replica ID
-  * Signer
-  * Modified Dates etc
-* Smudge Filter for Checking out
-  * Sequence Number
-  * Replica ID
-  * Signer
-  * Modified Dates etc
-
-
-i need a program to
-Take Standard Input
-Replace anything that is ReplicaID="" with "##REPLICAID##"
-
-and vice versa
-Replace anything that in ReplicaID="##REPLICAID##" with the contents of the blob tag NSFREPLICA
-
 
 Installation
 ------------------
@@ -40,7 +51,6 @@ This project has been tested using the following setup
 
 GitHub for Windows
   - Git Version 1.8.1.msysgit.1
-  - Java version ???
   - Perl Version v5.8.8 built for msys
 
 Step 1 - Choose where you will keep the scripts
@@ -101,8 +111,6 @@ Vim Tip
 when viewing an xml file that does not have the extension .xml, you can use
 :set filetype=xml
 and it will do pretty xml colours!
-
-
 
 Installing XSLTPROC
 -------------------
@@ -201,32 +209,49 @@ Choose where you will put your new nsf
 
 Wait for it to import!
 
+Feature Requests
+----------------
 
+* Install xsl files as tagged blobs in the git repo, instead of committed to a branch
+* Better identification of which version of filter was used on a file
+* Ability to choose where to install binaries and dora resources
 
+Other Ideas
+-----------
 
+* Tell Domino Designer team to give us the option to filter this stuff for us so we don't have to :)
+* Update EGit to replicate Filter functionality 
+* Somebody with Java and Domino Designer Extension plugin experience could investigate if you can extend NsfToPhysical and filter at this point?
+* re-write Dora as a Domino Designer Plugin instead of a Perl Script, with Eclipse based User Interface
+* Helper functionality to do bulk updates on design elements, e.g. Make sure all view Column Headers are certain font.
 
-Notes
------
+Known Issues
+------------
+
+Git Filter reports an error if the file is empty
+Git Filter reports an error if the source is not well formed xml. This happens during a merge conflict.
 
 if file is empty then will fail e.g.
 nsf/AppProperties/database.properties
 nsf/Code/dbscript.lsdb
 nsf/Resources/AboutDocument
 
-
-git update-index --assume-unchanged nsf/AppProperties/database.properties
-git update-index --assume-unchanged nsf/Resources/IconNote
-
-git update-index --no-assume-unchanged nsf/AppProperties/database.properties
-git update-index --no-assume-unchanged nsf/Resources/IconNote
-
-
 Forms, System Actions showed up
-
-Filters fail in the merge conflict ...
 
 DXL Notes
 
 Frameset frame got a new Border style
-Forms don't like it when Background element has a text node
-Forms without action bar get a default set of actions
+Forms don't like it when Background element has a text node these need to be deflated
+Forms without action bar get a default set of system actions
+
+
+Manually Configuring the Git Filter
+-----------------------------------
+
+1. 	Install libxslt on your PATH
+2.	Copy the XSL Transform Stylesheets (modify if necessary)
+3. 	Install the Filter to git config
+4. 	Configure the .gitattributes file to select which files to filter
+
+
+
