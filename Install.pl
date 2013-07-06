@@ -194,7 +194,7 @@ sub uninstallHelper {
 		return 0 if !confirmContinue();
 
 		unlink $setupTarget or warn "Could not remove $setupTarget: $!\n";
-		printFileResult($setupTarget, "removed", -1);
+		printFileResult($setupTarget, "removed", 1);
 
 	} else {
 
@@ -327,7 +327,7 @@ sub uninstallXSL {
 			my $noDelete = unlink $xslTarget or warn "Could not remove $xslTarget: $!\n";
 
 			if ($noDelete == 1) {
-				printFileResult($xslTarget,"removed",-1);
+				printFileResult($xslTarget,"removed",1);
 			}
 
 		} else {
@@ -477,7 +477,7 @@ sub uninstallAppVersionSync {
 			my $noDelete = unlink $avsTarget or warn "Could not remove $avsTarget: $!\n";
 
 			if ($noDelete == 1) {
-				printFileResult($avsTarget,"removed",-1);
+				printFileResult($avsTarget,"removed",1);
 			}
 
 		} else {
@@ -659,8 +659,10 @@ sub uninstallLibxslt {
 			my $noDelete = unlink $binTarget or warn "Could not remove $binTarget: $!\n";
 
 			if ($noDelete == 1) {
-				printFileResult($binTarget,"removed",-1);
-			}
+				printFileResult($binTarget,"removed",1);
+			} else {
+        printFileResult($binTarget,'failed',-1);
+      }
 
 		} else {
 
