@@ -86,15 +86,26 @@ our @ccSourceFilenames = (
 our $attrFile     = ".gitattributes";
 our $ignoreFile   = ".gitignore";
 
-#Filter values
+# DXL Filter Vars
+our $dxlFilterName          = "dxlmetadata";
+our $dxlFilterVarClean      = "filter.$dxlFilterName.clean";
+our $dxlFilterVarSmudge     = "filter.$dxlFilterName.smudge";
+our $dxlFilterVarRequired   = "filter.$dxlFilterName.required";
 our $cleanFilter  					= "xsltproc $xslFilter -";
 our $smudgeFilter 					= "xsltproc $xslDeflate -";
+our @dxlFilterConfig = (
+  [$dxlFilterVarClean,    $cleanFilter],
+  [$dxlFilterVarSmudge,   $smudgeFilter],
+  [$dxlFilterVarRequired, 'true']
+);
+# App Version Filter Vars
+our $appVersionFilterName   = "appversion";
 our $appVersionCleanFilter	= "xsltproc $xslVersionCleaner - ";
 our $appVersionSmudgeFilter	= "cat";
 
 # Markers to be used in Config files
-our $cfgStartMark   = "# GitNSF Start";
-our $cfgFinishMark  = "# GitNSF Finish";
+our $cfgStartMark   = "# Dora Start";
+our $cfgFinishMark  = "# Dora Finish";
 
 # Variables for Checking repo setup
 our $gitDir         = "";
@@ -108,11 +119,12 @@ our $chkHooks		 = 0;
 
 # Entries for Git Ignore File
 our @ignoreEntries = (
+  'xsl/',
   'nsf/.classpath',
   'nsf/.project',
   'nsf/plugin.xml',
-  'nsf/.settings',
-	'nsf/CustomControls/ccAppVersion.xsp*'
+  'nsf/.settings'
+	#'nsf/CustomControls/ccAppVersion.xsp*'
 );
 
 # Entries for Git Attributes File
@@ -140,8 +152,8 @@ our @attrEntries = (
   'database.properties',
   'IconNote',
   'Shared?Actions',
-  'UsingDocument',
-	$ccVersionName 
+  'UsingDocument'
+	#$ccVersionName 
 );
 
 
@@ -215,34 +227,40 @@ sub checkInGitRepo {
 
 sub installFilter {
 
-  heading("Add NSF Filter to Git Config");
+  heading("Add DXL Metadata Filter to Git Config");
 
-  print "This step will add a new filter to the local .gitconfig file\n";
-  print "It does this by adding two entries filter.nsf.clean and filter.nsf.smudge\n";
-  print "These entries point to the location of 2 corresponding perl scripts in the GitFiltersForNSF directory\n\n"; 
+  print "This step will add the DXL Metadata filter to the local .gitconfig file\n";
+  print "It does this by adding the following entries\n\n";
+
+  colorSet("bold white");
+  foreach my $row (0..@dxlFilterConfig-1) {
+    print "$dxlFilterConfig[$row][0] = $dxlFilterConfig[$row][1]\n";
+  }
+  colorReset();
+
+  print "\nIf these variables are already present in the config file they will be overwritten.\n"; 
 
   #TODO check the return status of these system commands
   return 0 if !confirmContinue();
 
-  my @args = ('config','--local','filter.nsf.clean',$cleanFilter);
-  system('git',@args);
+  print "\n";
 
-  @args = ('config','--local','filter.nsf.smudge',$smudgeFilter);
-  system('git',@args);
+  foreach my $row (0..@dxlFilterConfig-1) {
 
-  @args = ('config','--local','filter.nsf.required','true');
-  system('git',@args);
+    my $key = $dxlFilterConfig[$row][0];
+    my $val = $dxlFilterConfig[$row][1];
 
-#	@args = ('config','--local','filter.appversion.clean',$appVersionCleanFilter);
-#	system('git',@args);
+    # Attempt set the config variable
+    my @args = ('config','--local',$key,$val);
+    system('git',@args);
 
-#	@args = ('config','--local','filter.appversion.smudge',$appVersionSmudgeFilter);
-#	system('git',@args);
-
-#	@args = ('config','--local','filter.appversion.required','true');
-#	system('git',@args);
-
-  print "\nAdded git filters\n";
+    # Determine if it worked ok
+    if (getExitCode($?) == 0) {
+      printFileResult($key, 'installed', 1);
+    } else {
+      printFileResult($key, 'failed', -1);
+    }
+  }
 
 }
 
@@ -251,58 +269,59 @@ sub uninstallFilter {
   my ($silent) = @_;
 
   if (!$silent) {
-    heading("Uninstall NSF Filter from Git Config");
-    print "Uninstall Filter\n";
+    heading("Uninstall DXL Metadata Filter from Git Config");
+
+    print "This step will remove the DXL Metadata filter from the repository configuration\n";
+    print "by unsetting the following entries from the local .gitconfig file\n\n";
+ 
+    colorSet("bold white");
+    foreach my $row (0..@dxlFilterConfig-1) {
+      print "$dxlFilterConfig[$row][0] = $dxlFilterConfig[$row][1]\n";
+    }
+    colorReset();
+
     return 0 if !confirmContinue();
+
+    print "\n";
+
   }
-  
-	# Remove the normal nsf filter
-  my @args = ('config','--local','--unset','filter.nsf.clean');
-  system('git',@args);
 
-  @args = ('config','--local','--unset','filter.nsf.smudge');
-  system('git',@args);
+  foreach my $row (0..@dxlFilterConfig-1) {
 
-  @args = ('config','--local','--unset','filter.nsf.required');
-  system('git',@args);
+    my $key = $dxlFilterConfig[$row][0];
 
-	# Removed the App Version filter
-#  my @args = ('config','--local','--unset','filter.appversion.clean');
-#  system('git',@args);
+    # Attempt set the config variable
+    my @args = ('config','--local','--unset',$key);
+    system('git',@args);
 
-#  @args = ('config','--local','--unset','filter.appversion.smudge');
-#  system('git',@args);
+    my $exit = getExitCode($?);  
+    # Determine if it worked ok
+    if ($exit == 0) {
+      printFileResult($key, 'removed', 1) unless $silent;
+    } elsif ($exit == 5) {
+      printFileResult($key, 'not there anyway', 0) unless $silent;
+    } else {
+      printFileResult($key, 'failed', -1) unless $silent;
+    }
 
-#  @args = ('config','--local','--unset','filter.appversion.required');
-#  system('git',@args);
-
-  print "\nRemoved Git Filters\n";
+  }
 
 }
 
 sub checkFilter {
 
-	# Check NSF Filter
-  my $currClean     = `git config --local --get filter.nsf.clean`;
-  my $currSmudge    = `git config --local --get filter.nsf.smudge`;
-  my $currRequired  = `git config --local --get filter.nsf.required`;
+  foreach my $row (0..@dxlFilterConfig-1) {
 
-  chomp($currClean, $currSmudge, $currRequired);
+    my $key = $dxlFilterConfig[$row][0];
+    my $val = $dxlFilterConfig[$row][1];
 
-  return 0 if ($currClean ne $cleanFilter);
-  return 0 if ($currSmudge ne $smudgeFilter);
-  return 0 if ($currRequired ne "true");
+    # Attempt set the config variable
+    my $currVal = `git config --local --get $key`;
+    chomp($currVal);
 
-	# Check NSF Filter
- # my $currClean     = `git config --local --get filter.appversion.clean`;
- # my $currSmudge    = `git config --local --get filter.appversion.smudge`;
- # my $currRequired  = `git config --local --get filter.appversion.required`;
+    return 0 if ($currVal ne $val);
 
- # chomp($currClean, $currSmudge, $currRequired);
-
- # return 0 if ($currClean ne $appVersionCleanFilter);
- # return 0 if ($currSmudge ne $appVersionSmudgeFilter);
- # return 0 if ($currRequired ne "true");
+  }
 
   return 1;
   
@@ -335,11 +354,11 @@ sub installXSL {
 
   print "This step will install the XSL Stylesheets from:\n\n";
   colorSet("bold white");
-  print "$xslSourceDir\n\n";
+  print "  $xslSourceDir\n\n";
   colorReset();
   print "Into the:\n\n";
   colorSet("bold white");
-  print "$xslTargetDir/\n\n";
+  print "  $xslTargetDir/\n\n";
   colorReset();
   print "directory in the current repository. The directory will be created if it does not exist.\n";
 
@@ -362,6 +381,8 @@ sub installXSL {
   }	
 
   return 0 if !confirmContinue();
+
+  print "\n";
   
   # Check if the Home Bin directory exists
   if (-d $xslTargetDir) {
@@ -401,35 +422,37 @@ sub uninstallXSL {
 	my @xslExist = ();
 
   if (!$silent) {
-    heading("Uninstall the XSL Stylesheets");
-    print "Uninstall XSL File\n";
-    return 0 if !confirmContinue();
+    heading("Uninstall the XSL Stylesheets from Repository");
+  }
+  
+  # Figure out if there are any Stylesheets installed  
+	foreach(@xslSourceFilenames) {
+	  $xslTarget = getXSLTarget($_);
+ 		push(@xslExist, $xslTarget) if (-e $xslTarget);
   }
 
-	foreach(@xslSourceFilenames) {
-		$xslTarget = getXSLTarget($_);
-		push(@xslExist, $xslTarget) if (-e $xslTarget);
-	}
+ 	if (!@xslExist) {
+ 		print "No XSL Stylesheets are currently installed, no action taken\n" unless $silent;
+ 		return 0;
+ 	}
 
-	if (!@xslExist) {
-		print "No XSL Stylesheets are currently installed, no action taken\n";
-		return 0;
-	}
+  if (!$silent) {
 
-	print "This step will remove the following XSL Stylesheets\n\n";
+  	print "This step will remove the following XSL Stylesheets\n\n";
 
-	colorSet("bold white");
-	foreach(@xslExist) {
-		print "$_\n";
-	}
-	colorReset();
+  	colorSet("bold white");
+  	foreach(@xslExist) {
+  		print "$_\n";
+  	}
+  	colorReset();
 
-	if (!confirmContinue()) {
-		print "aborting un-installation of XSL Stylesheets\n";
-		return 0;
-	}
+    return 0 if !confirmContinue();
+    
+    print "\n";
 
-	# for each binary in the folder
+  }
+
+	# Remove the Stylesheets
 	foreach (@xslSourceFilenames)  {
 	
 		$xslTarget = getXSLTarget($_);
@@ -439,13 +462,13 @@ sub uninstallXSL {
 			my $noDelete = unlink $xslTarget or warn "Could not remove $xslTarget: $!\n";
 
 			if ($noDelete == 1) {
-				printFileResult($xslTarget,"Removed",-1);
-			}
+				printFileResult($xslTarget,"Removed",1) unless $silent;
+			} else {
+        printFileResult($xslTarget,"Failed",-1) unless $silent;
+      }
 
 		} else {
-
-			printFileResult($xslTarget,"not there anyway",0);
-
+			printFileResult($xslTarget,"not there anyway",0) unless $silent;
 		}
 
 	}	
@@ -563,16 +586,38 @@ sub setSigner {
 
 sub installAttr {
 
+  heading("Update .gitatrributes file");
 
-  heading("Associate File Extensions with Filter");
+  print "This step will update the following entries to the ";
+  colorSet("bold white");
+  print "$attrFile";
+  colorReset();
+  print " in the root of the current repository. If the file does not exist it will be created.\n\n";
 
-  print "This step will update the .gitattributes of the current repository.\n";
-  print "It will associate certain files / file extensions, with the nsf filter that was configured in the .gitconfig file.\n\n";
+  colorSet("bold white");
+
+  print "  $cfgStartMark\n\n";
+
+  foreach (@attrEntries) {
+  	my $filter 	= ($_ eq $ccVersionName) ? $appVersionFilterName : $dxlFilterName;    
+    printf("  %-19s filter=%s text eol=lf\n", $_, $dxlFilterName);
+  }
+
+  print "\n  $cfgFinishMark\n\n";
+
+  colorReset();
+
+  print "This will associate the specified files/extensions, with the filter configured in the .gitconfig file.\n";
 
   return 0 if !confirmContinue();
 
+  print "\n";
+  
   #Uninstall Previous Entries
   uninstallAttr(1);
+
+  # Before we do anything, check if file is there so we can say what happened
+  my $updateOrCreate = (-e $attrFile) ? 'updated' : 'created';
 
   # Open the Attributes file for Appending
   open (GITATTR, ">>$attrFile") or die "Can't Open $attrFile file for appending: $!";
@@ -583,19 +628,19 @@ sub installAttr {
   # Add all the entries
   foreach (@attrEntries) {
 
-		my $filter 	= ($_ eq $ccVersionName) ? "appversion" : "nsf";
-    my $pattern = "$_ filter=$filter text eol=lf\n";
+		my $filter 	= ($_ eq $ccVersionName) ? $appVersionFilterName : $dxlFilterName;
+    my $pattern = "$_ filter=$dxlFilterName text eol=lf\n";
     print GITATTR $pattern;
 
   }
 
   # print our Section finish marker
-  print GITATTR "\n$cfgFinishMark\n\n";
+  print GITATTR "\n$cfgFinishMark\n";
 
   # close the file
   close (GITATTR);
 
-  print "\nGit Attributes entries are now installed\n\n";
+  printFileResult($attrFile, $updateOrCreate, 1);
 
 }
 
@@ -605,16 +650,39 @@ sub uninstallAttr {
 
   if (!$silent) {
     heading("Uninstall Git Attributes entries");
-    print "Uninstall Attributes\n";
+
+    print "This step will remove the following section from\nthe ";
+    colorSet("bold white");
+    print $attrFile;
+    colorReset();
+    print " file in the root of the current repository.\n\n";
+    
+    colorSet("bold white");
+    print "$cfgStartMark\n\n ...\n\n$cfgFinishMark\n";
+    colorReset();
+
     return 0 if !confirmContinue();
+    print "\n";
   }
 
   if (-e $attrFile) {
+
     # tell sed to remove all lines between our Section start/finish markers in the attributes file
     my @sedargs = ('-i', "/$cfgStartMark/,/$cfgFinishMark/d", $attrFile);  
     system('sed', @sedargs);
+
+    my $exitCode = getExitCode($?);
+
+    if ($exitCode == 0) {
+      printFileResult($attrFile, 'Section Removed', 1) unless $silent;
+    } else {
+      printFileResult($attrFile, 'Failed', -1) unless $silent;
+    }
+
   } else {
-    print "$attrFile does not exist, no action taken\n";
+
+    printFileResult($attrFile, 'Not there anyway', 0) unless $silent;
+
   }
   
 }
@@ -629,7 +697,7 @@ sub checkAttr {
 
 		my $filter = ($_ eq $ccVersionName) ? "appversion" : "nsf";
 	
-    my $pattern = "$_ filter=$filter text eol=lf";
+    my $pattern = "$_ filter=$dxlFilterName text eol=lf";
 
     my @matchedLines = grep /\Q$pattern\E/,@fileLines;
 
@@ -647,28 +715,46 @@ sub installIgnore {
 
   heading("Initialise Git Ignore File");
 
-  print "This step will update the .gitignore file in the root of the current repository.\n";
-  print "It will ignore some files.\n\n";
+  print "This step will append the following entries to the ";
+  colorSet("bold white");
+  print $ignoreFile;
+  colorReset();
+  print " file\nin the root of the current repository.\n\n";
+
+  colorSet("bold white");
+  print "$cfgStartMark\n\n";
+  foreach (@ignoreEntries) {
+    print "$_\n";
+  }
+  print "\n$cfgFinishMark\n\n";
+  colorReset();
+
+  print "If the file does not exist it will be created\n"; 
 
   return 0 if !confirmContinue();
 
-  # Remove previously installed entries
+  print "\n";
+
+  # Before we do anything, check if file is there so we can say what happened
+  my $updateOrCreate = (-e $ignoreFile) ? 'updated' : 'created';
+
+  # Remove previously installed dora entries
   uninstallIgnore(1);
 
-    # Add to gitattributes file
-    open (GITATTR, ">>$ignoreFile");
+  # Add to gitattributes file
+  open (GITATTR, ">>$ignoreFile");
 
-    print GITATTR "\n$cfgStartMark\n\n";
+  print GITATTR "\n$cfgStartMark\n\n";
 
-    foreach (@ignoreEntries) {
-      print GITATTR "$_\n";
-    }
+  foreach (@ignoreEntries) {
+    print GITATTR "$_\n";
+  }
 
-    print GITATTR "\n$cfgFinishMark\n\n";
+  print GITATTR "\n$cfgFinishMark\n\n";
 
-    close (GITATTR);
+  close (GITATTR);
 
-    print "\nGit Ignore entries are now installed\n\n";
+  printFileResult($ignoreFile, $updateOrCreate, 1);
 
 }
 
@@ -677,16 +763,39 @@ sub uninstallIgnore {
   my ($silent) = @_;
 
   if (!$silent) {
-    heading("Uninstall the gitignore entries");
-    print "Uninstall the gitgnore entries\n";
+    heading("Uninstall the .gitignore entries");
+    print "This step will remove the following section from\nthe ";
+    colorSet("bold white");
+    print $ignoreFile;
+    colorReset();
+    print " file in the root of the current repository.\n\n";
+    
+    colorSet("bold white");
+    print "$cfgStartMark\n\n ...\n\n$cfgFinishMark\n";
+    colorReset();
+
     return 0 if !confirmContinue();
+    print "\n";
   }
 
   if (-e $ignoreFile) {
+
+    # Strip the section from ignore file
     my @sedargs = ('-i', "/$cfgStartMark/,/$cfgFinishMark/d", $ignoreFile);
     system('sed', @sedargs);
+
+    my $exitCode = getExitCode($?);
+
+    if ($exitCode == 0) {
+      printFileResult($ignoreFile, 'Section Removed', 1) unless $silent;
+    } else {
+      printFileResult($ignoreFile, 'Failed', -1) unless $silent;
+    }
+
   } else {
-    print "$ignoreFile does not exist, no action taken\n";
+
+    printFileResult($ignoreFile, 'Not there anyway', 0) unless $silent;
+
   }
 
 }
@@ -917,8 +1026,10 @@ sub uninstallHooks {
 			my $noDelete = unlink $hookTarget or warn "Could not remove $hookTarget: $!\n";
 
 			if ($noDelete == 1) {
-				printFileResult($hookTarget,"Removed",-1);
-			}
+				printFileResult($hookTarget,"Removed",1);
+			} else {
+        printFileResult($hookTarget,"Failed",-1);
+      }
 
 		} else {
 
@@ -1133,6 +1244,23 @@ sub handleXSLTExit {
 	} elsif ($exitCode == 11) {
 		print "Could not write the result to the output file\n";
 	}
+	return $exitCode;
+
+}
+
+# This is to be used after a system() call to git config
+# Will return 0 if everything worked ok
+# Will return exitCode otherwise and print a warning
+sub getExitCode {
+
+	my ($exitVal) = @_;
+
+  if ($exitVal == -1) {
+    return -1;
+  }
+
+	my $exitCode = $exitVal >> 8;
+
 	return $exitCode;
 
 }
@@ -1574,7 +1702,7 @@ sub menu {
   	  	mycls();
     		installHooks();
 				installDefCCVersion();
-	  	} elsif($opt =~ m/^b/i) {
+	  	} elsif($opt eq "0") {
 				$subMenu = "main";
 				$skipConfirmAnyKey = 1;
 			}
@@ -1600,7 +1728,7 @@ sub menu {
 	  	} elsif($opt eq "6") {
   	  	mycls();
     		uninstallHooks(); 
-	  	} elsif($opt =~ m/^b/i) {
+	  	} elsif($opt eq "0") {
 				$subMenu = "main";
 				$skipConfirmAnyKey = 1;
 			}
@@ -1659,7 +1787,7 @@ sub menuGitInstall {
   menuOption("5", "Install .gitattributes entries");
 	#menuOption("6",	"Install App Version Sync");
   print "-----\n";
-	menuOption("b", "Back to main menu");
+	menuOption("0", "Back to main menu");
  
 }
 
@@ -1672,7 +1800,7 @@ sub menuGitUninstall {
   menuOption("5", "Uninstall .gitattributes entries");
 	#menuOption("6",	"Uninstall App Version Sync");
 	print "-----\n";
-	menuOption("b", "Back to main menu");
+	menuOption("0", "Back to main menu");
  
 }
 
