@@ -169,7 +169,7 @@ Unless required by applicable law or agreed to in writing, software distributed 
          least you won't get merge conflicts all the time
 
          These items will come back to the Design Element after a recompile, they
-         just won't end up in your repository, which is good news, because they are like .class files..
+         just won't end up in your repository, which is good news, because they are like .class files.
      -->
      <xsl:template match="//n:item">
        <xsl:if test="not(starts-with(@name,'$') and substring(@name,string-length(@name)-1,2) = '_O')">
