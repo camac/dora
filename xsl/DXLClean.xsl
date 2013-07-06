@@ -153,7 +153,9 @@ Unless required by applicable law or agreed to in writing, software distributed 
     <xsl:template match="//n:database/n:databaseinfo/n:designmodified"/>
 
     <!-- 
-         Ignore the database ACL 
+        Ignore the database ACL
+        Note: You may or may not want to do this! 
+        In my case I have no need to keep acl in source repo.
     -->
     <xsl:template match="//n:database/n:acl"/>
 
@@ -165,6 +167,9 @@ Unless required by applicable law or agreed to in writing, software distributed 
          These Items are Script Object items, they are not source code!
          you freshly check out a repo version of the design element, but at
          least you won't get merge conflicts all the time
+
+         These items will come back to the Design Element after a recompile, they
+         just won't end up in your repository, which is good news, because they are like .class files..
      -->
      <xsl:template match="//n:item">
        <xsl:if test="not(starts-with(@name,'$') and substring(@name,string-length(@name)-1,2) = '_O')">
