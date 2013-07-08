@@ -48,7 +48,7 @@ git config --local filter.dxlmetadata.required true
 
 ## Installation
 
-To install Dora, the first step obtain the latest release. You can do this 3 ways:
+To install Dora, the first step is to obtain the latest release. You can do this 3 ways:
 
 * Download the latest release from camac/dora project on github.com
 * Download the latest release from the releases section in the OpenNTF Project
@@ -71,20 +71,40 @@ Resources
 
 ### Windows + Git Bash / Git Gui
 
-
+Open Git Bash, Navigate to the unzipped dora release (or the cloned camac/dora.git repository) and run ./Install.pl
+Follow the prompts
 
 ### Windows using SourceTree
 
-1. Copy dora.pl to ~/bin/dora
-3. For Sourcetree to 
-4. Add the Target Executables Directory to your path
-   
+When using Sourcetree, these instructions assume you have enabled the setting:
+
+Tools -> Options -> Git -> 'Use Git Bash as Terminal'
+
+Open the terminal using the Terminal Icon in the SourceTree 'ribbon' menu. You will need to have a repository open (any will do) to access the terminal.
+Once in the terminal, navigate to wherever you unzipped the release of Dora.
+
+Then issued the command ./Install.pl
+
+*IMPORTANT* For the DXL Metadata filters to work using sourcetree, you must add the ~/bin directory to the Windows PATH environment variable  
 
 ### Mac
+
+Open a terminal, navigate to the directory that you unzipped the Dora release to, and run ./Install.pl
+Follow the prompts
+libxslt is already installed on a Mac, so installing these binaries is not required. 
+The Installation script should detect that you are using Mac, and skip that step for you.
+If you find that the Install.pl script does not detect the mac properly, then run the install script with the option *--os-mac*
 
 ### Manual Installation
 
 If the *Install.pl* script fails for any reason (please report bugs!) you can still install manually 
+
+1. Create 2 directories in your home directory
+* ~/bin
+* ~/dora
+2. Copy the dora.pl file to ~/bin/dora (no extension)
+2. (For windows only) Copy the libxslt binaries from within directories under libxslt/ to ~/bin
+2. Copy the XSL Files from xsl/ to ~/dora
 
 ## Requirements
 
@@ -99,7 +119,7 @@ Perl (tested with 5.8.8 which is bundled in Git Bash)
 
 ## Contributing
 
-
+Contributions can be made in varying forms. You can give feedback, opinions, bug reports, feature requests or even make coding contributions by forking the project and then submitting pull requests.
 
 ### Evaluating the Effectiveness of DXL Filters 
 
