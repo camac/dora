@@ -5,18 +5,88 @@ Dora is a helper script with the intention of providing some automation for some
 
 * 	Initialising a new repository for NSF use
 *		Setting the .gitignore file consistently
-* 	Installing metadata filters for better source control
-* 	Temporarily ignore some configuration files
+* 	Installing DXL Metadata filters for better source control
+* 	Keeping a Custom Control updated with the latest version
 
-and more!
-
-
-This project is only in it's beginning. Currently dora is implemented as a Perl script (dora.pl) which runs in the linux-like *Git Bash* on Windows.
+This project is only in it's beginning. Currently dora is implemented as a Perl script (dora.pl) which runs in the bash-like *Git Bash* on Windows.
 
 *note* If you don't want to use dora and just want to manually configure the Git Metadata filters yourself please see the **Manually Configuring Git Filters** section below.
 
-System Requirements
--------------------
+## Usage
+
+To use dora, you open a terminal, navigate to a git repository's root directory and issue the command *dora*
+This will open a menu in the terminal which will allow you to configure the current repository using dora.
+
+### New Repository Setup
+
+### Setting up DXL Metadata Filters
+
+To set up the DXL Metadata filters, open a terminal, navigate to the repository, and run 'dora'
+Then choose the menu option for 'Installation'
+Then choose the option 'Install Everything'
+
+
+#### Manually Configuring the Git Filter
+
+If you cannot configure the filters due to any problems when running the Dora Helper script (please report bugs!), you can still manually configure your repository to run the DXL Metadata Filter
+
+1. 	(windows only) Install libxslt to a directory that is on your PATH
+1.  Install the DXL Metadata filter to the git config file
+
+git config --local filter.dxlmetadata.clean    xsltproc xsl\DXLClean.xsl -
+git config --local filter.dxlmetadata.smudge   xsltproc xsl\DXLSmudge.xsl - 
+git config --local filter.dxlmetadata.required true
+
+2. Create a directory within your repository for your XSL Stylesheets e.g. <yourrepo>/xsl
+2. Copy the XSL Transform Stylesheets DXLClean.xsl and DXLSmudge.xsl to the XSL directory
+2. Add the entry *xsl/* to your .gitignore file
+
+4. Configure the .gitattributes file to select which files to filter
+4. If you don't have one, Create a *.gitattributes* file in the root of your repository
+4. add the following entry for each file extension you want to filter
+\*.ext filter=dxlmetadata text eol=lf
+
+## Installation
+
+To install Dora, the first step obtain the latest release. You can do this 3 ways:
+
+* Download the latest release from camac/dora project on github.com
+* Download the latest release from the releases section in the OpenNTF Project
+* Clone the repository from https://github.com/camac/dora.git and checkout the master branch
+
+The installation process just copies the required executables and resources to 2 directories in your home directory. I will use the symbol ~ to refer to the home dir
+
+Target Executables directory : ~/bin
+Target Resources directory   : ~/dora
+
+The reason that ~/bin was chosen is that it is already included on the PATH environment variable when using Git Bash. This means that executables placed in this directory can be run from any other location.
+
+Executables that are copied
+
+  - dora.pl (The Dora Helper Script) copied as dora
+  - libxslt win 32 Binaries (windows only)
+
+Resources
+  - XSL files used in DXL Metadata filter
+
+### Windows + Git Bash / Git Gui
+
+
+
+### Windows using SourceTree
+
+1. Copy dora.pl to ~/bin/dora
+3. For Sourcetree to 
+4. Add the Target Executables Directory to your path
+   
+
+### Mac
+
+### Manual Installation
+
+If the *Install.pl* script fails for any reason (please report bugs!) you can still install manually 
+
+## Requirements
 
 This project has been tested using Windows 7 64-bit and Windows 8 64-bit.
 To git Git for windows goto 
@@ -27,18 +97,23 @@ When you are given the choice of which command line method choose 'Use Git Bash 
 using Git Bash v 1.8.1.2-preview20130201
 Perl (tested with 5.8.8 which is bundled in Git Bash)
 
-
-Git Filter
-----------
+## Contributing
 
 
-Testing scripts
 
-App Version Sync
-----------------
+### Evaluating the Effectiveness of DXL Filters 
 
-New Repo Setup
---------------
+### Reporting Bugs
+
+### Feature Requests
+
+## Testing
+
+you can test an .xsl Stylesheet 
+
+## Licence
+
+See LICENCE file
 
 This project contains a set of git filters and scripts which assist when collaborating on a Domino Project.
 
@@ -55,20 +130,7 @@ GitHub for Windows
 
 Step 1 - Choose where you will keep the scripts
 
-Your options here are
-  * Install in the GitNSFFilters folder in your HOME directory e.g ~/GitNSFFilters (Default option)
-  * Install in another folder of your choosing and:
-      * Specify that folders location when you configure Git Filters for your repository
-      * Add that folder to your PATH environment variable 
-
-The default location to install the scripts is a folder called 'GitNSFFilters' in your home directory. 
-To find your home directory run 
-$ cd ~
-/c/Users/cgregor
-git clone https://github.com/camac/GitNSFFilters
-
-
-Here is a Testing Script for Demonstration purposes
+ere is a Testing Script for Demonstration purposes
 
 User 1
 1. Create a new NSF File -> New Application
@@ -153,12 +215,9 @@ xmllint.exe
 xsltproc.exe
 zlib1.dll
 
-
-
 Setting up first NSF
 --------------------
 For example setting up a Teamroom
-
 
 Create a folder named after the Application
 Teamroom
@@ -243,15 +302,5 @@ DXL Notes
 Frameset frame got a new Border style
 Forms don't like it when Background element has a text node these need to be deflated
 Forms without action bar get a default set of system actions
-
-
-Manually Configuring the Git Filter
------------------------------------
-
-1. 	Install libxslt on your PATH
-2.	Copy the XSL Transform Stylesheets (modify if necessary)
-3. 	Install the Filter to git config
-4. 	Configure the .gitattributes file to select which files to filter
-
 
 
