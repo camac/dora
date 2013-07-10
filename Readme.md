@@ -4,7 +4,7 @@ Dora's primary purpose is to assist in setting up **DXL Metadata filters** for a
 
 This project is only in it's beginning. Currently dora is implemented as a Perl script which runs in a bash-like terminal e.g. *Git Bash* on Windows.
 
-*note* You can set up DXL Metadata filters manually, so if you don't want to use dora and just want to manually configure the Git Metadata filters yourself please see the [Manually Configuring the DXL Metadata Filters](#manualDXL) section below.
+*note* You can set up DXL Metadata filters manually, so if you don't want to use dora and just want to manually configure the Git Metadata filters yourself please see the [Manually Configuring the DXL Metadata Filters](#manually-configuring-the-dxl-metadata-filters) section below.
 
 ## Usage
 
