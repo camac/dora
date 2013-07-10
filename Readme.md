@@ -30,20 +30,19 @@ If you cannot configure the filters due to any problems when running the Dora He
 
 1. 	(windows only) Install libxslt to a directory that is on your PATH
 1.  Install the DXL Metadata filter to the git config file
+    You can do this either by issuing git config commands or by editing the .git/config file in your repository.
+    To do this using git config commands run the following:
 
-You can do this either by issuing git config commands or by editing the .git/config file in your repository.
-To do this using git config commands run the following:
+        git config --local filter.dxlmetadata.clean    xsltproc xsl\DXLClean.xsl -
+        git config --local filter.dxlmetadata.smudge   xsltproc xsl\DXLSmudge.xsl - 
+        git config --local filter.dxlmetadata.required true
 
-    git config --local filter.dxlmetadata.clean    xsltproc xsl\DXLClean.xsl -
-    git config --local filter.dxlmetadata.smudge   xsltproc xsl\DXLSmudge.xsl - 
-    git config --local filter.dxlmetadata.required true
+    To do this via editing the .git/config file, make sure it has this entry
 
-To do this via editing the .git/config file, make sure it has this entry
-
-    [filter "dxlmetadata"]
-      clean = xsltproc xsl/DXLClean.xsl -
-      smudge = xsltproc xsl/DXLSmudge.xsl -
-      required = true
+        [filter "dxlmetadata"]
+          clean = xsltproc xsl/DXLClean.xsl -
+          smudge = xsltproc xsl/DXLSmudge.xsl -
+          required = true
 
 2. Create a directory called *xsl* within your repository for your XSL Stylesheets
 2. Copy the XSL Transform Stylesheets DXLClean.xsl and DXLSmudge.xsl to the newly created xsl directory
