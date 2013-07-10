@@ -1,5 +1,4 @@
-Domino ODP Repository Helper (dora)
-===================================
+# Domino ODP Repository Helper (dora)
 
 Dora is a helper script with the intention of providing some automation for some common tasks involved in setting up a git repository
 
@@ -17,28 +16,37 @@ This project is only in it's beginning. Currently dora is implemented as a Perl 
 To use dora, you open a terminal, navigate to a git repository's root directory and issue the command *dora*
 This will open a menu in the terminal which will allow you to configure the current repository using dora.
 
-### New Repository Setup
-
 ### Setting up DXL Metadata Filters
 
 To set up the DXL Metadata filters, open a terminal, navigate to the repository, and run 'dora'
 Then choose the menu option for 'Installation'
 Then choose the option 'Install Everything'
 
+If you encounter any issues (please report them!) you can set up the DXL Metadata filters manually using the following guide.
 
-#### Manually Configuring the Git Filter
+#### Manually Configuring the DXL Metadata Filters 
 
 If you cannot configure the filters due to any problems when running the Dora Helper script (please report bugs!), you can still manually configure your repository to run the DXL Metadata Filter
 
 1. 	(windows only) Install libxslt to a directory that is on your PATH
 1.  Install the DXL Metadata filter to the git config file
 
-git config --local filter.dxlmetadata.clean    xsltproc xsl\DXLClean.xsl -
-git config --local filter.dxlmetadata.smudge   xsltproc xsl\DXLSmudge.xsl - 
-git config --local filter.dxlmetadata.required true
+You can do this either by issuing git config commands or by editing the .git/config file in your repository.
+To do this using git config commands run the following:
 
-2. Create a directory within your repository for your XSL Stylesheets e.g. <yourrepo>/xsl
-2. Copy the XSL Transform Stylesheets DXLClean.xsl and DXLSmudge.xsl to the XSL directory
+    git config --local filter.dxlmetadata.clean    xsltproc xsl\DXLClean.xsl -
+    git config --local filter.dxlmetadata.smudge   xsltproc xsl\DXLSmudge.xsl - 
+    git config --local filter.dxlmetadata.required true
+
+To do this via editing the .git/config file, make sure it has this entry
+
+    [filter "dxlmetadata"]
+      clean = xsltproc xsl/DXLClean.xsl -
+      smudge = xsltproc xsl/DXLSmudge.xsl -
+      required = true
+
+2. Create a directory called *xsl* within your repository for your XSL Stylesheets
+2. Copy the XSL Transform Stylesheets DXLClean.xsl and DXLSmudge.xsl to the newly created xsl directory
 2. Add the entry *xsl/* to your .gitignore file
 
 4. Configure the .gitattributes file to select which files to filter
@@ -85,8 +93,8 @@ Once in the terminal, navigate to wherever you unzipped the release of Dora.
 
 Then issued the command ./Install.pl
 
-*IMPORTANT* For the DXL Metadata filters to work using sourcetree, you must add the ~/bin directory to the Windows PATH environment variable  
-
+*IMPORTANT* For the DXL Metadata filters to work using sourcetree, you must add the Dora Executables directory to the Windows PATH environment variable, otherwise SourceTree will not be able to run xsltproc and will fail.
+ 
 ### Mac
 
 Open a terminal, navigate to the directory that you unzipped the Dora release to, and run ./Install.pl
@@ -121,15 +129,43 @@ Perl (tested with 5.8.8 which is bundled in Git Bash)
 
 Contributions can be made in varying forms. You can give feedback, opinions, bug reports, feature requests or even make coding contributions by forking the project and then submitting pull requests.
 
-### Evaluating the Effectiveness of DXL Filters 
+### Evaluating the Correctness/Effectiveness of DXLClean.xsl 
+
+The DXLClean.xsl file is the *recipe* for choosing which elements and attributes we want to filter from the DXL.
+The version of DXLClean.xsl included in this repository is only a result of what I (Cameron Gregor) have been using so far, and not necessarily a proclamation of what is a good idea by many.
+
+One of the outcomes I am hoping to get from collaboration, is an agreed *safe version* of DXLClean.xsl that is considered safe to recommend to people. Riskier options for this filtering may then be provided in a separate optional xsl, or contained within the same \*.xsl file, and activated by parameters.
+
+So, I would really appreciate feedback on the contents of DXLClean.xsl, and whether you think that it needs some modification. 
+
+To help inform your decision, you can read through the Domino DTD (search from Designer Help for 'DTD') which theoretically documents the possible elements and attributes and whether or not they are optional (implied which is denoted by a Question Mark ?)
+
+Also if you have not done XPath or XSLT before or need a refresher, the tutorials at www.w3schools.com were helpful to me, and may be of use to you too.
 
 ### Reporting Bugs
 
+Please report bugs through [Dora's OpenNTF project page](http://www.openntf.org/internal/home.nsf/project.xsp?action=openDocument&name=Dora) 'Defects' page.
+
 ### Feature Requests
+
+Feature requests can be made through [Dora's OpenNTF project page](http://www.openntf.org/internal/home.nsf/project.xsp?action=openDocument&name=Dora) 'Feature Requests' page.Please feel free to fork this project and have a go at any new features yourself! 
 
 ## Testing
 
-you can test an .xsl Stylesheet 
+### Testing an XSL Transformation Stylesheet
+
+To test an XSL Transformation Stylesheet, you will 2 files, the source xml file that you want to manipulate, and the xsl file that contains the instructions for the transformation.
+You then use the xsltproc program from a terminal as follows:
+
+xsltproc.exe <xslfile> <sourcexml>
+
+This will output the resulting xml to the terminal.
+
+If you would like to capture the output in a file instead, you can use the *-o* option like so
+
+xsltproc.exe -o <outputfile> <xslfile> <sourcexml>
+
+For a full list of parameters for xsltproc.exe just run xsltproc.exe with no parameters.
 
 ## Licence
 
@@ -142,57 +178,10 @@ The set up information describes how to install and use them when using Git Bash
 Installation
 ------------------
 
-This project has been tested using the following setup
 
 GitHub for Windows
   - Git Version 1.8.1.msysgit.1
   - Perl Version v5.8.8 built for msys
-
-Step 1 - Choose where you will keep the scripts
-
-ere is a Testing Script for Demonstration purposes
-
-User 1
-1. Create a new NSF File -> New Application
-1. Team -> Set up Source Control and create new ODP
-1. Add some Folders, views, script libraries etc
-1. git init
-1. Configure git repo for GitFiltersForNSF
-1. git add .
-1. git commit -m "First Commit"
-1. git push origin master
-
-User 2
-1. git clone <remote-repo-location>
-1. Open Java Perspective
-1. Import -> Existing Project
-1. Team -> Create new nsf
-1. Tools -> Recompile all lotusscript
-1. Open a view and save
-1. git status
-1. git add .
-1. git status
-
-
-Running Tests
-----------------
-
-To view an example of what happens using certain filters you can run a test like so
-
-xsltproc stylesheet file
-
-so to run the form.xsl filter 
-
-xsltproc xsl/form.xsl testdata/Form/Form.view
-
-When installed, the actual filter will have a hyphen for the filename. The hyphen tells the xsltproc program to use <<stdin>>
-xsltproc xsl/form.xsl -
-
-
-Vim Tip
-when viewing an xml file that does not have the extension .xml, you can use
-:set filetype=xml
-and it will do pretty xml colours!
 
 Installing XSLTPROC
 -------------------
@@ -235,59 +224,6 @@ xmllint.exe
 xsltproc.exe
 zlib1.dll
 
-Setting up first NSF
---------------------
-For example setting up a Teamroom
-
-Create a folder named after the Application
-Teamroom
-
-Create a sub folder called nsf
-Teamroom\nsf
-
-Create the gitignore file
-Teamroom\.gitignore
-
-Create a directory for the xsl file
-Teamroom\xsl
-
-Copy the XSL file into the directory  
-Teamroom\xsl\transform.xsl
-
-Add the Filter to Git Config
-
-Add the .gitattributes file
-
-Set core.autocrlf = false
-git config core.autocrlf falseo
-
-Cloning from Remote NSF
------------------------
-Go to your Workspace
-
-git clone <repo> <directory>
-run dogh.pl and make sure Filters are installed into git Config!!
-
-Go to Domino Designer on Eclipse
-Switch Perspective to 'Java'
-
-File - > New -> Project
-Choose General -> Project
-  - Enter your Project Name 'Teamroom'
-  - deselect 'Use default location'
-  - Browse to the NSF folder that is within the newly cloned repository
-  - Do not add a related project
-
-Then switch back to Domino Designer perspective
-Window -> Show Eclipse View -> Navigator
-
-Find your new project 'Teamroom'
-Right-click and choose
-  - Team Development -> Associate with New NSF
-Choose where you will put your new nsf
-
-Wait for it to import!
-
 Feature Requests
 ----------------
 
@@ -322,5 +258,4 @@ DXL Notes
 Frameset frame got a new Border style
 Forms don't like it when Background element has a text node these need to be deflated
 Forms without action bar get a default set of system actions
-
 
