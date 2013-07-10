@@ -1,57 +1,27 @@
 # Domino ODP Repository Helper (dora)
 
-Dora is a helper script with the intention of providing some automation for some common tasks involved in setting up a git repository
+Dora's primary purpose is to assist in setting up **DXL Metadata filters** for a Git Repository for an IBM Notes/Domino nsf On-Disk Project.
 
-* 	Initialising a new repository for NSF use
-*		Setting the .gitignore file consistently
-* 	Installing DXL Metadata filters for better source control
-* 	Keeping a Custom Control updated with the latest version
+This project is only in it's beginning. Currently dora is implemented as a Perl script which runs in a bash-like terminal e.g. *Git Bash* on Windows.
 
-This project is only in it's beginning. Currently dora is implemented as a Perl script (dora.pl) which runs in the bash-like *Git Bash* on Windows.
-
-*note* If you don't want to use dora and just want to manually configure the Git Metadata filters yourself please see the **Manually Configuring Git Filters** section below.
+*note* You can set up DXL Metadata filters manually, so if you don't want to use dora and just want to manually configure the Git Metadata filters yourself please see the **Manually Configuring Git Filters** section below.
 
 ## Usage
 
-To use dora, you open a terminal, navigate to a git repository's root directory and issue the command *dora*
+To use dora, you must first install it. Then you open a terminal, navigate to a git repository's root directory and issue the command `dora`
 This will open a menu in the terminal which will allow you to configure the current repository using dora.
 
 ### Setting up DXL Metadata Filters
 
-To set up the DXL Metadata filters, open a terminal, navigate to the repository, and run 'dora'
-Then choose the menu option for 'Installation'
-Then choose the option 'Install Everything'
+To set up the DXL Metadata filters for a repository:
+1. open a bash-like terminal
+2. navigate to the repository
+3. run `dora`
+4. Choose 1. for 'Install Something'
+5. Choose 1. for 'Install Everything'
+6. Follow the prompts!
 
 If you encounter any issues (please report them!) you can set up the DXL Metadata filters manually using the following guide.
-
-#### Manually Configuring the DXL Metadata Filters 
-
-If you cannot configure the filters due to any problems when running the Dora Helper script (please report bugs!), you can still manually configure your repository to run the DXL Metadata Filter
-
-1. 	(windows only) Install libxslt to a directory that is on your PATH
-1.  Install the DXL Metadata filter to the git config file
-    You can do this either by issuing git config commands or by editing the .git/config file in your repository.
-    To do this using git config commands run the following:
-
-        git config --local filter.dxlmetadata.clean    xsltproc xsl\DXLClean.xsl -
-        git config --local filter.dxlmetadata.smudge   xsltproc xsl\DXLSmudge.xsl - 
-        git config --local filter.dxlmetadata.required true
-
-    To do this via editing the .git/config file, make sure it has this entry
-
-        [filter "dxlmetadata"]
-          clean = xsltproc xsl/DXLClean.xsl -
-          smudge = xsltproc xsl/DXLSmudge.xsl -
-          required = true
-
-2. Create a directory called *xsl* within your repository for your XSL Stylesheets
-2. Copy the XSL Transform Stylesheets DXLClean.xsl and DXLSmudge.xsl to the newly created xsl directory
-2. Add the entry *xsl/* to your .gitignore file
-
-4. Configure the .gitattributes file to select which files to filter
-4. If you don't have one, Create a *.gitattributes* file in the root of your repository
-4. add the following entry for each file extension you want to filter
-\*.ext filter=dxlmetadata text eol=lf
 
 ## Installation
 
@@ -114,6 +84,8 @@ If the *Install.pl* script fails for any reason (please report bugs!) you can st
 2. Copy the XSL Files from xsl/ to ~/dora
 
 ## Requirements
+
+To use dora you must have
 
 This project has been tested using Windows 7 64-bit and Windows 8 64-bit.
 To git Git for windows goto 
@@ -182,46 +154,88 @@ GitHub for Windows
   - Git Version 1.8.1.msysgit.1
   - Perl Version v5.8.8 built for msys
 
-Installing XSLTPROC
--------------------
+### Installing libxslt manually
 
-http://www.zlatkovic.com/libxml.en.html
+To run the DXL Metadata filters you need to have libxslt installed. If you are on a mac, libxslt should already be installed. If you are running windows, Dora will install these necessary files for you, however if you would like to install it manually yourself, follow these steps.
 
-Read his documentation
+[libxslt](http://xmlsoft.org/XSLT/) is the XSLT C library developed for the GNOME project. If you go to the downloads section of the project page, you can find a link to the Windows versions, which are currently maintained by Igor Zlatkovic.
 
-Download:
+1.  Download the necessary files from Igor's [download area](ftp://ftp.zlatkovic.com/libxml/). If you read the [documentation](http://www.zlatkovic.com/libxml.en.html)
+ it will tell you that to use libxslt you need to download the following packages:
+    * iconv
+    * libxml2
+    * libxslt
+    * zlib
+2.  Extract the contents of the downloaded files
+3.  Make a directory called *bin* in your HOME directory
+    e,g. C:\Users\Cameron\*bin*
+4.  Copy the contents of each of the download's *bin* directories to your HOME\bin directory 
+    For example, at the time of writing this, the contents I needed to copy were:
+    * iconv.dll
+    * iconv.exe
+    * libexslt.dll
+    * libxml2.dll
+    * libxslt.dll
+    * minigzip.exe
+    * xmlcatalog.exe
+    * xmllint.exe
+    * xsltproc.exe
+    * zlib1.dll
 
-iconv
-libxml2
-libxslt
-zlib
+#### Manually Configuring the DXL Metadata Filters 
 
-I am running Windows 8 64-bit, and downloaded the 32-bit versions because Git Bash runs as 32-bit 
+If you cannot configure the filters for a repository due to any problems when running the Dora Helper script (please report bugs!), you can still manually configure your repository to run the DXL Metadata Filters.
 
-iconv-1.9.2.win32
-libxml2-2.7.8.win32
-libxslt-1.1.26.win32
-zlib-1.2.5.win32
+1. 	(windows only) Make sure libxslt binaries are installed to a directory that is on your PATH environment variable
+    See the section below on manually installed libxslt binaries.
+2.  Install the DXL Metadata filter to the git config file
+    You can do this either by issuing git config commands or by editing the .git/config file in your repository.
+    To do this using git config commands run the following:
 
-Check your path, there should be an entry on there for your home dir + bin
-echo $PATH
+        git config --local filter.dxlmetadata.clean    xsltproc xsl\DXLClean.xsl -
+        git config --local filter.dxlmetadata.smudge   xsltproc xsl\DXLSmudge.xsl - 
+        git config --local filter.dxlmetadata.required true
 
-Make a directory called bin in your home directory
-e.g.
-C:\Users\Cameron\bin
+    or to do this via editing the .git/config file, make sure it has this section
 
-Extract all the zip files, and then go into each one and copy the files from the bin dirs to your home\bin 
+        [filter "dxlmetadata"]
+          clean = xsltproc xsl/DXLClean.xsl -
+          smudge = xsltproc xsl/DXLSmudge.xsl -
+          required = true
 
-iconv.dll
-iconv.exe
-libexslt.dll
-libxml2.dll
-libxslt.dll
-minigzip.exe
-xmlcatalog.exe
-xmllint.exe
-xsltproc.exe
-zlib1.dll
+3.  Create a directory called *xsl* within your repository for your XSL Stylesheets
+4.  Copy the XSL Transform Stylesheets DXLClean.xsl and DXLSmudge.xsl to the newly created xsl directory
+5.  Add the entry *xsl/* to your .gitignore file
+6.  Configure the .gitattributes file to select which files to filter
+    If you don't have one, Create a *.gitattributes* file in the root of your repository
+    add the following entry for each file extension you want to filter
+        *.<ext> filter=dxlmetadata text eol=lf
+    Here is some entries you can use as a starting point
+        *.aa filter=dxlmetadata text eol=lf
+        *.column filter=dxlmetadata text eol=lf
+        *.dcr filter=dxlmetadata text eol=lf
+        *.fa filter=dxlmetadata text eol=lf
+        *.field filter=dxlmetadata text eol=lf
+        *.folder filter=dxlmetadata text eol=lf
+        *.form filter=dxlmetadata text eol=lf
+        *.frameset filter=dxlmetadata text eol=lf
+        *.ija filter=dxlmetadata text eol=lf
+        *.ja filter=dxlmetadata text eol=lf
+        *.javalib filter=dxlmetadata text eol=lf
+        *.lsa filter=dxlmetadata text eol=lf
+        *.lsdb filter=dxlmetadata text eol=lf
+        *.metadata filter=dxlmetadata text eol=lf
+        *.navigator filter=dxlmetadata text eol=lf
+        *.outline filter=dxlmetadata text eol=lf
+        *.page filter=dxlmetadata text eol=lf
+        *.subform filter=dxlmetadata text eol=lf
+        *.view filter=dxlmetadata text eol=lf
+        AboutDocument filter=dxlmetadata text eol=lf
+        database.properties filter=dxlmetadata text eol=lf
+        IconNote filter=dxlmetadata text eol=lf
+        Shared?Actions filter=dxlmetadata text eol=lf
+        UsingDocument filter=dxlmetadata text eol=lf
+
 
 Feature Requests
 ----------------
@@ -242,19 +256,18 @@ Other Ideas
 Known Issues
 ------------
 
-Git Filter reports an error if the file is empty
-Git Filter reports an error if the source is not well formed xml. This happens during a merge conflict.
+*   DXL Metadata filter throws an error if the source is not well formed xml. This happens during a merge conflict.
+*   DXL Metadata filter throws an error if file is empty then will fail e.g.
+    * nsf/AppProperties/database.properties
+    * nsf/Code/dbscript.lsdb
+    * nsf/Resources/AboutDocument
+    Are all blank when you create a new nsf and will fail until you save them first.
 
-if file is empty then will fail e.g.
-nsf/AppProperties/database.properties
-nsf/Code/dbscript.lsdb
-nsf/Resources/AboutDocument
 
-Forms, System Actions showed up
 
-DXL Notes
+## DXL Notes
 
-Frameset frame got a new Border style
-Forms don't like it when Background element has a text node these need to be deflated
-Forms without action bar get a default set of system actions
+* Frameset frame got a new Border style 
+* Forms don't like it when Background element has a text node, these need to be deflated
+* Forms without action bar get a default set of system actions
 
