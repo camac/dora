@@ -4,16 +4,17 @@ Dora's primary purpose is to assist in setting up **DXL Metadata filters** for a
 
 This project is only in it's beginning. Currently dora is implemented as a Perl script which runs in a bash-like terminal e.g. *Git Bash* on Windows.
 
-*note* You can set up DXL Metadata filters manually, so if you don't want to use dora and just want to manually configure the Git Metadata filters yourself please see the **Manually Configuring Git Filters** section below.
+*note* You can set up DXL Metadata filters manually, so if you don't want to use dora and just want to manually configure the Git Metadata filters yourself please see the [Manually Configuring the DXL Metadata Filters](#manualDXL) section below.
 
 ## Usage
 
 To use dora, you must first install it. Then you open a terminal, navigate to a git repository's root directory and issue the command `dora`
-This will open a menu in the terminal which will allow you to configure the current repository using dora.
+This will open a menu in the terminal which will allow you to configure the current repository for DXL Metadata filters.
 
 ### Setting up DXL Metadata Filters
 
 To set up the DXL Metadata filters for a repository:
+
 1. open a bash-like terminal
 2. navigate to the repository
 3. run `dora`
@@ -44,7 +45,7 @@ Executables that are copied
   - libxslt win 32 Binaries (windows only)
 
 Resources
-  - XSL files used in DXL Metadata filter
+  - \*.xsl files used in DXL Metadata filter
 
 ### Windows + Git Bash / Git Gui
 
@@ -62,8 +63,6 @@ Once in the terminal, navigate to wherever you unzipped the release of Dora.
 
 Then issued the command ./Install.pl
 
-*IMPORTANT* For the DXL Metadata filters to work using sourcetree, you must add the Dora Executables directory to the Windows PATH environment variable, otherwise SourceTree will not be able to run xsltproc and will fail.
- 
 ### Mac
 
 Open a terminal, navigate to the directory that you unzipped the Dora release to, and run ./Install.pl
@@ -71,17 +70,6 @@ Follow the prompts
 libxslt is already installed on a Mac, so installing these binaries is not required. 
 The Installation script should detect that you are using Mac, and skip that step for you.
 If you find that the Install.pl script does not detect the mac properly, then run the install script with the option *--os-mac*
-
-### Manual Installation
-
-If the *Install.pl* script fails for any reason (please report bugs!) you can still install manually 
-
-1. Create 2 directories in your home directory
-* ~/bin
-* ~/dora
-2. Copy the dora.pl file to ~/bin/dora (no extension)
-2. (For windows only) Copy the libxslt binaries from within directories under libxslt/ to ~/bin
-2. Copy the XSL Files from xsl/ to ~/dora
 
 ## Requirements
 
@@ -95,6 +83,9 @@ When you are given the choice of which command line method choose 'Use Git Bash 
 
 using Git Bash v 1.8.1.2-preview20130201
 Perl (tested with 5.8.8 which is bundled in Git Bash)
+  - Git Version 1.8.1.msysgit.1
+  - Perl Version v5.8.8 built for msys
+
 
 ## Contributing
 
@@ -116,12 +107,16 @@ Also if you have not done XPath or XSLT before or need a refresher, the tutorial
 ### Reporting Bugs
 
 Please report bugs through [Dora's OpenNTF project page](http://www.openntf.org/internal/home.nsf/project.xsp?action=openDocument&name=Dora) 'Defects' page.
+As usual, the more info the better.
 
 ### Feature Requests
 
 Feature requests can be made through [Dora's OpenNTF project page](http://www.openntf.org/internal/home.nsf/project.xsp?action=openDocument&name=Dora) 'Feature Requests' page.Please feel free to fork this project and have a go at any new features yourself! 
 
 ## Testing
+
+To test the DXL Metadata filters are working 
+#TODO Finish this
 
 ### Testing an XSL Transformation Stylesheet
 
@@ -146,15 +141,20 @@ This project contains a set of git filters and scripts which assist when collabo
 
 The set up information describes how to install and use them when using Git Bash which is the linux-like command prompt tool for using git under windows.
 
-Installation
-------------------
+## Manual Installation
 
+### Manual Installation of Dora
 
-GitHub for Windows
-  - Git Version 1.8.1.msysgit.1
-  - Perl Version v5.8.8 built for msys
+If the *Install.pl* script fails for any reason (please report bugs!) you can still install Dora manually 
 
-### Installing libxslt manually
+1.  Create 2 directories in your home directory
+    * ~/bin
+    * ~/dora
+2.  Copy the dora.pl file to ~/bin/dora (no .pl extension)
+3.  (For windows only) Copy the libxslt binaries from within directories under libxslt/ to ~/bin
+4.  Copy the XSL Files from xsl/ to ~/dora
+
+### Installing libxslt from Original project
 
 To run the DXL Metadata filters you need to have libxslt installed. If you are on a mac, libxslt should already be installed. If you are running windows, Dora will install these necessary files for you, however if you would like to install it manually yourself, follow these steps.
 
@@ -182,7 +182,8 @@ To run the DXL Metadata filters you need to have libxslt installed. If you are o
     * xsltproc.exe
     * zlib1.dll
 
-#### Manually Configuring the DXL Metadata Filters 
+<a id="manualDXL"></a>
+### Manually Configuring the DXL Metadata Filters 
 
 If you cannot configure the filters for a repository due to any problems when running the Dora Helper script (please report bugs!), you can still manually configure your repository to run the DXL Metadata Filters.
 
@@ -237,24 +238,19 @@ If you cannot configure the filters for a repository due to any problems when ru
         UsingDocument filter=dxlmetadata text eol=lf
 
 
-Feature Requests
-----------------
-
-* Install xsl files as tagged blobs in the git repo, instead of committed to a branch
-* Better identification of which version of filter was used on a file
-* Ability to choose where to install binaries and dora resources
-
-Other Ideas
------------
+## Ideas for future
 
 * Tell Domino Designer team to give us the option to filter this stuff for us so we don't have to :)
 * Update EGit to replicate Filter functionality 
 * Somebody with Java and Domino Designer Extension plugin experience could investigate if you can extend NsfToPhysical and filter at this point?
 * re-write Dora as a Domino Designer Plugin instead of a Perl Script, with Eclipse based User Interface
 * Helper functionality to do bulk updates on design elements, e.g. Make sure all view Column Headers are certain font.
+* Install xsl files as tagged blobs in the git repo, instead of committed to a branch
+* Better identification of which version of filter was used on a file
+* Ability to choose where to install binaries and dora resources
 
-Known Issues
-------------
+
+## Known Issues
 
 *   DXL Metadata filter throws an error if the source is not well formed xml. This happens during a merge conflict.
 *   DXL Metadata filter throws an error if file is empty then will fail e.g.
@@ -262,8 +258,6 @@ Known Issues
     * nsf/Code/dbscript.lsdb
     * nsf/Resources/AboutDocument
     Are all blank when you create a new nsf and will fail until you save them first.
-
-
 
 ## DXL Notes
 
