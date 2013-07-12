@@ -238,7 +238,7 @@ sub installXSL {
 	colorSet("bold white");
 	print "  $xslTargetDir\n\n";
 	colorReset();
-	print "The XSL Stylesheets are used by the Git Metadata filter\n";
+	print "The XSL Stylesheets are copied from this location to your repository when you set up a repository for DXL Metadata filtering\n";
 
   # Show the user that xsl files will be overwritten
  	foreach (@xslSourceFilenames) {
