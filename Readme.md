@@ -2,7 +2,10 @@
 
 Dora's primary purpose is to assist in setting up **DXL Metadata filters** for a Git Repository for an IBM Notes/Domino nsf On-Disk Project.
 
-This project is only in it's beginning. Currently dora is implemented as a Perl script which runs in a bash-like terminal e.g. *Git Bash* on Windows.
+> Project is under beta-testing, please do not use this on live databases unless
+> you understand what is happening and are comfortable with it
+
+This project is only in it's beginning. Currently dora is implemented as a Perl script which runs in a bash-like terminal e.g. *Git Bash* on Windows, SourceTree's Terminal or the Mac Terminal
 
 *note* You can set up DXL Metadata filters manually, so if you don't want to use dora and just want to manually configure the Git Metadata filters yourself please see the [Manually Configuring the DXL Metadata Filters](#manually-configuring-the-dxl-metadata-filters) section below.
 
@@ -16,13 +19,25 @@ This will open a menu in the terminal which will allow you to configure the curr
 To set up the DXL Metadata filters for a repository:
 
 1. open a bash-like terminal
-2. navigate to the repository
+2. navigate to the repository root directory
 3. run `dora`
-4. Choose 1. for 'Install Something'
-5. Choose 1. for 'Install Everything'
+4. Choose 1. for *Install Something*
+5. Choose 1. for *Install Everything*
 6. Follow the prompts!
 
-If you encounter any issues (please report them!) you can set up the DXL Metadata filters manually using the following guide.
+If you encounter any issues (please report them!) you can set up the DXL Metadata filters manually, please see the [Manually Configuring the DXL Metadata Filters](#manually-configuring-the-dxl-metadata-filters) section below..
+
+### Removing the DXL Metadata Filters
+
+To remove the Metadata Filters from a repository
+
+1. Open a bash-like terminal
+2. Navigate to the Repository root directory
+3. Run `dora`
+4. Choose 2. for *Uninstall Something*
+5. Choose 1. for *Uninstall Everything*
+
+Again, if you have any issues please report them 
 
 ## Installation
 
@@ -32,7 +47,9 @@ To install Dora, the first step is to obtain the latest release. You can do this
 * Download the latest release from the releases section in the OpenNTF Project
 * Clone the repository from https://github.com/camac/dora.git and checkout the master branch
 
-The installation process just copies the required executables and resources to 2 directories in your home directory. I will use the symbol ~ to refer to the home dir
+The installation process simply copies the required executables and resources to 2 different directories in your [home directory](http://en.wikipedia.org/wiki/Home_directory). 
+On windows your home directory should be something like `C:\Users\Cameron`, on a mac `/Users/Cameron`
+From this point on I will use the symbol ~ to refer to the home dir
 
 Target Executables directory : ~/bin
 Target Resources directory   : ~/dora
@@ -42,14 +59,15 @@ The reason that ~/bin was chosen is that it is already included on the PATH envi
 Executables that are copied
 
   - dora.pl (The Dora Helper Script) copied as dora
-  - libxslt win 32 Binaries (windows only)
+  - libxslt win 32 Binaries which are \*.dll's and \*.exe's required for running xsltproc (windows only, should already be on mac)
 
-Resources
+Resources that are copied
+
   - \*.xsl files used in DXL Metadata filter
 
 ### Windows + Git Bash / Git Gui
 
-Open Git Bash, Navigate to the unzipped dora release (or the cloned camac/dora.git repository) and run ./Install.pl
+Open Git Bash, Navigate to the unzipped dora release (or the cloned camac/dora.git repository) and run `./Install.pl`
 Follow the prompts
 
 ### Windows using SourceTree
@@ -61,31 +79,26 @@ Tools -> Options -> Git -> 'Use Git Bash as Terminal'
 Open the terminal using the Terminal Icon in the SourceTree 'ribbon' menu. You will need to have a repository open (any will do) to access the terminal.
 Once in the terminal, navigate to wherever you unzipped the release of Dora.
 
-Then issued the command ./Install.pl
+Then issued the command `./Install.pl`
 
 ### Mac
 
-Open a terminal, navigate to the directory that you unzipped the Dora release to, and run ./Install.pl
+Open a terminal, navigate to the directory that you unzipped the Dora release to, and run `./Install.pl`
 Follow the prompts
-libxslt is already installed on a Mac, so installing these binaries is not required. 
+libxslt should already installed on a Mac, so installing these binaries is not required. 
 The Installation script should detect that you are using Mac, and skip that step for you.
 If you find that the Install.pl script does not detect the mac properly, then run the install script with the option *--os-mac*
 
 ## Requirements
 
-To use dora you must have
+I plan to detail this section a bit better after beta testing.
 
-This project has been tested using Windows 7 64-bit and Windows 8 64-bit.
-To git Git for windows goto 
-http://git-scm.com/download/win
+This project has been tested using Windows 7 64-bit and Windows 8 64-bit, using Git for Windows and the Git Bash Terminal
+When you are given the choice of which command line method, I chose 'Use Git Bash Only'
 
-When you are given the choice of which command line method choose 'Use Git Bash Only'
+I was using Git Bash v 1.8.1.2-preview20130201 which includes Perl 5.8.8
 
-using Git Bash v 1.8.1.2-preview20130201
-Perl (tested with 5.8.8 which is bundled in Git Bash)
-  - Git Version 1.8.1.msysgit.1
-  - Perl Version v5.8.8 built for msys
-
+It also needs libxslt which is mentioned in other sections of this readme.
 
 ## Contributing
 
@@ -114,9 +127,6 @@ As usual, the more info the better.
 Feature requests can be made through [Dora's OpenNTF project page](http://www.openntf.org/internal/home.nsf/project.xsp?action=openDocument&name=Dora) 'Feature Requests' page.Please feel free to fork this project and have a go at any new features yourself! 
 
 ## Testing
-
-To test the DXL Metadata filters are working 
-#TODO Finish this
 
 ### Testing an XSL Transformation Stylesheet
 
@@ -150,8 +160,8 @@ If the *Install.pl* script fails for any reason (please report bugs!) you can st
 1.  Create 2 directories in your home directory
     * ~/bin
     * ~/dora
-2.  Copy the dora.pl file to ~/bin/dora (no .pl extension)
-3.  (For windows only) Copy the libxslt binaries from within directories under libxslt/ to ~/bin
+2.  Copy the dora.pl file to ~/bin/dora (rename with no .pl extension)
+3.  (For windows only) Copy the libxslt binaries (\*.dll's and \*.exe's) from within the /bin directories under libxslt/ to ~/bin
 4.  Copy the XSL Files from xsl/ to ~/dora
 
 ### Installing libxslt from Original project
@@ -184,6 +194,8 @@ To run the DXL Metadata filters you need to have libxslt installed. If you are o
 
 <a id="manualDXL"></a>
 ### Manually Configuring the DXL Metadata Filters 
+
+#### Installing Filters
 
 If you cannot configure the filters for a repository due to any problems when running the Dora Helper script (please report bugs!), you can still manually configure your repository to run the DXL Metadata Filters.
 
@@ -237,6 +249,24 @@ If you cannot configure the filters for a repository due to any problems when ru
         Shared?Actions filter=dxlmetadata text eol=lf
         UsingDocument filter=dxlmetadata text eol=lf
 
+#### Manually Uninstalling Filters
+
+1.  Remove the filter from the config file 
+    You can do this either by issuing `git config` commands or by editing the .git/config file in your repository
+    To do this using git config commands run the following
+
+        git config --local --remove-section filter.dxlmetadata
+
+    or to do this via editing the .git/config file, remove the following section manually and save
+
+        [filter "dxlmetadata"]
+          clean = xsltproc xsl/DXLClean.xsl -
+          smudge = xsltproc xsl/DXLSmudge.xsl -
+          required = true
+
+2.  Remove the directory xsl/ and all the \*.xsl files
+3.  Remove the xsl/ entry from your .gitignore 
+4.  Remove the entries that mention `filter=dxlmetadata` from your .gitattributes file, or just delete this file if you were not using it for any other purpose
 
 ## Ideas for future
 
