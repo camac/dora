@@ -283,15 +283,46 @@ If you cannot configure the filters for a repository due to any problems when ru
 ## Known Issues
 
 *   DXL Metadata filter throws an error if the source is not well formed xml. This happens during a merge conflict.
-*   DXL Metadata filter throws an error if file is empty then will fail e.g.
-    * nsf/AppProperties/database.properties
-    * nsf/Code/dbscript.lsdb
-    * nsf/Resources/AboutDocument
-    Are all blank when you create a new nsf and will fail until you save them first.
+*   DXL Metadata filter throws an error if file is empty then will fail. The following design elements:
+    * AppProperties/database.properties
+    * Code/dbscript.lsdb
+    * Resources/AboutDocument
+    * Resources/UsingDocument
+    Are all blank when you create a new nsf and the filter will fail until you save them in designer for the first time since setting up source control.
 
-## DXL Notes
+### About Line Endings
 
-* Frameset frame got a new Border style 
-* Forms don't like it when Background element has a text node, these need to be deflated
-* Forms without action bar get a default set of system actions
+You probably know that there is a difference in the way Mac Linux and Windows save line endings in files. 
+
+* Mac and Linux/Unix use the line-feed character LF or `\n`
+* Windows uses carriage-return and LF or CRLF or `\r\n`
+
+You may not know however, that even if you are using Domino Designer on Windows, it actually saves the On-Disk Project files with LF line endings.
+
+Git has a setting called core.autocrlf which when set to true (often this is the default), will convert CRLF to LF on the way into the repository, 
+and then when you check out a LF file, it will convert it back to CRLF if you are on windows. 
+So, if it does this for a Design Element you can end up with CRLF line-endings when you check out even though it originally had LF.
+
+When using the DXL Metadata filters on Windows, the design element is processed through the program `xsltproc`. The output of this program is 
+given CRLF endings due to the fact that `xsltproc` actually is running as a windows program. 
+You can see in the .gitattributes file that I have put a setting `text eol=lf` which tells git to convert this back to LF when commiting, 
+and this also tells git to keep it as LF when it checks the file out again.
+
+A side-effect of CRLF conversion is an annoying warning that pops up for every file that is converted:
+
+    warning: CRLF will be replaced by LF in <filename>.
+    The file will have its orignal line endings in your working directory.
+
+If you don't want to see this warning everytime, you can set core.safecrlf to false like so:
+
+    git config core.safecrlf false
+
+and it will no longer warn you about CRLF conversions.
+
+### DXL Notes
+
+* Actionbar on a view had no *bordercolor* attribute but after re-import was given bordercolor="system"
+* Frameset frame also got bordercolor attribute (i think) 
+* Forms don't like it when Background element is indented (dxl.parse error text node), thus the need to 'deflate' on checkout
+* Forms without action bar get a default set of system actions, maybe for views too?
 
