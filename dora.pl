@@ -319,6 +319,9 @@ sub checkFilter {
     my $currVal = `git config --local --get $key`;
     chomp($currVal);
 
+    # For Windows, we need to convert c:/ back to /c/ for comparison
+    $currVal =~ s!^([a-zA-Z]):!/$1!;
+
     return 0 if ($currVal ne $val);
 
   }
