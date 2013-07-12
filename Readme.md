@@ -51,7 +51,7 @@ The installation process simply copies the required executables and resources to
 On windows your home directory should be something like `C:\Users\Cameron`, on a mac `/Users/Cameron`
 From this point on I will use the symbol ~ to refer to the home dir
 
-Target Executables directory : ~/bin
+Target Executables directory : ~/bin  
 Target Resources directory   : ~/dora
 
 The reason that ~/bin was chosen is that it is already included on the PATH environment variable when using Git Bash. This means that executables placed in this directory can be run from any other location.
@@ -133,13 +133,13 @@ Feature requests can be made through [Dora's OpenNTF project page](http://www.op
 To test an XSL Transformation Stylesheet, you will 2 files, the source xml file that you want to manipulate, and the xsl file that contains the instructions for the transformation.
 You then use the xsltproc program from a terminal as follows:
 
-xsltproc.exe <xslfile> <sourcexml>
+    xsltproc.exe *xslfile* *sourcexmlfile*
 
 This will output the resulting xml to the terminal.
 
 If you would like to capture the output in a file instead, you can use the *-o* option like so
 
-xsltproc.exe -o <outputfile> <xslfile> <sourcexml>
+    xsltproc.exe -o *outputfile* *xslfile* *sourcexmlfile*
 
 For a full list of parameters for xsltproc.exe just run xsltproc.exe with no parameters.
 
@@ -224,30 +224,30 @@ If you cannot configure the filters for a repository due to any problems when ru
     add the following entry for each file extension you want to filter
         *.<ext> filter=dxlmetadata text eol=lf
     Here is some entries you can use as a starting point
-        *.aa filter=dxlmetadata text eol=lf
-        *.column filter=dxlmetadata text eol=lf
-        *.dcr filter=dxlmetadata text eol=lf
-        *.fa filter=dxlmetadata text eol=lf
-        *.field filter=dxlmetadata text eol=lf
-        *.folder filter=dxlmetadata text eol=lf
-        *.form filter=dxlmetadata text eol=lf
-        *.frameset filter=dxlmetadata text eol=lf
-        *.ija filter=dxlmetadata text eol=lf
-        *.ja filter=dxlmetadata text eol=lf
-        *.javalib filter=dxlmetadata text eol=lf
-        *.lsa filter=dxlmetadata text eol=lf
-        *.lsdb filter=dxlmetadata text eol=lf
-        *.metadata filter=dxlmetadata text eol=lf
-        *.navigator filter=dxlmetadata text eol=lf
-        *.outline filter=dxlmetadata text eol=lf
-        *.page filter=dxlmetadata text eol=lf
-        *.subform filter=dxlmetadata text eol=lf
-        *.view filter=dxlmetadata text eol=lf
-        AboutDocument filter=dxlmetadata text eol=lf
-        database.properties filter=dxlmetadata text eol=lf
-        IconNote filter=dxlmetadata text eol=lf
-        Shared?Actions filter=dxlmetadata text eol=lf
-        UsingDocument filter=dxlmetadata text eol=lf
+        *.aa filter=dxlmetadata text eol=lf  
+        *.column filter=dxlmetadata text eol=lf  
+        *.dcr filter=dxlmetadata text eol=lf  
+        *.fa filter=dxlmetadata text eol=lf  
+        *.field filter=dxlmetadata text eol=lf  
+        *.folder filter=dxlmetadata text eol=lf  
+        *.form filter=dxlmetadata text eol=lf  
+        *.frameset filter=dxlmetadata text eol=lf  
+        *.ija filter=dxlmetadata text eol=lf  
+        *.ja filter=dxlmetadata text eol=lf  
+        *.javalib filter=dxlmetadata text eol=lf  
+        *.lsa filter=dxlmetadata text eol=lf  
+        *.lsdb filter=dxlmetadata text eol=lf  
+        *.metadata filter=dxlmetadata text eol=lf  
+        *.navigator filter=dxlmetadata text eol=lf  
+        *.outline filter=dxlmetadata text eol=lf  
+        *.page filter=dxlmetadata text eol=lf  
+        *.subform filter=dxlmetadata text eol=lf  
+        *.view filter=dxlmetadata text eol=lf  
+        AboutDocument filter=dxlmetadata text eol=lf  
+        database.properties filter=dxlmetadata text eol=lf  
+        IconNote filter=dxlmetadata text eol=lf  
+        Shared?Actions filter=dxlmetadata text eol=lf  
+        UsingDocument filter=dxlmetadata text eol=lf  
 
 #### Manually Uninstalling Filters
 
@@ -287,15 +287,15 @@ If you cannot configure the filters for a repository due to any problems when ru
     * AppProperties/database.properties
     * Code/dbscript.lsdb
     * Resources/AboutDocument
-    * Resources/UsingDocument
+    * Resources/UsingDocument  
     Are all blank when you create a new nsf and the filter will fail until you save them in designer for the first time since setting up source control.
 
 ### About Line Endings
 
 You probably know that there is a difference in the way Mac Linux and Windows save line endings in files. 
 
-* Mac and Linux/Unix use the line-feed character LF or `\n`
-* Windows uses carriage-return and LF or CRLF or `\r\n`
+* Mac and Linux/Unix use the line-feed character, LF or `\n`
+* Windows uses carriage-return and line-feed, CRLF or `\r\n`
 
 You may not know however, that even if you are using Domino Designer on Windows, it actually saves the On-Disk Project files with LF line endings.
 
