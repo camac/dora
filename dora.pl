@@ -123,7 +123,8 @@ our @ignoreEntries = (
   'nsf/.classpath',
   'nsf/.project',
   'nsf/plugin.xml',
-  'nsf/.settings'
+  'nsf/.settings',
+  'xspdesign.properties'
 	#'nsf/CustomControls/ccAppVersion.xsp*'
 );
 
