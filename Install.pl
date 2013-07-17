@@ -53,6 +53,9 @@ our $setupTarget          = "$setupTargetDir/$setupTargetFilename";
 # Target Directory for the Binaries
 our $binTargetDir					= $setupTargetDir;
 
+# TODO Remove this when permanent fix is done
+our $binTargetDir         = "/c/xsltproc";
+
 # Source directory for XSL Stylesheets
 our $xslSourceDir         = "$installScriptDir/xsl";
 our @xslSourceFilenames   = (

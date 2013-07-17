@@ -91,8 +91,12 @@ our $dxlFilterName          = "dxlmetadata";
 our $dxlFilterVarClean      = "filter.$dxlFilterName.clean";
 our $dxlFilterVarSmudge     = "filter.$dxlFilterName.smudge";
 our $dxlFilterVarRequired   = "filter.$dxlFilterName.required";
-our $cleanFilter  					= "$scriptDir/xsltproc $xslFilter -";
-our $smudgeFilter 					= "$scriptDir/xsltproc $xslDeflate -";
+
+# TODO Remove this when permanent nospaces fix is done
+our $xsltProcDir = "/c/xsltproc";
+
+our $cleanFilter  					= "$xsltProcDir/xsltproc $xslFilter -";
+our $smudgeFilter 					= "$xsltProcDir/xsltproc $xslDeflate -";
 our @dxlFilterConfig = (
   [$dxlFilterVarClean,    $cleanFilter],
   [$dxlFilterVarSmudge,   $smudgeFilter],
