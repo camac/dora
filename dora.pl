@@ -88,9 +88,10 @@ our $ignoreFile   = ".gitignore";
 
 # DXL Filter Vars
 our $dxlFilterName          = "dxlmetadata";
-our $dxlFilterVarClean      = "filter.$dxlFilterName.clean";
-our $dxlFilterVarSmudge     = "filter.$dxlFilterName.smudge";
-our $dxlFilterVarRequired   = "filter.$dxlFilterName.required";
+our $dxlFilterSectionName   = "filter.$dxlFilterName";
+our $dxlFilterVarClean      = "$dxlFilterSectionName.clean";
+our $dxlFilterVarSmudge     = "$dxlFilterSectionName.smudge";
+our $dxlFilterVarRequired   = "$dxlFilterSectionName.required";
 our $cleanFilter  					= "$scriptDir/xsltproc $xslFilter -";
 our $smudgeFilter 					= "$scriptDir/xsltproc $xslDeflate -";
 our @dxlFilterConfig = (
@@ -269,17 +270,39 @@ sub uninstallFilter {
 
   my ($silent) = @_;
 
-  if (!$silent) {
-    heading("Uninstall DXL Metadata Filter from Git Config");
+  heading("Uninstall DXL Metadata Filter from Git Config") unless $silent;
 
+  # First check if there is anything to remove
+  my $currentConfig = `git config --get-regexp $dxlFilterSectionName`;
+
+  # If there are no entries from git config
+  if ($currentConfig eq "") {
+
+    if(!$silent) {
+      
+      print "There are currently no entries in the\n\n";
+
+      colorSet("bold white");
+      print $dxlFilterSectionName;
+      colorReset();
+  
+      print "\n\nsection of the local .gitconfig file, so no action is needed\n";
+
+    }
+    
+    return 0;
+
+  }
+
+  if (!$silent) {
+    
     print "This step will remove the DXL Metadata filter from the repository configuration\n";
-    print "by unsetting the following entries from the local .gitconfig file\n\n";
+    print "by removing the \n\n";
  
     colorSet("bold white");
-    foreach my $row (0..@dxlFilterConfig-1) {
-      print "$dxlFilterConfig[$row][0] = $dxlFilterConfig[$row][1]\n";
-    }
+    print $dxlFilterSectionName;
     colorReset();
+    print "\n\nsection from the local .gitconfig file\n\n";
 
     return 0 if !confirmContinue();
 
@@ -287,24 +310,16 @@ sub uninstallFilter {
 
   }
 
-  foreach my $row (0..@dxlFilterConfig-1) {
+  # Attempt to remove the section
+  my @args = ('config','--local','--remove-section',$dxlFilterSectionName);
+  system('git',@args);
 
-    my $key = $dxlFilterConfig[$row][0];
+  my $exit = getExitCode($?);
 
-    # Attempt set the config variable
-    my @args = ('config','--local','--unset',$key);
-    system('git',@args);
-
-    my $exit = getExitCode($?);  
-    # Determine if it worked ok
-    if ($exit == 0) {
-      printFileResult($key, 'removed', 1) unless $silent;
-    } elsif ($exit == 5) {
-      printFileResult($key, 'not there anyway', 0) unless $silent;
-    } else {
-      printFileResult($key, 'failed', -1) unless $silent;
-    }
-
+  if ($exit == 0) {
+    printFileResult($dxlFilterSectionName, 'removed', 1) unless $silent;
+  } else {
+    printFileResult($dxlFilterSectionName, "failed code: $exit", -1) unless $silent;
   }
 
 }

@@ -202,6 +202,9 @@ sub uninstallHelper {
 
 	}
 
+  # Remove the bin dir if empty
+  rmdir $setupTargetDir;
+
 }
 
 sub checkHelper {
@@ -337,6 +340,9 @@ sub uninstallXSL {
 		}
 
 	}	
+
+  # Remove the directory if empty
+  rmdir $xslTargetDir;
 
 }
 
@@ -671,6 +677,9 @@ sub uninstallLibxslt {
 		}
 
 	}	
+
+  # Removed the bin directory if empty
+  rmdir $binTargetDir;
 
 }
 
