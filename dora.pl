@@ -1,4 +1,4 @@
-#!/bin/perl
+#!/usr/bin/env perl
 =begin comment
 
 Copyright 2013 Cameron Gregor
