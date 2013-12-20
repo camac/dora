@@ -4,8 +4,8 @@
 #
 # Read STDIN to a variable
 
-my $binDir  = "c:/Users/cgregor/bin";
-my $xslFile = "d:/DominoGit/dorabadxml/xsl/DXLClean.xsl";
+my $binDir  = "c:/Users/cgregor/bin"; # This is the folder location of your xsltproc binaries
+my $xslFile = "d:/DominoGit/dorabadxml/xsl/DXLClean.xsl"; # This is the filelocation of the xsl filter to be used TODO make program argument
 
 my $contents;
 
@@ -18,7 +18,7 @@ print LINT $contents;
 
 if (close(LINT)) {
 
-  print "Went through the linter ok\n";
+#  print "Went through the linter ok\n";
 
   open(XSLTPROC, "| $binDir/xsltproc $xslFile -") || die "Could not execute the xsltproc program\n";
 
@@ -28,7 +28,7 @@ if (close(LINT)) {
 
 } else {
 
-  print "Linter wasn't happy\n";
+#  print "Linter wasn't happy\n";
   print $contents;
 
 }
