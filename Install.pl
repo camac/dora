@@ -42,13 +42,17 @@ $installScriptDir =~ s:/$::; # remove trailing slash
 our $homeDir              = $ENV{"HOME"};
 
 # Helper script source location
-our $setupSourceFilename  = "dora.pl";
-our $setupSource          = "$installScriptDir/$setupSourceFilename";
+our $setupSourceFilename    = "dora.pl";
+our $wrapperSourceFilename  = "doraFilter.pl";
+our $setupSource            = "$installScriptDir/$setupSourceFilename";
+our $wrapperSource          = "$installScriptDir/$wrapperSourceFilename";
 
 # Helper script target location
-our $setupTargetDir       = "$homeDir/bin";
-our $setupTargetFilename  = "dora";
-our $setupTarget          = "$setupTargetDir/$setupTargetFilename";
+our $setupTargetDir         = "$homeDir/bin";
+our $setupTargetFilename    = "dora";
+our $wrapperTargetFilename  = "doraFilter.pl";
+our $setupTarget            = "$setupTargetDir/$setupTargetFilename";
+our $wrapperTarget          = "$setupTargetDir/$wrapperTargetFilename";
 
 # Target Directory for the Binaries
 our $binTargetDir					= $setupTargetDir;
@@ -96,6 +100,7 @@ our @libxsltBins  = (
 
 # Variables used to check current configuration
 our $chkHelper 	          = 0;
+our $chkWrapper           = 0;
 our $chkXSL			          = 0;
 our $chkLibxslt           = 0;
 our $chkAppVersionSync		= 0;
@@ -105,6 +110,7 @@ sub installEverything {
   installHelper();
   installXSL();
 	installLibxslt();
+  installWrapper();
 	#installAppVersionSync();
 
 }
@@ -117,6 +123,7 @@ sub uninstallEverything {
 	uninstallHelper();
 	uninstallXSL();
 	uninstallLibxslt();
+  uninstallWrapper();
 	#uninstallAppVersionSync();
 
 }
@@ -213,6 +220,80 @@ sub checkHelper {
 
 }
 
+sub installWrapper {
+
+
+	heading("Install the Dora Filter Script");
+
+	print "This step will attemp to copy the filter script ";
+	colorSet("bold white");
+	print $wrapperTargetFilename;
+	colorReset();
+	print " script into the following directory:\n\n";
+
+	colorSet("bold white");
+	print "$setupTargetDir\n\n";
+	colorReset();
+
+	print "The filter script is used to execute the xsltproc filtering.\n";
+	print "You should ensure that this directory is on your 'PATH' so that git can run this script from anywhere\n";
+	print "The directory will be attempted to be created if it does not exist\n";
+
+  if (-e $wrapperTarget) {
+		colorSet("bold yellow");
+    print "\nThe filter script is already installed, if you continue it will overwrite the existing copy.\n";
+		colorReset();
+  }
+
+	return 0 if !confirmContinue();
+	
+  # Check if the Home Bin directory exists
+  if (-d $setupTargetDir) {
+		printFileResult($setupTargetDir,"directory already exists",0);
+  } else {
+    mkdir $setupTargetDir or die "Could not create Directory: $!\n";
+		printFileResult($setupTargetDir,"directory created", 1);
+  }
+
+  # Copy the Setup script to the Target Directory
+  use File::Copy;
+  copy($wrapperSource, $wrapperTarget) or die "...Failed Copying: $!\n";
+	printFileResult($wrapperTarget,"Installed",1);
+
+}
+
+sub uninstallWrapper {
+
+	heading("Uninstall the filter Script");
+
+	if (-e $wrapperTarget) {
+
+		print "This step will remove the filter script located at: \n";
+		colorSet("bold white");
+		print "\n$wrapperTarget\n";
+		colorReset();
+
+		return 0 if !confirmContinue();
+
+		unlink $wrapperTarget or warn "Could not remove $wrapperTarget: $!\n";
+		printFileResult($wrapperTarget, "removed", 1);
+
+	} else {
+
+		print "The filter script is not installed, no action taken\n";
+
+	}
+
+  # Remove the bin dir if empty
+  rmdir $setupTargetDir;
+
+}
+
+sub checkWrapper {
+
+	return (-e $wrapperTarget);
+
+}
 sub getXSLTarget {
 
 	# get input parameter
@@ -777,6 +858,7 @@ sub processArgs {
 sub checkSetup {
 
 	$chkHelper	= checkHelper();
+  $chkWrapper = checkWrapper();
 	$chkXSL 		= checkXSL();
 
   if ($IsMacOSX) { 
@@ -852,7 +934,7 @@ sub main {
 				installLibxslt();
 			} elsif ($opt eq "5") {
 				mycls();
-				installAppVersionSync();
+				installWrapper();
 			} elsif($opt =~ m/^b/i) {
 				$subMenu = "main";
 				$skipConfirmAnyKey = 1;
@@ -878,7 +960,7 @@ sub main {
 				uninstallLibxslt();
 			} elsif ($opt eq "5") {
 				mycls();
-				uninstallAppVersionSync();
+				uninstallWrapper();
 			} elsif ($opt =~ m/^b/i) {
 				$subMenu = "main";
 				$skipConfirmAnyKey = 1;
@@ -919,6 +1001,7 @@ sub menuStatus {
 		printInstallStatus("  Git Helper Script", $chkHelper);
 		printInstallStatus("  XSL Stylesheets",		$chkXSL);
 		printInstallStatus("  libxslt binaries", 	$chkLibxslt);
+    printInstallStatus("  Filter Script",     $chkWrapper);
 		#printInstallStatus("  App Version Sync",	$chkAppVersionSync);
 
 
@@ -935,6 +1018,7 @@ sub menuInstall {
 		menuOption("2", "Install Git Helper Script");
 		menuOption("3", "Install XSL Stylesheets");
 		menuOption("4", "Install libxslt binaries");
+    menuOption("5", "Install Filter Script");
 		#menuOption("5", "Install App Version Sync");
 		menuSeparator();
 		menuOption("b", "Back to main menu");
@@ -946,6 +1030,7 @@ sub menuUninstall {
 		menuOption("2", "Uninstall Git Helper Script");
 		menuOption("3", "Uninstall XSL stylesheets");
 		menuOption("4", "Uninstall libxslt binaries");
+    menuOption("5", "Uninstall Filter Script");
 		#menuOption("5", "Uninstall App Version Sync");
 		menuSeparator();
 		menuOption("b", "Back to main menu");
