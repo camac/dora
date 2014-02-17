@@ -93,7 +93,7 @@ our $dxlFilterVarClean      = "$dxlFilterSectionName.clean";
 our $dxlFilterVarSmudge     = "$dxlFilterSectionName.smudge";
 our $dxlFilterVarRequired   = "$dxlFilterSectionName.required";
 our $cleanFilter  					= "$scriptDir/doraFilter.pl $xslFilter";
-our $smudgeFilter 					= "$scriptDir/doraFilter.pl $xslDeflate -";
+our $smudgeFilter 					= "$scriptDir/doraFilter.pl $xslDeflate";
 our @dxlFilterConfig = (
   [$dxlFilterVarClean,    $cleanFilter],
   [$dxlFilterVarSmudge,   $smudgeFilter],
