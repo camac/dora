@@ -30,6 +30,9 @@ Unless required by applicable law or agreed to in writing, software distributed 
     <xsl:template match="//n:note/@replicaid"/>
     <xsl:template match="//n:note/@version"/>
 
+    <!-- I don't know what this is but it started showing up in 9.0.1 ?? -->
+    <xsl:template match="//n:note/@maintenanceversion"/>
+
     <!-- 
          The following templates cover the replicaid, version and designerversion
          attributes on the Standard DXL elements.
