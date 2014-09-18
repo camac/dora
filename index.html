@@ -1,0 +1,431 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>Dora by camac</title>
+
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <script src="javascripts/scale.fix.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="wrapper">
+      <header>
+        <h1>Dora</h1>
+        <p>Domino On-Disk Repository Assistant</p>
+        <p class="view"><a href="https://github.com/camac/dora">View the Project on GitHub <small>camac/dora</small></a></p>
+        <ul>
+          <li><a href="https://github.com/camac/dora/zipball/master">Download <strong>ZIP File</strong></a></li>
+          <li><a href="https://github.com/camac/dora/tarball/master">Download <strong>TAR Ball</strong></a></li>
+          <li><a href="https://github.com/camac/dora">View On <strong>GitHub</strong></a></li>
+        </ul>
+      </header>
+      <section>
+        <h1>
+<a name="domino-odp-repository-helper-dora" class="anchor" href="#domino-odp-repository-helper-dora"><span class="octicon octicon-link"></span></a>Domino ODP Repository Helper (dora)</h1>
+
+<p>Dora's primary purpose is to assist in setting up <strong>DXL Metadata filters</strong> for a Git Repository for an IBM Notes/Domino nsf On-Disk Project.</p>
+
+<blockquote>
+<p>Project is under beta-testing, please do not use this on live databases unless
+you understand what is happening and are comfortable with it</p>
+</blockquote>
+
+<p>This project is only in it's beginning. Currently dora is implemented as a Perl script which runs in a bash-like terminal e.g. <em>Git Bash</em> on Windows, SourceTree's Terminal or the Mac Terminal</p>
+
+<p><em>note</em> You can set up DXL Metadata filters manually, so if you don't want to use dora and just want to manually configure the Git Metadata filters yourself please see the <a href="#manually-configuring-the-dxl-metadata-filters">Manually Configuring the DXL Metadata Filters</a> section below.</p>
+
+<h2>
+<a name="usage" class="anchor" href="#usage"><span class="octicon octicon-link"></span></a>Usage</h2>
+
+<p>To use dora, you must first install it. Then you open a terminal, navigate to a git repository's root directory and issue the command <code>dora</code>
+This will open a menu in the terminal which will allow you to configure the current repository for DXL Metadata filters.</p>
+
+<h3>
+<a name="setting-up-dxl-metadata-filters" class="anchor" href="#setting-up-dxl-metadata-filters"><span class="octicon octicon-link"></span></a>Setting up DXL Metadata Filters</h3>
+
+<p>To set up the DXL Metadata filters for a repository:</p>
+
+<ol>
+<li>open a bash-like terminal</li>
+<li>navigate to the repository root directory</li>
+<li>run <code>dora</code>
+</li>
+<li>Choose 1. for <em>Install Something</em>
+</li>
+<li>Choose 1. for <em>Install Everything</em>
+</li>
+<li>Follow the prompts!</li>
+</ol><p>If you encounter any issues (please report them!) you can set up the DXL Metadata filters manually, please see the <a href="#manually-configuring-the-dxl-metadata-filters">Manually Configuring the DXL Metadata Filters</a> section below..</p>
+
+<h3>
+<a name="removing-the-dxl-metadata-filters" class="anchor" href="#removing-the-dxl-metadata-filters"><span class="octicon octicon-link"></span></a>Removing the DXL Metadata Filters</h3>
+
+<p>To remove the Metadata Filters from a repository</p>
+
+<ol>
+<li>Open a bash-like terminal</li>
+<li>Navigate to the Repository root directory</li>
+<li>Run <code>dora</code>
+</li>
+<li>Choose 2. for <em>Uninstall Something</em>
+</li>
+<li>Choose 1. for <em>Uninstall Everything</em>
+</li>
+</ol><p>Again, if you have any issues please report them </p>
+
+<h2>
+<a name="installation" class="anchor" href="#installation"><span class="octicon octicon-link"></span></a>Installation</h2>
+
+<p>To install Dora, the first step is to obtain the latest release. You can do this 3 ways:</p>
+
+<ul>
+<li>Download the latest release from camac/dora project on github.com</li>
+<li>Download the latest release from the releases section in the OpenNTF Project</li>
+<li>Clone the repository from <a href="https://github.com/camac/dora.git">https://github.com/camac/dora.git</a> and checkout the master branch</li>
+</ul><p>The installation process simply copies the required executables and resources to 2 different directories in your <a href="http://en.wikipedia.org/wiki/Home_directory">home directory</a>. 
+On windows your home directory should be something like <code>C:\Users\Cameron</code>, on a mac <code>/Users/Cameron</code>
+From this point on I will use the symbol ~ to refer to the home dir</p>
+
+<p>Target Executables directory : ~/bin<br>
+Target Resources directory   : ~/dora</p>
+
+<p>The reason that ~/bin was chosen is that it is already included on the PATH environment variable when using Git Bash. This means that executables placed in this directory can be run from any other location.</p>
+
+<p>Executables that are copied</p>
+
+<ul>
+<li>dora.pl (The Dora Helper Script) copied as dora</li>
+<li>libxslt win 32 Binaries which are *.dll's and *.exe's required for running xsltproc (windows only, should already be on mac)</li>
+</ul><p>Resources that are copied</p>
+
+<ul>
+<li>*.xsl files used in DXL Metadata filter</li>
+</ul><h3>
+<a name="windows--git-bash--git-gui" class="anchor" href="#windows--git-bash--git-gui"><span class="octicon octicon-link"></span></a>Windows + Git Bash / Git Gui</h3>
+
+<p>Open Git Bash, Navigate to the unzipped dora release (or the cloned camac/dora.git repository) and run <code>./Install.pl</code>
+Follow the prompts</p>
+
+<h3>
+<a name="windows-using-sourcetree" class="anchor" href="#windows-using-sourcetree"><span class="octicon octicon-link"></span></a>Windows using SourceTree</h3>
+
+<p>When using Sourcetree, these instructions assume you have enabled the setting:</p>
+
+<p>Tools -&gt; Options -&gt; Git -&gt; 'Use Git Bash as Terminal'</p>
+
+<p>Open the terminal using the Terminal Icon in the SourceTree 'ribbon' menu. You will need to have a repository open (any will do) to access the terminal.
+Once in the terminal, navigate to wherever you unzipped the release of Dora.</p>
+
+<p>Then issued the command <code>./Install.pl</code></p>
+
+<h3>
+<a name="mac" class="anchor" href="#mac"><span class="octicon octicon-link"></span></a>Mac</h3>
+
+<p>Open a terminal, navigate to the directory that you unzipped the Dora release to, and run <code>./Install.pl</code>
+Follow the prompts
+libxslt should already installed on a Mac, so installing these binaries is not required. 
+The Installation script should detect that you are using Mac, and skip that step for you.
+If you find that the Install.pl script does not detect the mac properly, then run the install script with the option <em>--os-mac</em></p>
+
+<h2>
+<a name="requirements" class="anchor" href="#requirements"><span class="octicon octicon-link"></span></a>Requirements</h2>
+
+<p>I plan to detail this section a bit better after beta testing.</p>
+
+<p>This project has been tested using Windows 7 64-bit and Windows 8 64-bit, using Git for Windows and the Git Bash Terminal
+When you are given the choice of which command line method, I chose 'Use Git Bash Only'</p>
+
+<p>I was using Git Bash v 1.8.1.2-preview20130201 which includes Perl 5.8.8</p>
+
+<p>It also needs libxslt which is mentioned in other sections of this readme.</p>
+
+<h2>
+<a name="contributing" class="anchor" href="#contributing"><span class="octicon octicon-link"></span></a>Contributing</h2>
+
+<p>Contributions can be made in varying forms. You can give feedback, opinions, bug reports, feature requests or even make coding contributions by forking the project and then submitting pull requests.</p>
+
+<h3>
+<a name="evaluating-the-correctnesseffectiveness-of-dxlcleanxsl" class="anchor" href="#evaluating-the-correctnesseffectiveness-of-dxlcleanxsl"><span class="octicon octicon-link"></span></a>Evaluating the Correctness/Effectiveness of DXLClean.xsl</h3>
+
+<p>The DXLClean.xsl file is the <em>recipe</em> for choosing which elements and attributes we want to filter from the DXL.
+The version of DXLClean.xsl included in this repository is only a result of what I (Cameron Gregor) have been using so far, and not necessarily a proclamation of what is a good idea by many.</p>
+
+<p>One of the outcomes I am hoping to get from collaboration, is an agreed <em>safe version</em> of DXLClean.xsl that is considered safe to recommend to people. Riskier options for this filtering may then be provided in a separate optional xsl, or contained within the same *.xsl file, and activated by parameters.</p>
+
+<p>So, I would really appreciate feedback on the contents of DXLClean.xsl, and whether you think that it needs some modification. </p>
+
+<p>To help inform your decision, you can read through the Domino DTD (search from Designer Help for 'DTD') which theoretically documents the possible elements and attributes and whether or not they are optional (implied which is denoted by a Question Mark ?)</p>
+
+<p>Also if you have not done XPath or XSLT before or need a refresher, the tutorials at <a href="http://www.w3schools.com">www.w3schools.com</a> were helpful to me, and may be of use to you too.</p>
+
+<h3>
+<a name="reporting-bugs" class="anchor" href="#reporting-bugs"><span class="octicon octicon-link"></span></a>Reporting Bugs</h3>
+
+<p>Please report bugs through <a href="http://www.openntf.org/internal/home.nsf/project.xsp?action=openDocument&amp;name=Dora">Dora's OpenNTF project page</a> 'Defects' page.
+As usual, the more info the better.</p>
+
+<h3>
+<a name="feature-requests" class="anchor" href="#feature-requests"><span class="octicon octicon-link"></span></a>Feature Requests</h3>
+
+<p>Feature requests can be made through <a href="http://www.openntf.org/internal/home.nsf/project.xsp?action=openDocument&amp;name=Dora">Dora's OpenNTF project page</a> 'Feature Requests' page.Please feel free to fork this project and have a go at any new features yourself! </p>
+
+<h2>
+<a name="testing" class="anchor" href="#testing"><span class="octicon octicon-link"></span></a>Testing</h2>
+
+<h3>
+<a name="testing-an-xsl-transformation-stylesheet" class="anchor" href="#testing-an-xsl-transformation-stylesheet"><span class="octicon octicon-link"></span></a>Testing an XSL Transformation Stylesheet</h3>
+
+<p>To test an XSL Transformation Stylesheet, you will 2 files, the source xml file that you want to manipulate, and the xsl file that contains the instructions for the transformation.
+You then use the xsltproc program from a terminal as follows:</p>
+
+<pre><code>xsltproc.exe *xslfile* *sourcexmlfile*
+</code></pre>
+
+<p>This will output the resulting xml to the terminal.</p>
+
+<p>If you would like to capture the output in a file instead, you can use the <em>-o</em> option like so</p>
+
+<pre><code>xsltproc.exe -o *outputfile* *xslfile* *sourcexmlfile*
+</code></pre>
+
+<p>For a full list of parameters for xsltproc.exe just run xsltproc.exe with no parameters.</p>
+
+<h2>
+<a name="licence" class="anchor" href="#licence"><span class="octicon octicon-link"></span></a>Licence</h2>
+
+<p>See LICENCE file</p>
+
+<p>This project contains a set of git filters and scripts which assist when collaborating on a Domino Project.</p>
+
+<p>The set up information describes how to install and use them when using Git Bash which is the linux-like command prompt tool for using git under windows.</p>
+
+<h2>
+<a name="manual-installation" class="anchor" href="#manual-installation"><span class="octicon octicon-link"></span></a>Manual Installation</h2>
+
+<h3>
+<a name="manual-installation-of-dora" class="anchor" href="#manual-installation-of-dora"><span class="octicon octicon-link"></span></a>Manual Installation of Dora</h3>
+
+<p>If the <em>Install.pl</em> script fails for any reason (please report bugs!) you can still install Dora manually </p>
+
+<ol>
+<li> Create 2 directories in your home directory
+
+<ul>
+<li>~/bin</li>
+<li>~/dora</li>
+</ul>
+</li>
+<li> Copy the dora.pl file to ~/bin/dora (rename with no .pl extension)</li>
+<li> (For windows only) Copy the libxslt binaries (*.dll's and *.exe's) from within the /bin directories under libxslt/ to ~/bin</li>
+<li> Copy the XSL Files from xsl/ to ~/dora</li>
+</ol><h3>
+<a name="installing-libxslt-from-original-project" class="anchor" href="#installing-libxslt-from-original-project"><span class="octicon octicon-link"></span></a>Installing libxslt from Original project</h3>
+
+<p>To run the DXL Metadata filters you need to have libxslt installed. If you are on a mac, libxslt should already be installed. If you are running windows, Dora will install these necessary files for you, however if you would like to install it manually yourself, follow these steps.</p>
+
+<p><a href="http://xmlsoft.org/XSLT/">libxslt</a> is the XSLT C library developed for the GNOME project. If you go to the downloads section of the project page, you can find a link to the Windows versions, which are currently maintained by Igor Zlatkovic.</p>
+
+<ol>
+<li> Download the necessary files from Igor's download area. If you read the <a href="http://www.zlatkovic.com/libxml.en.html">documentation</a>
+it will tell you that to use libxslt you need to download the following packages:
+
+<ul>
+<li>iconv</li>
+<li>libxml2</li>
+<li>libxslt</li>
+<li>zlib</li>
+</ul>
+</li>
+<li> Extract the contents of the downloaded files</li>
+<li> Make a directory called <em>bin</em> in your HOME directory
+e,g. C:\Users\Cameron*bin*</li>
+<li> Copy the contents of each of the download's <em>bin</em> directories to your HOME\bin directory 
+For example, at the time of writing this, the contents I needed to copy were:
+
+<ul>
+<li>iconv.dll</li>
+<li>iconv.exe</li>
+<li>libexslt.dll</li>
+<li>libxml2.dll</li>
+<li>libxslt.dll</li>
+<li>minigzip.exe</li>
+<li>xmlcatalog.exe</li>
+<li>xmllint.exe</li>
+<li>xsltproc.exe</li>
+<li>zlib1.dll</li>
+</ul>
+</li>
+</ol><p></p>
+
+<h3>
+<a name="manually-configuring-the-dxl-metadata-filters" class="anchor" href="#manually-configuring-the-dxl-metadata-filters"><span class="octicon octicon-link"></span></a>Manually Configuring the DXL Metadata Filters</h3>
+
+<h4>
+<a name="installing-filters" class="anchor" href="#installing-filters"><span class="octicon octicon-link"></span></a>Installing Filters</h4>
+
+<p>If you cannot configure the filters for a repository due to any problems when running the Dora Helper script (please report bugs!), you can still manually configure your repository to run the DXL Metadata Filters.</p>
+
+<ol>
+<li> (windows only) Make sure libxslt binaries are installed to a directory that is on your PATH environment variable
+See the section below on manually installed libxslt binaries.</li>
+<li>
+<p>Install the DXL Metadata filter to the git config file
+You can do this either by issuing git config commands or by editing the .git/config file in your repository.
+To do this using git config commands run the following:</p>
+
+<pre><code>git config --local filter.dxlmetadata.clean    xsltproc xsl\DXLClean.xsl -
+git config --local filter.dxlmetadata.smudge   xsltproc xsl\DXLSmudge.xsl - 
+git config --local filter.dxlmetadata.required true
+</code></pre>
+
+<p>or to do this via editing the .git/config file, make sure it has this section</p>
+
+<pre><code>[filter "dxlmetadata"]
+  clean = xsltproc xsl/DXLClean.xsl -
+  smudge = xsltproc xsl/DXLSmudge.xsl -
+  required = true
+</code></pre>
+</li>
+<li><p>Create a directory called <em>xsl</em> within your repository for your XSL Stylesheets</p></li>
+<li> Copy the XSL Transform Stylesheets DXLClean.xsl and DXLSmudge.xsl to the newly created xsl directory</li>
+<li> Add the entry <em>xsl/</em> to your .gitignore file</li>
+<li> Configure the .gitattributes file to select which files to filter
+If you don't have one, Create a <em>.gitattributes</em> file in the root of your repository
+add the following entry for each file extension you want to filter
+    *. filter=dxlmetadata text eol=lf
+Here is some entries you can use as a starting point
+    *.aa filter=dxlmetadata text eol=lf<br>
+    *.column filter=dxlmetadata text eol=lf<br>
+    *.dcr filter=dxlmetadata text eol=lf<br>
+    *.fa filter=dxlmetadata text eol=lf<br>
+    *.field filter=dxlmetadata text eol=lf<br>
+    *.folder filter=dxlmetadata text eol=lf<br>
+    *.form filter=dxlmetadata text eol=lf<br>
+    *.frameset filter=dxlmetadata text eol=lf<br>
+    *.ija filter=dxlmetadata text eol=lf<br>
+    *.ja filter=dxlmetadata text eol=lf<br>
+    *.javalib filter=dxlmetadata text eol=lf<br>
+    *.lsa filter=dxlmetadata text eol=lf<br>
+    *.lsdb filter=dxlmetadata text eol=lf<br>
+    *.metadata filter=dxlmetadata text eol=lf<br>
+    *.navigator filter=dxlmetadata text eol=lf<br>
+    *.outline filter=dxlmetadata text eol=lf<br>
+    *.page filter=dxlmetadata text eol=lf<br>
+    *.subform filter=dxlmetadata text eol=lf<br>
+    *.view filter=dxlmetadata text eol=lf<br>
+    AboutDocument filter=dxlmetadata text eol=lf<br>
+    database.properties filter=dxlmetadata text eol=lf<br>
+    IconNote filter=dxlmetadata text eol=lf<br>
+    Shared?Actions filter=dxlmetadata text eol=lf<br>
+    UsingDocument filter=dxlmetadata text eol=lf<br>
+</li>
+</ol><h4>
+<a name="manually-uninstalling-filters" class="anchor" href="#manually-uninstalling-filters"><span class="octicon octicon-link"></span></a>Manually Uninstalling Filters</h4>
+
+<ol>
+<li>
+<p>Remove the filter from the config file 
+You can do this either by issuing <code>git config</code> commands or by editing the .git/config file in your repository
+To do this using git config commands run the following</p>
+
+<pre><code>git config --local --remove-section filter.dxlmetadata
+</code></pre>
+
+<p>or to do this via editing the .git/config file, remove the following section manually and save</p>
+
+<pre><code>[filter "dxlmetadata"]
+  clean = xsltproc xsl/DXLClean.xsl -
+  smudge = xsltproc xsl/DXLSmudge.xsl -
+  required = true
+</code></pre>
+</li>
+<li><p>Remove the directory xsl/ and all the *.xsl files</p></li>
+<li> Remove the xsl/ entry from your .gitignore </li>
+<li> Remove the entries that mention <code>filter=dxlmetadata</code> from your .gitattributes file, or just delete this file if you were not using it for any other purpose</li>
+</ol><h2>
+<a name="ideas-for-future" class="anchor" href="#ideas-for-future"><span class="octicon octicon-link"></span></a>Ideas for future</h2>
+
+<ul>
+<li>Tell Domino Designer team to give us the option to filter this stuff for us so we don't have to :)</li>
+<li>Update EGit to replicate Filter functionality </li>
+<li>Somebody with Java and Domino Designer Extension plugin experience could investigate if you can extend NsfToPhysical and filter at this point?</li>
+<li>re-write Dora as a Domino Designer Plugin instead of a Perl Script, with Eclipse based User Interface</li>
+<li>Helper functionality to do bulk updates on design elements, e.g. Make sure all view Column Headers are certain font.</li>
+<li>Install xsl files as tagged blobs in the git repo, instead of committed to a branch</li>
+<li>Better identification of which version of filter was used on a file</li>
+<li>Ability to choose where to install binaries and dora resources</li>
+</ul><h2>
+<a name="known-issues" class="anchor" href="#known-issues"><span class="octicon octicon-link"></span></a>Known Issues</h2>
+
+<ul>
+<li>  DXL Metadata filter throws an error if the source is not well formed xml. This happens during a merge conflict.</li>
+<li>  DXL Metadata filter throws an error if file is empty then will fail. The following design elements:
+
+<ul>
+<li>AppProperties/database.properties</li>
+<li>Code/dbscript.lsdb</li>
+<li>Resources/AboutDocument</li>
+<li>Resources/UsingDocument<br>
+Are all blank when you create a new nsf and the filter will fail until you save them in designer for the first time since setting up source control.</li>
+</ul>
+</li>
+</ul><h3>
+<a name="about-line-endings" class="anchor" href="#about-line-endings"><span class="octicon octicon-link"></span></a>About Line Endings</h3>
+
+<p>You probably know that there is a difference in the way Mac Linux and Windows save line endings in files. </p>
+
+<ul>
+<li>Mac and Linux/Unix use the line-feed character, LF or <code>\n</code>
+</li>
+<li>Windows uses carriage-return and line-feed, CRLF or <code>\r\n</code>
+</li>
+</ul><p>You may not know however, that even if you are using Domino Designer on Windows, it actually saves the On-Disk Project files with LF line endings.</p>
+
+<p>Git has a setting called core.autocrlf which when set to true (often this is the default), will convert CRLF to LF on the way into the repository, 
+and then when you check out a LF file, it will convert it back to CRLF if you are on windows. 
+So, if it does this for a Design Element you can end up with CRLF line-endings when you check out even though it originally had LF.</p>
+
+<p>When using the DXL Metadata filters on Windows, the design element is processed through the program <code>xsltproc</code>. The output of this program is 
+given CRLF endings due to the fact that <code>xsltproc</code> actually is running as a windows program. 
+You can see in the .gitattributes file that I have put a setting <code>text eol=lf</code> which tells git to convert this back to LF when commiting, 
+and this also tells git to keep it as LF when it checks the file out again.</p>
+
+<p>A side-effect of CRLF conversion is an annoying warning that pops up for every file that is converted:</p>
+
+<pre><code>warning: CRLF will be replaced by LF in &lt;filename&gt;.
+The file will have its orignal line endings in your working directory.
+</code></pre>
+
+<p>If you don't want to see this warning everytime, you can set core.safecrlf to false like so:</p>
+
+<pre><code>git config core.safecrlf false
+</code></pre>
+
+<p>and it will no longer warn you about CRLF conversions.</p>
+
+<h3>
+<a name="dxl-notes" class="anchor" href="#dxl-notes"><span class="octicon octicon-link"></span></a>DXL Notes</h3>
+
+<ul>
+<li>Actionbar on a view had no <em>bordercolor</em> attribute but after re-import was given bordercolor="system"</li>
+<li>Frameset frame also got bordercolor attribute (i think) </li>
+<li>Forms don't like it when Background element is indented (dxl.parse error text node), thus the need to 'deflate' on checkout</li>
+<li>Forms without action bar get a default set of system actions, maybe for views too?</li>
+</ul>
+      </section>
+    </div>
+    <footer>
+      <p>Project maintained by <a href="https://github.com/camac">camac</a></p>
+      <p>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></p>
+    </footer>
+    <!--[if !IE]><script>fixScale(document);</script><![endif]-->
+    
+  </body>
+</html>
