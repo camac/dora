@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+
+   <extension
+         id="doraBuilder"
+         name="Dora Metadata Filter Builder"
+         point="org.eclipse.core.resources.builders">
+      <builder
+            hasNature="true">
+         <run
+               class="com.gregorbyte.designer.dora.builder.DoraBuilder">
+         </run>
+      </builder>
+   </extension>
+   <extension
+         id="doraNature"
+         name="Dora Metadata Filter Nature"
+         point="org.eclipse.core.resources.natures">
+      <runtime>
+         <run
+               class="com.gregorbyte.designer.dora.builder.DoraNature">
+         </run>
+      </runtime>
+      <builder
+            id="com.gregorbyte.designer.dora.doraBuilder">
+      </builder>
+   </extension>
+   
+      
+   
+   <extension point="org.eclipse.ui.popupMenus">
+		<objectContribution
+			adaptable="true"
+			objectClass="org.eclipse.core.resources.IProject"
+			nameFilter="*"
+			id="com.gregorbyte.designer.dora.builder.contribution1">
+			<action
+				label="Add/Remove Dora Nature"
+				class="com.gregorbyte.designer.dora.builder.ToggleNatureAction"
+				menubarPath="additions"
+				enablesFor="+"
+				id="com.gregorbyte.designer.dora.builder.addRemoveNatureAction"/>
+		</objectContribution>
+	</extension>
+   
+
+   
+   
+   
+   
+   <extension
+         id="xmlProblem"
+         name="XML Problem"
+         point="org.eclipse.core.resources.markers">
+      <super
+            type="org.eclipse.core.resources.problemmarker">
+      </super>
+      <persistent
+            value="true">
+      </persistent>
+   </extension>
+   <extension
+         point="org.eclipse.core.runtime.preferences">
+      <initializer
+            class="com.gregorbyte.designer.dora.pref.DoraPreferenceInitializer">
+      </initializer>
+   </extension>
+   <extension
+         point="org.eclipse.ui.preferencePages">
+      <page
+            class="com.gregorbyte.designer.dora.pref.DoraMainPreferencePage"
+            id="com.gregorbyte.designer.dora.prefpage"
+            name="Dora Preferences">
+      </page>
+      <page
+            category="com.gregorbyte.designer.dora.prefpage"
+            class="com.gregorbyte.designer.dora.pref.DoraDesignElementPreferencePage"
+            id="com.gregorbyte.designer.dora.designelementpage"
+            name="Dora Design Element Preferences">
+      </page>
+   </extension>
+   <extension
+         point="org.eclipse.ui.propertyPages">
+      <page
+            class="com.gregorbyte.designer.dora.pref.DoraDesignElementPreferencePage"
+            id="com.gregorbyte.designer.dora.propertypage"
+            name="Dora">
+         <enabledWhen>
+            <and>
+               <instanceof
+                     value="org.eclipse.core.resources.IProject">
+               </instanceof>
+               <adapt
+                     type="org.eclipse.core.resources.IResource">
+                  <test
+                        property="org.eclipse.core.resources.projectNature"
+                        value="com.gregorbyte.designer.dora.doraNature">
+                  </test>
+               </adapt>
+            </and>
+         </enabledWhen>
+      </page>
+   </extension>
+
+</plugin>

@@ -15,3 +15,5 @@ $RECYCLE.BIN/
 .DS_Store
 
 test/result/*
+*.class
+com.gregorbyte.designer.dora/bin/

@@ -1,0 +1,25 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Gregorbyte Dora
+Bundle-SymbolicName: com.gregorbyte.designer.dora;singleton:=true
+Bundle-Version: 1.0.0.qualifier
+Bundle-Activator: com.gregorbyte.designer.dora.Activator
+Bundle-Vendor: Gregorbyte
+Require-Bundle: org.eclipse.ui,
+ org.eclipse.core.runtime,
+ org.eclipse.core.resources,
+ org.eclipse.ui.ide,
+ com.ibm.designer.domino.team,
+ com.ibm.designer.domino.ide.resources,
+ com.ibm.designer.prj.resources,
+ org.eclipse.jface,
+ com.ibm.designer.domino.preferences,
+ com.ibm.commons.swt,
+ org.eclipse.swt,
+ com.ibm.commons.iloader,
+ com.ibm.commons.swt.data
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-ActivationPolicy: lazy
+Export-Package: com.gregorbyte.designer.dora,
+ com.gregorbyte.designer.dora.builder
+Import-Package: com.ibm.commons.util
