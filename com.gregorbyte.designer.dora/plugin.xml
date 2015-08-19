@@ -3,13 +3,35 @@
 <plugin>
 
    <extension
-         id="doraBuilder"
+         id="DoraNsfToPhysicalBuilder"
          name="Dora Metadata Filter Builder"
          point="org.eclipse.core.resources.builders">
       <builder
             hasNature="true">
          <run
-               class="com.gregorbyte.designer.dora.builder.DoraBuilder">
+               class="com.gregorbyte.designer.dora.builder.DoraPostNsfToPhysicalBuilder">
+         </run>
+      </builder>
+   </extension>
+   <extension
+         id="DoraPreNsfToPhysicalBuilder"
+         name="Dora Pre Metadata Filter Builder"
+         point="org.eclipse.core.resources.builders">
+      <builder
+            hasNature="true">
+         <run
+               class="com.gregorbyte.designer.dora.builder.DoraPreNsfToPhysicalBuilder">
+         </run>
+      </builder>
+   </extension>
+   <extension
+         id="DoraPhysicalToNsfBuilder"
+         name="Dora Physical To NSF Builder"
+         point="org.eclipse.core.resources.builders">
+      <builder
+            hasNature="false">
+         <run
+               class="com.gregorbyte.designer.dora.builder.DoraPhysicalToNsfBuilder">
          </run>
       </builder>
    </extension>
@@ -23,7 +45,10 @@
          </run>
       </runtime>
       <builder
-            id="com.gregorbyte.designer.dora.doraBuilder">
+            id="com.gregorbyte.designer.dora.DoraPostNsfToPhysicalBuilder">
+      </builder>
+      <builder
+            id="com.gregorbyte.designer.dora.DoraPreNsfToPhysicalBuilder">
       </builder>
    </extension>
    

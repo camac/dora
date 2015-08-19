@@ -301,7 +301,10 @@ public class DoraDesignElementPreferencePage extends DoraPropertyPage {
 		things.add(IMetaModelConstants.PAGES);
 		things.add(IMetaModelConstants.SUBFORMS);
 		things.add(IMetaModelConstants.VIEWS);
+		things.add(IMetaModelConstants.FORMS);
 
+		things.add(IMetaModelConstants.SCRIPTLIB);
+		
 		things.add(IMetaModelConstants.ABOUTDOC);
 		things.add(IMetaModelConstants.DBPROPS);
 		things.add(IMetaModelConstants.ICONNOTE);

@@ -31,11 +31,13 @@ import org.eclipse.core.runtime.MultiStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.swt.widgets.Display;
 
-import com.gregorbyte.designer.dora.builder.DoraBuilder;
+import com.gregorbyte.designer.dora.builder.DoraPostNsfToPhysicalBuilder;
 import com.ibm.commons.swt.dialog.LWPDMessageDialog;
 import com.ibm.commons.swt.util.EclipseUtils;
 import com.ibm.commons.util.StringUtil;
+import com.ibm.designer.domino.ide.resources.DominoResourcesPlugin;
 import com.ibm.designer.domino.ide.resources.ResourceHandler;
+import com.ibm.designer.domino.ide.resources.jni.NotesDesignElement;
 import com.ibm.designer.domino.ide.resources.jni.NotesParentAction;
 import com.ibm.designer.domino.ide.resources.project.IDominoDesignerProject;
 import com.ibm.designer.domino.team.action.AbstractTeamHandler;
@@ -170,30 +172,34 @@ public class FilterMetadataAction extends AbstractTeamHandler {
 		System.out.println("I would perform filter 1 on " + designerFile.getName());
 		
 		if (!diskFile.exists()) return;
-
-		if (diskFile.exists()) return;
 		
-		System.out.println("Start");
 		debugPrint(designerFile, diskFile);
-	
-		//if (diskFile.exists()) return;
-	
+		
 		IFile metadataFile = null;
+		
+		NotesDesignElement designElement = DominoResourcesPlugin.getNotesDesignElement(designerFile);
 		
 		System.out.println(diskFile.getFileExtension());
 		
-		if (StringUtil.equalsIgnoreCase(diskFile.getFileExtension(),"xsp")) {
+		if (SyncUtil.hasMetadataFile(designElement)) {
 			
-			metadataFile = diskFile.getProject().getFile(diskFile.getProjectRelativePath() + ".metadata");
+			System.out.println("We are looking at " + designElement.getName());
+			System.out.println("It needs metadata on export");
+			
+			IPath localPath = designerFile.getProjectRelativePath().addFileExtension("metadata");
+			metadataFile = diskFile.getProject().getFile(localPath);
+			
+			//metadataFile = diskFile.getProject().getFile(diskFile.getProjectRelativePath().addFileExtension("metadata"));
 			
 			if (!metadataFile.exists()) {
 				metadataFile = null;
-			}
+			}			
 			
+		} else {
+			metadataFile = diskFile;
 		}
 		
 		TransformerFactory factory = TransformerFactory.newInstance();
-		
 
 		try {
 			
@@ -201,7 +207,6 @@ public class FilterMetadataAction extends AbstractTeamHandler {
 			Source xslt = new StreamSource(doraXsl);		
 			Transformer transformer = factory.newTransformer(xslt);
 			
-			filter(diskFile, transformer,monitor);
 			if (metadataFile != null) {
 				filter(metadataFile, transformer,monitor);
 			}
@@ -213,23 +218,23 @@ public class FilterMetadataAction extends AbstractTeamHandler {
 			//SyncUtil.setSyncTimestamp(diskFile, time);
 			//SyncUtil.setSyncTimestamp(designerFile, time);
 			
-			DoraBuilder.addMarker2(designerFile, "Hola", -1, IMarker.SEVERITY_INFO);
+			DoraPostNsfToPhysicalBuilder.addMarker2(designerFile, "Hola", -1, IMarker.SEVERITY_INFO);
 			
 		} catch (TransformerConfigurationException e) {
 
 			String message = e.getMessage();
-			DoraBuilder.addMarker2(designerFile,"Dora Error " + message, -1, IMarker.SEVERITY_INFO);
+			DoraPostNsfToPhysicalBuilder.addMarker2(designerFile,"Dora Error " + message, -1, IMarker.SEVERITY_INFO);
 
 		} catch (TransformerException e) {
 			String message = e.getMessage();
-			DoraBuilder.addMarker2(designerFile,"Dora Error " + message, -1, IMarker.SEVERITY_INFO);
+			DoraPostNsfToPhysicalBuilder.addMarker2(designerFile,"Dora Error " + message, -1, IMarker.SEVERITY_INFO);
 
 		} catch (CoreException e) {
 			String message = e.getMessage();
-			DoraBuilder.addMarker2(designerFile,"Dora Error " + message, -1, IMarker.SEVERITY_INFO);
+			DoraPostNsfToPhysicalBuilder.addMarker2(designerFile,"Dora Error " + message, -1, IMarker.SEVERITY_INFO);
 		} catch (IOException e) {
 			String message = e.getMessage();
-			DoraBuilder.addMarker2(designerFile,"Dora Error " + message, -1, IMarker.SEVERITY_INFO);
+			DoraPostNsfToPhysicalBuilder.addMarker2(designerFile,"Dora Error " + message, -1, IMarker.SEVERITY_INFO);
 		} finally {
 			
 		}
