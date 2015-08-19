@@ -1,8 +1,12 @@
 package com.gregorbyte.designer.dora;
 
+import java.util.logging.Level;
+
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
+
+import com.ibm.designer.domino.team.util.SyncUtil;
 
 /**
  * The activator class controls the plug-in life cycle
@@ -30,6 +34,8 @@ public class Activator extends AbstractUIPlugin {
 		plugin = this;
 		
 		System.out.println("Dora Activated");
+		
+		SyncUtil.SYNC_LOG.getLogger().setLevel(Level.FINEST);
 		
 	}
 
