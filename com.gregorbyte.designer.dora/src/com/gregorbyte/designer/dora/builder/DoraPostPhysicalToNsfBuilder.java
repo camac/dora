@@ -17,16 +17,16 @@ import com.ibm.designer.domino.ide.resources.jni.IResourceUpdateListener;
 import com.ibm.designer.domino.ide.resources.project.IDominoDesignerProject;
 import com.ibm.designer.domino.team.util.SyncUtil;
 
-public class DoraPhysicalToNsfBuilder extends IncrementalProjectBuilder {
+public class DoraPostPhysicalToNsfBuilder extends IncrementalProjectBuilder {
 
-	public static final String BUILDER_ID = "com.gregorbyte.designer.dora.DoraPhysicalToNsfBuilder";
+	public static final String BUILDER_ID = "com.gregorbyte.designer.dora.DoraPostPhysicalToNsfBuilder";
 	IDominoDesignerProject designerProject = null;
 	IProject diskProject = null;
 
-	public DoraPhysicalToNsfBuilder() {
+	public DoraPostPhysicalToNsfBuilder() {
 	};
 
-	public DoraPhysicalToNsfBuilder(IProject project) {
+	public DoraPostPhysicalToNsfBuilder(IProject project) {
 		this.diskProject = project;
 		initialize();
 	}
@@ -54,7 +54,7 @@ public class DoraPhysicalToNsfBuilder extends IncrementalProjectBuilder {
 	protected IProject[] build(int arg0, Map arg1, IProgressMonitor arg2)
 			throws CoreException {
 
-		System.out.println("Ready to Build man");
+		System.out.println("Dora: PostPhysicalToNsfBuilder");
 
 		initialize();
 		if (this.designerProject == null) {
@@ -128,7 +128,7 @@ public class DoraPhysicalToNsfBuilder extends IncrementalProjectBuilder {
 								
 								System.out.println("this is where we would update CHANGED");
 
-								IProject nsfProject = DoraPhysicalToNsfBuilder.this.designerProject.getProject();
+								IProject nsfProject = DoraPostPhysicalToNsfBuilder.this.designerProject.getProject();
 								
 								IFile nsfFile = SyncUtil.getMatchingNsfFile(nsfProject, localIFile);								
 								DoraUtil.setSyncTimestamp(nsfFile);

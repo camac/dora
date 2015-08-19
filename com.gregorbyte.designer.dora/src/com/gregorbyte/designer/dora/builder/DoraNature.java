@@ -11,6 +11,7 @@ import com.ibm.designer.domino.ide.resources.NsfException;
 import com.ibm.designer.domino.ide.resources.project.DominoDesignerProject;
 import com.ibm.designer.domino.ide.resources.project.IDominoDesignerProject;
 import com.ibm.designer.domino.team.builder.NsfToPhysicalSynBuilder;
+import com.ibm.designer.domino.team.builder.PhysicalToNsfSynBuilder;
 import com.ibm.designer.domino.team.util.SyncUtil;
 
 public class DoraNature implements IProjectNature {
@@ -34,14 +35,20 @@ public class DoraNature implements IProjectNature {
 
 		addBuilderToProject(project, DoraPreNsfToPhysicalBuilder.BUILDER_ID, NsfToPhysicalSynBuilder.SYNC_BUILDER, true);
 		addBuilderToProject(project, DoraPostNsfToPhysicalBuilder.BUILDER_ID, NsfToPhysicalSynBuilder.SYNC_BUILDER, false);
+	
+		addBuilderToProject(getDiskProject(), DoraPrePhysicalToNsfBuilder.BUILDER_ID, PhysicalToNsfSynBuilder.SYNC_BUILDER, true);
+		addBuilderToProject(getDiskProject(), DoraPostPhysicalToNsfBuilder.BUILDER_ID, PhysicalToNsfSynBuilder.SYNC_BUILDER, false);
 		
 	}
 
 	public void deconfigure() throws CoreException {
 		removeBuilderFromProject(project, DoraPostNsfToPhysicalBuilder.BUILDER_ID);
 		removeBuilderFromProject(project, DoraPreNsfToPhysicalBuilder.BUILDER_ID);
+
 		removeBuilderFromProject(getDiskProject(),
-				DoraPhysicalToNsfBuilder.BUILDER_ID);
+				DoraPrePhysicalToNsfBuilder.BUILDER_ID);
+		removeBuilderFromProject(getDiskProject(),
+				DoraPostPhysicalToNsfBuilder.BUILDER_ID);
 	}
 
 	private void dumpCommandsToConsole(ICommand[] commands) {
