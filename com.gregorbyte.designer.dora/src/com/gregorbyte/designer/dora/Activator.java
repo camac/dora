@@ -6,6 +6,7 @@ import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
+import com.gregorbyte.designer.dora.util.DoraUtil;
 import com.ibm.designer.domino.team.util.SyncUtil;
 
 /**
@@ -36,7 +37,7 @@ public class Activator extends AbstractUIPlugin {
 		System.out.println("Dora Activated");
 		
 		SyncUtil.SYNC_LOG.getLogger().setLevel(Level.FINEST);
-		
+		DoraUtil.DORA_LOG.getLogger().setLevel(Level.INFO);
 	}
 
 	/*

@@ -6,6 +6,7 @@ import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.resources.IProjectNature;
 import org.eclipse.core.runtime.CoreException;
 
+import com.gregorbyte.designer.dora.util.DoraUtil;
 import com.ibm.designer.domino.ide.resources.DominoResourcesPlugin;
 import com.ibm.designer.domino.ide.resources.NsfException;
 import com.ibm.designer.domino.ide.resources.project.DominoDesignerProject;
@@ -49,20 +50,6 @@ public class DoraNature implements IProjectNature {
 				DoraPrePhysicalToNsfBuilder.BUILDER_ID);
 		removeBuilderFromProject(getDiskProject(),
 				DoraPostPhysicalToNsfBuilder.BUILDER_ID);
-	}
-
-	private void dumpCommandsToConsole(ICommand[] commands) {
-		
-		System.out.println("---");
-		
-		for (int i = 0; i < commands.length; ++i) {
-			
-			System.out.println(i + ": " + commands[i].getBuilderName());
-			
-		}
-
-		System.out.println("---");
-
 	}
 	
 	private void addBuilderToProject(IProject project, String builderId)
@@ -108,11 +95,9 @@ public class DoraNature implements IProjectNature {
 		}
 
 		if (refBuilderPos == null) {
-			System.out.println("Could not find reference builder");
+			DoraUtil.logInfo("Could not find the reference builder " + refBuilderId );
 			return;
 		}
-
-		dumpCommandsToConsole(commands);
 		
 		int commandsLength = commands.length;
 		ICommand[] newCommands = new ICommand[commandsLength + 1];
@@ -142,7 +127,6 @@ public class DoraNature implements IProjectNature {
 		desc.setBuildSpec(newCommands);
 		project.setDescription(desc, null);
 
-		dumpCommandsToConsole(newCommands);
 
 		
 	}

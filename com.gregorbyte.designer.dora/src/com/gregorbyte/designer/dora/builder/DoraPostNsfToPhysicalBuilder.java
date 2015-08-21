@@ -28,6 +28,7 @@ import org.xml.sax.helpers.DefaultHandler;
 
 import com.gregorbyte.designer.dora.action.DoraAction;
 import com.gregorbyte.designer.dora.action.FilterMetadataAction;
+import com.gregorbyte.designer.dora.util.DoraUtil;
 import com.ibm.commons.util.StringUtil;
 import com.ibm.designer.domino.ide.resources.DominoResourcesPlugin;
 import com.ibm.designer.domino.ide.resources.NsfException;
@@ -99,16 +100,16 @@ public class DoraPostNsfToPhysicalBuilder extends IncrementalProjectBuilder
 
 					if (SyncUtil.isSharedAction(folder.getParent()
 							.getProjectRelativePath())) {
-						DoraPostNsfToPhysicalBuilder.this.updatePhysicalLocation(
-								folder, monitor);
+						DoraPostNsfToPhysicalBuilder.this
+								.updatePhysicalLocation(folder, monitor);
 						return false;
 					}
 				} else if (delta.getResource() instanceof IFile) {
 
 					IFile file = (IFile) delta.getResource();
 
-					DoraPostNsfToPhysicalBuilder.this.updatePhysicalLocation(file,
-							monitor);
+					DoraPostNsfToPhysicalBuilder.this.updatePhysicalLocation(
+							file, monitor);
 
 				}
 
@@ -129,42 +130,47 @@ public class DoraPostNsfToPhysicalBuilder extends IncrementalProjectBuilder
 
 					if (SyncUtil.isSharedAction(folder.getParent()
 							.getProjectRelativePath())) {
-						DoraPostNsfToPhysicalBuilder.this.updatePhysicalLocation(
-								folder, monitor);
+						DoraPostNsfToPhysicalBuilder.this
+								.updatePhysicalLocation(folder, monitor);
 						return false;
 					}
 				} else if (delta.getResource() instanceof IFile) {
 
 					IFile file = (IFile) delta.getResource();
 
-					if (SyncUtil.isModifiedBySync(file)) {
-						System.out.println("was modified by sync -"
-								+ file.getName());
+					IFile diskFile = SyncUtil.getPhysicalFile(designerProject,
+							delta.getResource());
 
-						QualifiedName localQualifiedName = new QualifiedName(
-								"com.ibm.designer.domino.team", file
-										.getProjectRelativePath().toString());
-						String tstamp = file.getProject()
-								.getPersistentProperty(localQualifiedName);
-						System.out.println(tstamp);
+					if (diskFile != null && diskFile.exists()) {
 
-						long l = file.getLocalTimeStamp();
-						System.out.println(String.valueOf(l));
+						if (DoraUtil.isModifiedBySync(diskFile)) {
+							System.out.println(diskFile.getName()
+									+ " was modified by sync - Filter It");
 
-					} else {
-						System.out.println("not modified by sync -"
-								+ file.getName());
+							if (DoraUtil.shouldFilter(file)) {
+								DoraPostNsfToPhysicalBuilder.this
+										.updatePhysicalLocation(file, monitor);
+							} else {
+								System.out.println("Not Configured to filter "
+										+ file.getName());
+							}
+
+						} else {
+							System.out.println(diskFile.getName()
+									+ " untouched");
+						}
+
 					}
 
-					if (DoraUtil.shouldFilter(file)) {
-						System.out.println("Would have filtered "
-								+ file.getName());
-						DoraPostNsfToPhysicalBuilder.this.updatePhysicalLocation(
-								file, monitor);
-					} else {
-						System.out.println("Would Not have filtered "
-								+ file.getName());
-					}
+					// if (DoraUtil.shouldFilter(file)) {
+					// System.out.println("Would have filtered "
+					// + file.getName());
+					// DoraPostNsfToPhysicalBuilder.this.updatePhysicalLocation(
+					// file, monitor);
+					// } else {
+					// System.out.println("Would Not have filtered "
+					// + file.getName());
+					// }
 
 				}
 
@@ -183,8 +189,8 @@ public class DoraPostNsfToPhysicalBuilder extends IncrementalProjectBuilder
 				if ((localIResource instanceof IFolder)) {
 					if (SyncUtil.isSharedAction(localIResource.getParent()
 							.getProjectRelativePath())) {
-						DoraPostNsfToPhysicalBuilder.this.updatePhysicalLocation(
-								localIResource, monitor);
+						DoraPostNsfToPhysicalBuilder.this
+								.updatePhysicalLocation(localIResource, monitor);
 						return false;
 					}
 				} else if (localIResource.getType() == 1) {
@@ -289,9 +295,7 @@ public class DoraPostNsfToPhysicalBuilder extends IncrementalProjectBuilder
 			throws CoreException {
 
 		System.out.println("Dora: PostNsfToPhysicalBuilder");
-		return null;
-		
-		/*
+
 		try {
 			this.designerProject = DominoResourcesPlugin
 					.getDominoDesignerProject(getProject());
@@ -322,11 +326,6 @@ public class DoraPostNsfToPhysicalBuilder extends IncrementalProjectBuilder
 					return null;
 				}
 
-				SyncUtil.logToConsole("--GO DORA---");
-				SyncUtil.logToConsole("Starting MetaData filter");
-
-				System.out.println("Dora Building");
-
 				delta.accept(new FilterMetadataVisitor(monitor));
 
 				// this.syncAction.performPostImplicitSync(monitor);
@@ -339,18 +338,6 @@ public class DoraPostNsfToPhysicalBuilder extends IncrementalProjectBuilder
 		}
 
 		return null;
-*/
-		// if (kind == FULL_BUILD) {
-		// fullBuild(monitor);
-		// } else {
-		// IResourceDelta delta = getDelta(getProject());
-		// if (delta == null) {
-		// fullBuild(monitor);
-		// } else {
-		// incrementalBuild(delta, monitor);
-		// }
-		// }
-		// return null;
 
 	}
 
@@ -392,14 +379,6 @@ public class DoraPostNsfToPhysicalBuilder extends IncrementalProjectBuilder
 		IFile file = SyncUtil.getPhysicalFile(this.designerProject, resource);
 
 		if (resource instanceof IFile) {
-
-			if (DoraUtil.isModifiedBySync(resource)) {
-				System.out.println("Dora says: Modified by sync");
-			} else {
-				System.out.println("Dora says: Not Modified by sync");
-			}
-
-			System.out.println("timestamp is x");
 
 			this.doraAction.designerProject = this.designerProject;
 

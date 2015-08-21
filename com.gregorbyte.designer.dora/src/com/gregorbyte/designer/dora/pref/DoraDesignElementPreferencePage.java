@@ -22,8 +22,8 @@ import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.swt.widgets.Widget;
 
 import com.gregorbyte.designer.dora.ResourceHandler;
-import com.gregorbyte.designer.dora.builder.DoraUtil;
 import com.gregorbyte.designer.dora.property.DoraPropertyPage;
+import com.gregorbyte.designer.dora.util.DoraUtil;
 import com.ibm.commons.iloader.node.lookups.api.StringLookup;
 import com.ibm.commons.swt.SWTLayoutUtils;
 import com.ibm.commons.swt.controls.LookupComboBox;

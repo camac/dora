@@ -1,4 +1,4 @@
-package com.gregorbyte.designer.dora.builder;
+package com.gregorbyte.designer.dora.util;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -9,6 +9,8 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.QualifiedName;
 
 import com.gregorbyte.designer.dora.pref.DoraPreferenceManager;
+import com.ibm.commons.log.Log;
+import com.ibm.commons.log.LogMgr;
 import com.ibm.commons.util.StringUtil;
 import com.ibm.designer.domino.ide.resources.DominoResourcesPlugin;
 import com.ibm.designer.domino.ide.resources.jni.NotesDesignElement;
@@ -17,6 +19,9 @@ import com.ibm.designer.domino.team.util.SyncUtil;
 import com.ibm.designer.prj.resources.commons.IMetaModelDescriptor;
 
 public class DoraUtil {
+
+	public static LogMgr DORA_LOG = Log.load("com.gregorbyte.designer.dora",
+			"Logger used for Dora");
 
 	public static Set<String> getCanFilterIds() {
 
@@ -135,19 +140,19 @@ public class DoraUtil {
 				long l1 = paramIResource.getLocalTimeStamp();
 				String str = getPersistentSyncTimestamp(paramIResource);
 				if (StringUtil.equals(str, String.valueOf(l1))) {
-					return true;
+					return false;
 				}
-				if (StringUtil.isNotEmpty(str)) {
-					try {
-						long l2 = Long.parseLong(str);
-						long l3 = l2 - l1;
-						if ((l3 > 500L) && (l3 < 2000L)) {
-							return true;
-						}
-					} catch (NumberFormatException localNumberFormatException) {
-					}
-				}
-				return false;
+				// if (StringUtil.isNotEmpty(str)) {
+				// try {
+				// long l2 = Long.parseLong(str);
+				// long l3 = l2 - l1;
+				// if ((l3 > 500L) && (l3 < 2000L)) {
+				// return true;
+				// }
+				// } catch (NumberFormatException localNumberFormatException) {
+				// }
+				// }
+				return true;
 			} catch (CoreException localCoreException) {
 				localCoreException.printStackTrace();
 			}
@@ -181,6 +186,12 @@ public class DoraUtil {
 			localCoreException.printStackTrace();
 		}
 
+	}
+
+	public static void logInfo(String message) {
+		if (DORA_LOG.isInfoEnabled()) {
+			DORA_LOG.infop("DoraUtil", "", message, new Object[0]);
+		}
 	}
 
 }

@@ -32,6 +32,7 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.swt.widgets.Display;
 
 import com.gregorbyte.designer.dora.builder.DoraPostNsfToPhysicalBuilder;
+import com.gregorbyte.designer.dora.util.DoraUtil;
 import com.ibm.commons.swt.dialog.LWPDMessageDialog;
 import com.ibm.commons.swt.util.EclipseUtils;
 import com.ibm.commons.util.StringUtil;
@@ -101,45 +102,6 @@ public class FilterMetadataAction extends AbstractTeamHandler {
 		}
 
 	}
-
-	private void debugPrint(IFile designerFile, IFile diskFile) {
-
-		if (designerFile != null) {
-			System.out.println("Designer File: " + designerFile.getName());
-			System.out.println("Designer File Mod Stamp: " + designerFile.getModificationStamp());
-		}
-		if (diskFile != null) {
-			System.out.println("Disk File:  " + diskFile.getName());			
-			System.out.println("Disk File Mod Stamp: " + diskFile.getModificationStamp());
-			
-		}
-
-		if (SyncUtil.isModifiedBySync(designerFile)) {
-			System.out.println("Designer file Modified By Sync");
-		} else {
-			System.out.println("Designer file Not Modified By Sync");
-		}
-
-		if (SyncUtil.isUsedForSync(designerFile)) {
-			System.out.println("Designer file Used For Sync");
-		} else {
-			System.out.println("Designer file Not Used For Sync");
-		}
-
-		if (SyncUtil.isModifiedBySync(diskFile)) {
-			System.out.println("Disk file Modified By Sync");
-		} else {
-			System.out.println("Disk file Not Modified By Sync");
-		}
-
-		if (SyncUtil.isUsedForSync(diskFile)) {
-			System.out.println("Disk file Used For Sync");
-		} else {
-			System.out.println("Disk file Not Used For Sync");
-		}
-
-		
-	}
 	
 	private void filter(IFile diskFile, Transformer transformer, IProgressMonitor monitor) throws TransformerException, CoreException, IOException {
 		
@@ -169,28 +131,21 @@ public class FilterMetadataAction extends AbstractTeamHandler {
 	public void performFilter(IFile designerFile, IFile diskFile,
 			IProgressMonitor monitor) {
 
-		System.out.println("I would perform filter 1 on " + designerFile.getName());
+		DoraUtil.logInfo("Filter" + designerFile.getName());
 		
 		if (!diskFile.exists()) return;
-		
-		debugPrint(designerFile, diskFile);
-		
+				
 		IFile metadataFile = null;
 		
 		NotesDesignElement designElement = DominoResourcesPlugin.getNotesDesignElement(designerFile);
-		
-		System.out.println(diskFile.getFileExtension());
-		
+				
 		if (SyncUtil.hasMetadataFile(designElement)) {
-			
-			System.out.println("We are looking at " + designElement.getName());
-			System.out.println("It needs metadata on export");
+
+			DoraUtil.logInfo("Metadata file needed " + designerFile.getName());
 			
 			IPath localPath = designerFile.getProjectRelativePath().addFileExtension("metadata");
 			metadataFile = diskFile.getProject().getFile(localPath);
-			
-			//metadataFile = diskFile.getProject().getFile(diskFile.getProjectRelativePath().addFileExtension("metadata"));
-			
+						
 			if (!metadataFile.exists()) {
 				metadataFile = null;
 			}			
@@ -211,13 +166,7 @@ public class FilterMetadataAction extends AbstractTeamHandler {
 				filter(metadataFile, transformer,monitor);
 			}
 			
-			System.out.println("Stop");
-			
-			debugPrint(designerFile, diskFile);
 						
-			//SyncUtil.setSyncTimestamp(diskFile, time);
-			//SyncUtil.setSyncTimestamp(designerFile, time);
-			
 			DoraPostNsfToPhysicalBuilder.addMarker2(designerFile, "Hola", -1, IMarker.SEVERITY_INFO);
 			
 		} catch (TransformerConfigurationException e) {
@@ -262,23 +211,7 @@ public class FilterMetadataAction extends AbstractTeamHandler {
 	public void performFilter(IFolder paramIFolder, IFile paramIFile,
 			IProgressMonitor paramIProgressMonitor) {
 
-		System.out.println("I would perform filter 2");
-
-		//
-		// ArrayList localArrayList = new ArrayList();
-		// ISyncOperation localISyncOperation =
-		// handleSharedActionsExt(paramIFile,
-		// paramIFolder, this.defaultAction);
-		// if (localISyncOperation != null) {
-		// localArrayList.add(localISyncOperation);
-		// if ((localISyncOperation instanceof ImportSyncOperation)) {
-		// SyncUtil.logToConsole("adding to importSyncs (a):" + paramIFile);
-		// this.importSyncs.add((ImportSyncOperation) localISyncOperation);
-		// }
-		// }
-		// if (localArrayList.size() > 0) {
-		// executeSyncOps(localArrayList, paramIProgressMonitor, false);
-		// }
+		DoraUtil.logInfo("I would perform filter 2");
 
 	}
 
@@ -334,51 +267,8 @@ public class FilterMetadataAction extends AbstractTeamHandler {
 
 	protected void performFilter(IProgressMonitor paramIProgressMonitor) {
 
-		System.out.println("I would perform filter 3");
-
-		// Object localObject;
-		// if (paramIProgressMonitor == null) {
-		// localObject = new WorkspaceModifyOperation() {
-		// protected void execute(
-		// IProgressMonitor paramAnonymousIProgressMonitor)
-		// throws CoreException, InvocationTargetException,
-		// InterruptedException {
-		// SyncUtil.logToConsole("performSync: modifyOp");
-		// List localList = FilterMetadataAction.this
-		// .analyzeSyncOperations(paramAnonymousIProgressMonitor);
-		// if (localList.size() > 0) {
-		// SyncAction.this.executeSyncOps(localList,
-		// paramAnonymousIProgressMonitor, true);
-		// }
-		// FilterMetadataAction.this
-		// .performPostImportProcessing(paramAnonymousIProgressMonitor);
-		// FilterMetadataAction.this
-		// .handleConflictOps(paramAnonymousIProgressMonitor);
-		// FilterMetadataAction.this
-		// .scheduleTimestampUpdateJobForImports(SyncAction.this.importSyncs);
-		// FilterMetadataAction.this
-		// .postProcessing(paramAnonymousIProgressMonitor);
-		// }
-		// };
-		// try {
-		// PlatformUI.getWorkbench().getProgressService()
-		// .run(true, false, (IRunnableWithProgress) localObject);
-		// } catch (InvocationTargetException localInvocationTargetException) {
-		// localInvocationTargetException.printStackTrace();
-		// } catch (InterruptedException localInterruptedException) {
-		// localInterruptedException.printStackTrace();
-		// }
-		// } else {
-		// localObject = analyzeSyncOperations(paramIProgressMonitor);
-		// if (((List) localObject).size() > 0) {
-		// executeSyncOps((List) localObject, paramIProgressMonitor, true);
-		// }
-		// SyncUtil.logToConsole("performSync");
-		// performPostImportProcessing(paramIProgressMonitor);
-		// handleConflictOps(paramIProgressMonitor);
-		// scheduleTimestampUpdateJobForImports(this.importSyncs);
-		// postProcessing(paramIProgressMonitor);
-		// }
+		DoraUtil.logInfo("I would perform filter 3");
+		
 	}
 
 	private void handleOpenError(final CoreException paramCoreException) {

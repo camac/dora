@@ -13,6 +13,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.ui.IStartup;
 
+import com.gregorbyte.designer.dora.util.DoraUtil;
 import com.ibm.designer.domino.ide.resources.jni.IResourceUpdateListener;
 import com.ibm.designer.domino.ide.resources.project.IDominoDesignerProject;
 import com.ibm.designer.domino.team.util.SyncUtil;
@@ -94,7 +95,7 @@ public class DoraPostPhysicalToNsfBuilder extends IncrementalProjectBuilder {
 								IFile localIFile = (IFile) paramAnonymousIResourceDelta
 										.getResource();
 								
-								System.out.println("this is where we would update timestamp DELETED");
+								//System.out.println("this is where we would update timestamp DELETED");
 								
 //								PhysicalToNsfSynBuilder.this
 //										.importPhysicalFile(localIFile,
@@ -114,7 +115,7 @@ public class DoraPostPhysicalToNsfBuilder extends IncrementalProjectBuilder {
 							if ((paramAnonymousIResourceDelta.getResource() instanceof IFile)) {
 								localIFile = (IFile) paramAnonymousIResourceDelta
 										.getResource();
-								System.out.println("this is where we would update ADDED");
+								//System.out.println("this is where we would update ADDED");
 
 //								PhysicalToNsfSynBuilder.this
 //										.importPhysicalFile(localIFile,
@@ -126,7 +127,7 @@ public class DoraPostPhysicalToNsfBuilder extends IncrementalProjectBuilder {
 								localIFile = (IFile) paramAnonymousIResourceDelta
 										.getResource();
 								
-								System.out.println("this is where we would update CHANGED");
+								//System.out.println("this is where we would update CHANGED");
 
 								IProject nsfProject = DoraPostPhysicalToNsfBuilder.this.designerProject.getProject();
 								
