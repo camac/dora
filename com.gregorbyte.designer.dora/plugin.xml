@@ -25,28 +25,6 @@
       </builder>
    </extension>
    <extension
-         id="DoraPrePhysicalToNsfBuilder"
-         name="Dora Pre Physical To NSF Builder"
-         point="org.eclipse.core.resources.builders">
-      <builder
-            hasNature="false">
-         <run
-               class="com.gregorbyte.designer.dora.builder.DoraPrePhysicalToNsfBuilder">
-         </run>
-      </builder>
-   </extension>
-   <extension
-         id="DoraPostPhysicalToNsfBuilder"
-         name="Dora Post Physical To NSF Builder"
-         point="org.eclipse.core.resources.builders">
-      <builder
-            hasNature="false">
-         <run
-               class="com.gregorbyte.designer.dora.builder.DoraPostPhysicalToNsfBuilder">
-         </run>
-      </builder>
-   </extension>
-   <extension
          id="doraNature"
          name="Dora Metadata Filter Nature"
          point="org.eclipse.core.resources.natures">

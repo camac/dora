@@ -9,10 +9,8 @@ import org.eclipse.core.runtime.CoreException;
 import com.gregorbyte.designer.dora.util.DoraUtil;
 import com.ibm.designer.domino.ide.resources.DominoResourcesPlugin;
 import com.ibm.designer.domino.ide.resources.NsfException;
-import com.ibm.designer.domino.ide.resources.project.DominoDesignerProject;
 import com.ibm.designer.domino.ide.resources.project.IDominoDesignerProject;
 import com.ibm.designer.domino.team.builder.NsfToPhysicalSynBuilder;
-import com.ibm.designer.domino.team.builder.PhysicalToNsfSynBuilder;
 import com.ibm.designer.domino.team.util.SyncUtil;
 
 public class DoraNature implements IProjectNature {
@@ -31,49 +29,19 @@ public class DoraNature implements IProjectNature {
 	 */
 	public void configure() throws CoreException {
 
-		//addBuilderToProject(project, DoraNsfToPhysicalBuilder.BUILDER_ID);
-		//addBuilderToProject(getDiskProject(), DoraPhysicalToNsfBuilder.BUILDER_ID);
 
 		addBuilderToProject(project, DoraPreNsfToPhysicalBuilder.BUILDER_ID, NsfToPhysicalSynBuilder.SYNC_BUILDER, true);
 		addBuilderToProject(project, DoraPostNsfToPhysicalBuilder.BUILDER_ID, NsfToPhysicalSynBuilder.SYNC_BUILDER, false);
-	
-		addBuilderToProject(getDiskProject(), DoraPrePhysicalToNsfBuilder.BUILDER_ID, PhysicalToNsfSynBuilder.SYNC_BUILDER, true);
-		addBuilderToProject(getDiskProject(), DoraPostPhysicalToNsfBuilder.BUILDER_ID, PhysicalToNsfSynBuilder.SYNC_BUILDER, false);
-		
+			
 	}
 
 	public void deconfigure() throws CoreException {
+
 		removeBuilderFromProject(project, DoraPostNsfToPhysicalBuilder.BUILDER_ID);
 		removeBuilderFromProject(project, DoraPreNsfToPhysicalBuilder.BUILDER_ID);
 
-		removeBuilderFromProject(getDiskProject(),
-				DoraPrePhysicalToNsfBuilder.BUILDER_ID);
-		removeBuilderFromProject(getDiskProject(),
-				DoraPostPhysicalToNsfBuilder.BUILDER_ID);
 	}
 	
-	private void addBuilderToProject(IProject project, String builderId)
-			throws CoreException {
-
-		IProjectDescription desc = project.getDescription();
-		ICommand[] commands = desc.getBuildSpec();
-
-		for (int i = 0; i < commands.length; ++i) {
-			if (commands[i].getBuilderName().equals(builderId)) {
-				return;
-			}
-		}
-
-		ICommand[] newCommands = new ICommand[commands.length + 1];
-		System.arraycopy(commands, 0, newCommands, 0, commands.length);
-		ICommand command = desc.newCommand();
-		command.setBuilderName(builderId);
-		newCommands[newCommands.length - 1] = command;
-		desc.setBuildSpec(newCommands);
-		project.setDescription(desc, null);
-
-	}
-
 	private void addBuilderToProject(IProject project, String builderId, String refBuilderId, boolean before)
 			throws CoreException {
 
