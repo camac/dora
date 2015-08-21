@@ -3,24 +3,24 @@
 <plugin>
 
    <extension
-         id="DoraPostNsfToPhysicalBuilder"
-         name="Dora Metadata Filter Builder"
+         id="SwiperPostSyncBuilder"
+         name="Swiper Post Sync Builder"
          point="org.eclipse.core.resources.builders">
       <builder
             hasNature="true">
          <run
-               class="com.gregorbyte.designer.dora.builder.DoraPostNsfToPhysicalBuilder">
+               class="com.gregorbyte.designer.dora.builder.post.SwiperPostSyncBuilder">
          </run>
       </builder>
    </extension>
    <extension
-         id="DoraPreNsfToPhysicalBuilder"
-         name="Dora Pre Metadata Filter Builder"
+         id="SwiperPreSyncBuilder"
+         name="Swiper Pre Sync Builder"
          point="org.eclipse.core.resources.builders">
       <builder
             hasNature="true">
          <run
-               class="com.gregorbyte.designer.dora.builder.DoraPreNsfToPhysicalBuilder">
+               class="com.gregorbyte.designer.dora.builder.pre.SwiperPreSyncBuilder">
          </run>
       </builder>
    </extension>
@@ -34,10 +34,10 @@
          </run>
       </runtime>
       <builder
-            id="com.gregorbyte.designer.dora.DoraPostNsfToPhysicalBuilder">
+            id="com.gregorbyte.designer.dora.SwiperPostSyncBuilder">
       </builder>
       <builder
-            id="com.gregorbyte.designer.dora.DoraPreNsfToPhysicalBuilder">
+            id="com.gregorbyte.designer.dora.SwiperPreSyncBuilder">
       </builder>
    </extension>
    

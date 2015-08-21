@@ -31,7 +31,7 @@ import org.eclipse.core.runtime.MultiStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.swt.widgets.Display;
 
-import com.gregorbyte.designer.dora.builder.DoraPostNsfToPhysicalBuilder;
+import com.gregorbyte.designer.dora.builder.post.SwiperPostSyncBuilder;
 import com.gregorbyte.designer.dora.util.DoraUtil;
 import com.ibm.commons.swt.dialog.LWPDMessageDialog;
 import com.ibm.commons.swt.util.EclipseUtils;
@@ -101,109 +101,148 @@ public class FilterMetadataAction extends AbstractTeamHandler {
 		}
 
 	}
-	
-	private void filter(IFile diskFile, Transformer transformer, IProgressMonitor monitor) throws TransformerException, CoreException, IOException {
-		
+
+	private void filter(IFile diskFile, Transformer transformer,
+			IProgressMonitor monitor) throws TransformerException,
+			CoreException, IOException {
+
 		InputStream is = diskFile.getContents();
-		
+
 		Source source = new StreamSource(is);
-		
-		//File result = new File("V:\\Projects\\DesignerTools\\Result.view");
-		
+
+		// File result = new File("V:\\Projects\\DesignerTools\\Result.view");
+
 		transformer.setOutputProperty(OutputKeys.INDENT, "yes");
-		transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
-		
+		transformer.setOutputProperty(
+				"{http://xml.apache.org/xslt}indent-amount", "2");
+
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		StreamResult result = new StreamResult(baos);
-		
+
 		transformer.transform(source, result);
-		
+
 		ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
 		diskFile.setContents(bais, 0, monitor);
 
 		is.close();
-		
+
 		SyncUtil.setModifiedBySync(diskFile);
-		
+
 	}
-	
+
+	public void filterDiskFile(IFile designerFile, IFile diskFile, IProgressMonitor monitor) {
+
+		DoraUtil.logInfo("Filter" + diskFile.getName());
+
+		if (!diskFile.exists())
+			return;
+
+		TransformerFactory factory = TransformerFactory.newInstance();
+
+		try {
+
+			File doraXsl = new File("V:\\Projects\\Budget\\xsl\\DXLClean.xsl");
+			Source xslt = new StreamSource(doraXsl);
+			Transformer transformer = factory.newTransformer(xslt);
+
+			if (diskFile != null) {
+				filter(diskFile, transformer, monitor);
+			}
+
+			SwiperPostSyncBuilder.addMarker2(designerFile, "Hola", -1,
+					IMarker.SEVERITY_INFO);
+
+		} catch (TransformerConfigurationException e) {
+
+			String message = e.getMessage();
+			SwiperPostSyncBuilder.addMarker2(designerFile, "Dora Error "
+					+ message, -1, IMarker.SEVERITY_INFO);
+
+		} catch (TransformerException e) {
+			String message = e.getMessage();
+			SwiperPostSyncBuilder.addMarker2(designerFile, "Dora Error "
+					+ message, -1, IMarker.SEVERITY_INFO);
+
+		} catch (CoreException e) {
+			String message = e.getMessage();
+			SwiperPostSyncBuilder.addMarker2(designerFile, "Dora Error "
+					+ message, -1, IMarker.SEVERITY_INFO);
+		} catch (IOException e) {
+			String message = e.getMessage();
+			SwiperPostSyncBuilder.addMarker2(designerFile, "Dora Error "
+					+ message, -1, IMarker.SEVERITY_INFO);
+		} finally {
+
+		}
+
+	}
+
 	public void performFilter(IFile designerFile, IFile diskFile,
 			IProgressMonitor monitor) {
 
 		DoraUtil.logInfo("Filter" + designerFile.getName());
-		
-		if (!diskFile.exists()) return;
-				
+
+		if (!diskFile.exists())
+			return;
+
 		IFile metadataFile = null;
-		
-		NotesDesignElement designElement = DominoResourcesPlugin.getNotesDesignElement(designerFile);
-				
+
+		NotesDesignElement designElement = DominoResourcesPlugin
+				.getNotesDesignElement(designerFile);
+
 		if (SyncUtil.hasMetadataFile(designElement)) {
 
 			DoraUtil.logInfo("Metadata file needed " + designerFile.getName());
-			
-			IPath localPath = designerFile.getProjectRelativePath().addFileExtension("metadata");
+
+			IPath localPath = designerFile.getProjectRelativePath()
+					.addFileExtension("metadata");
 			metadataFile = diskFile.getProject().getFile(localPath);
-						
+
 			if (!metadataFile.exists()) {
 				metadataFile = null;
-			}			
-			
+			}
+
 		} else {
 			metadataFile = diskFile;
 		}
-		
+
 		TransformerFactory factory = TransformerFactory.newInstance();
 
 		try {
-			
-			File doraXsl = new File("V:\\Projects\\Budget\\xsl\\DXLClean.xsl");				
-			Source xslt = new StreamSource(doraXsl);		
+
+			File doraXsl = new File("V:\\Projects\\Budget\\xsl\\DXLClean.xsl");
+			Source xslt = new StreamSource(doraXsl);
 			Transformer transformer = factory.newTransformer(xslt);
-			
+
 			if (metadataFile != null) {
-				filter(metadataFile, transformer,monitor);
+				filter(metadataFile, transformer, monitor);
 			}
-			
-						
-			DoraPostNsfToPhysicalBuilder.addMarker2(designerFile, "Hola", -1, IMarker.SEVERITY_INFO);
-			
+
+			SwiperPostSyncBuilder.addMarker2(designerFile, "Hola", -1,
+					IMarker.SEVERITY_INFO);
+
 		} catch (TransformerConfigurationException e) {
 
 			String message = e.getMessage();
-			DoraPostNsfToPhysicalBuilder.addMarker2(designerFile,"Dora Error " + message, -1, IMarker.SEVERITY_INFO);
+			SwiperPostSyncBuilder.addMarker2(designerFile, "Dora Error "
+					+ message, -1, IMarker.SEVERITY_INFO);
 
 		} catch (TransformerException e) {
 			String message = e.getMessage();
-			DoraPostNsfToPhysicalBuilder.addMarker2(designerFile,"Dora Error " + message, -1, IMarker.SEVERITY_INFO);
+			SwiperPostSyncBuilder.addMarker2(designerFile, "Dora Error "
+					+ message, -1, IMarker.SEVERITY_INFO);
 
 		} catch (CoreException e) {
 			String message = e.getMessage();
-			DoraPostNsfToPhysicalBuilder.addMarker2(designerFile,"Dora Error " + message, -1, IMarker.SEVERITY_INFO);
+			SwiperPostSyncBuilder.addMarker2(designerFile, "Dora Error "
+					+ message, -1, IMarker.SEVERITY_INFO);
 		} catch (IOException e) {
 			String message = e.getMessage();
-			DoraPostNsfToPhysicalBuilder.addMarker2(designerFile,"Dora Error " + message, -1, IMarker.SEVERITY_INFO);
+			SwiperPostSyncBuilder.addMarker2(designerFile, "Dora Error "
+					+ message, -1, IMarker.SEVERITY_INFO);
 		} finally {
-			
+
 		}
-				
-		
-		
-		
-//		ArrayList localArrayList = new ArrayList();
-//		ISyncOperation localISyncOperation = getSyncOperation(paramIFile2,
-//				paramIFile1);
-//		if (localISyncOperation != null) {
-//			localArrayList.add(localISyncOperation);
-//			if ((localISyncOperation instanceof ImportSyncOperation)) {
-//				SyncUtil.logToConsole("adding to importSyncs (b):"
-//						+ paramIFile2);
-//				this.importSyncs.add((ImportSyncOperation) localISyncOperation);
-//			}
-//		}
-//		if (localArrayList.size() > 0) {
-//			executeSyncOps(localArrayList, paramIProgressMonitor, true);
-//		}
 
 	}
 
@@ -267,7 +306,7 @@ public class FilterMetadataAction extends AbstractTeamHandler {
 	protected void performFilter(IProgressMonitor paramIProgressMonitor) {
 
 		DoraUtil.logInfo("I would perform filter 3");
-		
+
 	}
 
 	private void handleOpenError(final CoreException paramCoreException) {

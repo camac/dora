@@ -3,8 +3,11 @@ package com.gregorbyte.designer.dora.util;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.QualifiedName;
 
@@ -15,6 +18,7 @@ import com.ibm.commons.util.StringUtil;
 import com.ibm.designer.domino.ide.resources.DominoResourcesPlugin;
 import com.ibm.designer.domino.ide.resources.jni.NotesDesignElement;
 import com.ibm.designer.domino.ide.resources.metamodel.IMetaModelConstants;
+import com.ibm.designer.domino.ide.resources.project.IDominoDesignerProject;
 import com.ibm.designer.domino.team.util.SyncUtil;
 import com.ibm.designer.prj.resources.commons.IMetaModelDescriptor;
 
@@ -123,6 +127,32 @@ public class DoraUtil {
 
 	}
 
+	public static IFile getRelevantDiskFile(IDominoDesignerProject designerProject, IResource designerFile) throws CoreException {
+
+		NotesDesignElement designElement = DominoResourcesPlugin.getNotesDesignElement(designerFile);
+		
+		IProject diskProject = SyncUtil.getAssociatedDiskProject(designerProject, false);
+		
+		IFile diskFile = null;
+		
+		if (SyncUtil.hasMetadataFile(designElement)) {
+
+			DoraUtil.logInfo("Metadata file needed " + designerFile.getName());
+			
+			IPath localPath = designerFile.getProjectRelativePath().addFileExtension("metadata");
+			diskFile = diskProject.getFile(localPath);
+
+		} else {
+			
+			DoraUtil.logInfo("No Metadata file needed for " + designerFile.getName());
+			diskFile = SyncUtil.getPhysicalFile(designerProject, designerFile);
+			
+		}
+
+		return diskFile;
+		
+	}
+	
 	public static QualifiedName getSyncModifiedQualifiedName(
 			IResource paramIResource) {
 		QualifiedName localQualifiedName = new QualifiedName(
@@ -190,7 +220,7 @@ public class DoraUtil {
 
 	public static void logInfo(String message) {
 		if (DORA_LOG.isInfoEnabled()) {
-			DORA_LOG.infop("DoraUtil", "", message, new Object[0]);
+			DORA_LOG.infop("DoraUtil", "", "Dora: " + message, new Object[0]);
 		}
 	}
 

@@ -6,6 +6,8 @@ import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.resources.IProjectNature;
 import org.eclipse.core.runtime.CoreException;
 
+import com.gregorbyte.designer.dora.builder.post.SwiperPostSyncBuilder;
+import com.gregorbyte.designer.dora.builder.pre.SwiperPreSyncBuilder;
 import com.gregorbyte.designer.dora.util.DoraUtil;
 import com.ibm.designer.domino.ide.resources.DominoResourcesPlugin;
 import com.ibm.designer.domino.ide.resources.NsfException;
@@ -30,15 +32,15 @@ public class DoraNature implements IProjectNature {
 	public void configure() throws CoreException {
 
 
-		addBuilderToProject(project, DoraPreNsfToPhysicalBuilder.BUILDER_ID, NsfToPhysicalSynBuilder.SYNC_BUILDER, true);
-		addBuilderToProject(project, DoraPostNsfToPhysicalBuilder.BUILDER_ID, NsfToPhysicalSynBuilder.SYNC_BUILDER, false);
+		addBuilderToProject(project, SwiperPreSyncBuilder.BUILDER_ID, NsfToPhysicalSynBuilder.SYNC_BUILDER, true);
+		addBuilderToProject(project, SwiperPostSyncBuilder.BUILDER_ID, NsfToPhysicalSynBuilder.SYNC_BUILDER, false);
 			
 	}
 
 	public void deconfigure() throws CoreException {
 
-		removeBuilderFromProject(project, DoraPostNsfToPhysicalBuilder.BUILDER_ID);
-		removeBuilderFromProject(project, DoraPreNsfToPhysicalBuilder.BUILDER_ID);
+		removeBuilderFromProject(project, SwiperPostSyncBuilder.BUILDER_ID);
+		removeBuilderFromProject(project, SwiperPreSyncBuilder.BUILDER_ID);
 
 	}
 	
