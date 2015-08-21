@@ -19,9 +19,6 @@ public class DoraAction {
 	
 	public ISyncOperation getSyncOperation(IFile designerFile, IFile diskFile) {
 
-		String desFileName = designerFile.getName();
-		String diskFileName = diskFile.getName();
-
 		boolean designerFileModifiedBySync = SyncUtil
 				.isModifiedBySync(designerFile);
 		boolean diskFileModifiedBySync = SyncUtil.isModifiedBySync(diskFile);

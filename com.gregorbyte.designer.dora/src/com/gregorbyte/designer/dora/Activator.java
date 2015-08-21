@@ -38,6 +38,8 @@ public class Activator extends AbstractUIPlugin {
 		
 		SyncUtil.SYNC_LOG.getLogger().setLevel(Level.FINEST);
 		DoraUtil.DORA_LOG.getLogger().setLevel(Level.INFO);
+		
+		
 	}
 
 	/*

@@ -9,12 +9,8 @@ public class DoraProjectPropertyPage extends DoraPropertyPage {
 		// TODO Auto-generated constructor stub
 	}
 
-	@SuppressWarnings("unused")
 	@Override
 	protected void createPageContents() {
-		// TODO Auto-generated method stub
-
-		System.out.println("Creating Contents");
 
 		Group g = createGroup("DXL Filter");
 		

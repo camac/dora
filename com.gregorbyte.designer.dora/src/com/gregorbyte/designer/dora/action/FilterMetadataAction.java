@@ -35,7 +35,6 @@ import com.gregorbyte.designer.dora.builder.DoraPostNsfToPhysicalBuilder;
 import com.gregorbyte.designer.dora.util.DoraUtil;
 import com.ibm.commons.swt.dialog.LWPDMessageDialog;
 import com.ibm.commons.swt.util.EclipseUtils;
-import com.ibm.commons.util.StringUtil;
 import com.ibm.designer.domino.ide.resources.DominoResourcesPlugin;
 import com.ibm.designer.domino.ide.resources.ResourceHandler;
 import com.ibm.designer.domino.ide.resources.jni.NotesDesignElement;
