@@ -68,15 +68,15 @@ public class DoraUtil {
 
 		String prefKey = getPreferenceKey(mmd);
 
-		System.out.println("Checking preference for " + mmd.getName());
+		logInfo("Checking preference for " + mmd.getName());
 
 		boolean isset = DoraPreferenceManager.getInstance().getBooleanValue(
 				prefKey, false);
 
 		if (isset) {
-			System.out.println(prefKey + " is currently set to True");
+			logInfo(prefKey + " is currently set to True");
 		} else {
-			System.out.println(prefKey + " is currently set to False");
+			logInfo(prefKey + " is currently set to False");
 		}
 
 		return isset;
@@ -91,14 +91,14 @@ public class DoraUtil {
 			return false;
 		}
 
-		System.out.println("Design Element Name: " + element.getName());
-
 		boolean hasMetadata = SyncUtil.hasMetadataFile(element);
 
 		if (hasMetadata) {
-			System.out.println("Has Metadata");
+			logInfo("Design Element Name: " + element.getName()
+					+ "Has Metadata");
 		} else {
-			System.out.println("Does not have metadata");
+			logInfo("Design Element Name: " + element.getName()
+					+ "Does not have metadata");
 		}
 
 		IMetaModelDescriptor mmd = element.getMetaModel();
@@ -110,13 +110,13 @@ public class DoraUtil {
 		String id = mmd.getID();
 
 		if (getCanFilterIds().contains(id)) {
-			System.out.println("Yes we can filter" + mmd.getName());
 
+			logInfo("Yes we can filter" + mmd.getName());
 			return isSetToFilter(mmd);
 
 		} else {
-			System.out.println("No we don't filter" + mmd.getName() + " (" + id
-					+ ")");
+
+			logInfo("No we don't filter" + mmd.getName() + " (" + id + ")");
 			return false;
 
 		}

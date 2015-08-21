@@ -19,7 +19,6 @@ import org.eclipse.core.resources.WorkspaceJob;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.ui.IStartup;
 import org.xml.sax.SAXException;
@@ -93,7 +92,7 @@ public class DoraPostNsfToPhysicalBuilder extends IncrementalProjectBuilder
 		private boolean processAdded(IResourceDelta delta) {
 			try {
 
-				System.out.println("Processing Added");
+				DoraUtil.logInfo("Processing Added");
 
 				if ((delta.getResource() instanceof IFolder)) {
 					IFolder folder = (IFolder) delta.getResource();
@@ -121,7 +120,7 @@ public class DoraPostNsfToPhysicalBuilder extends IncrementalProjectBuilder
 
 		private boolean processChanged(IResourceDelta delta) {
 
-			System.out.println("Processing Changed");
+			DoraUtil.logInfo("Processing Changed");
 
 			try {
 
@@ -144,31 +143,32 @@ public class DoraPostNsfToPhysicalBuilder extends IncrementalProjectBuilder
 					if (diskFile != null && diskFile.exists()) {
 
 						if (DoraUtil.isModifiedBySync(diskFile)) {
-							System.out.println(diskFile.getName()
+							
+							DoraUtil.logInfo(diskFile.getName()
 									+ " was modified by sync - Filter It");
 
 							if (DoraUtil.shouldFilter(file)) {
 								DoraPostNsfToPhysicalBuilder.this
 										.updatePhysicalLocation(file, monitor);
 							} else {
-								System.out.println("Not Configured to filter "
+								DoraUtil.logInfo("Not Configured to filter "
 										+ file.getName());
 							}
 
 						} else {
-							System.out.println(diskFile.getName()
+							DoraUtil.logInfo(diskFile.getName()
 									+ " untouched");
 						}
 
 					}
 
 					// if (DoraUtil.shouldFilter(file)) {
-					// System.out.println("Would have filtered "
+					// DoraUtil.logInfo("Would have filtered "
 					// + file.getName());
 					// DoraPostNsfToPhysicalBuilder.this.updatePhysicalLocation(
 					// file, monitor);
 					// } else {
-					// System.out.println("Would Not have filtered "
+					// DoraUtil.logInfo("Would Not have filtered "
 					// + file.getName());
 					// }
 
@@ -182,7 +182,7 @@ public class DoraPostNsfToPhysicalBuilder extends IncrementalProjectBuilder
 
 		private boolean processRemoved(IResourceDelta delta) {
 
-			System.out.println("Processing Removed");
+			DoraUtil.logInfo("Processing Removed");
 
 			IResource localIResource = delta.getResource();
 			try {
@@ -208,7 +208,7 @@ public class DoraPostNsfToPhysicalBuilder extends IncrementalProjectBuilder
 		@Override
 		public boolean visit(IResourceDelta delta) throws CoreException {
 
-			System.out.println("Visiting: " + delta.getResource().getName());
+			DoraUtil.logInfo("Visiting: " + delta.getResource().getName());
 
 			switch (delta.getKind()) {
 			case IResourceDelta.ADDED:
@@ -294,7 +294,7 @@ public class DoraPostNsfToPhysicalBuilder extends IncrementalProjectBuilder
 	protected IProject[] build(int kind, Map args, IProgressMonitor monitor)
 			throws CoreException {
 
-		System.out.println("Dora: PostNsfToPhysicalBuilder");
+		DoraUtil.logInfo("Dora: PostNsfToPhysicalBuilder");
 
 		try {
 			this.designerProject = DominoResourcesPlugin

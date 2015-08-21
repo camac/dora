@@ -19,7 +19,6 @@ import org.eclipse.core.resources.WorkspaceJob;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.ui.IStartup;
 import org.xml.sax.SAXException;
@@ -93,7 +92,7 @@ public class DoraPreNsfToPhysicalBuilder extends IncrementalProjectBuilder
 		private boolean processAdded(IResourceDelta delta) {
 			try {
 
-				System.out.println("Processing Added");
+				DoraUtil.logInfo("Processing Added");
 
 				if ((delta.getResource() instanceof IFolder)) {
 					IFolder folder = (IFolder) delta.getResource();
@@ -121,7 +120,7 @@ public class DoraPreNsfToPhysicalBuilder extends IncrementalProjectBuilder
 
 		private boolean processChanged(IResourceDelta delta) {
 
-			System.out.println("Processing Changed");
+			DoraUtil.logInfo("Processing Changed");
 
 			try {
 
@@ -136,7 +135,7 @@ public class DoraPreNsfToPhysicalBuilder extends IncrementalProjectBuilder
 					}
 				} else if (delta.getResource() instanceof IFile) {
 
-					IFile file = (IFile) delta.getResource();
+					//IFile file = (IFile) delta.getResource();
 
 					IFile diskFile = SyncUtil.getPhysicalFile(designerProject,
 							delta.getResource());
@@ -155,7 +154,7 @@ public class DoraPreNsfToPhysicalBuilder extends IncrementalProjectBuilder
 
 		private boolean processRemoved(IResourceDelta delta) {
 
-			System.out.println("Processing Removed");
+			DoraUtil.logInfo("Processing Removed");
 
 			IResource localIResource = delta.getResource();
 			try {
@@ -181,7 +180,7 @@ public class DoraPreNsfToPhysicalBuilder extends IncrementalProjectBuilder
 		@Override
 		public boolean visit(IResourceDelta delta) throws CoreException {
 
-			System.out.println("Visiting: " + delta.getResource().getName());
+			DoraUtil.logInfo("Visiting: " + delta.getResource().getName());
 
 			switch (delta.getKind()) {
 			case IResourceDelta.ADDED:
@@ -267,7 +266,7 @@ public class DoraPreNsfToPhysicalBuilder extends IncrementalProjectBuilder
 	protected IProject[] build(int kind, Map args, IProgressMonitor monitor)
 			throws CoreException {
 
-		System.out.println("Dora: PreNsfToPhysicalBuilder");
+		DoraUtil.logInfo("Dora: PreNsfToPhysicalBuilder");
 
 		try {
 			this.designerProject = DominoResourcesPlugin
@@ -357,12 +356,12 @@ public class DoraPreNsfToPhysicalBuilder extends IncrementalProjectBuilder
 		if (resource instanceof IFile) {
 
 			if (DoraUtil.isModifiedBySync(resource)) {
-				System.out.println("Dora says: Modified by sync");
+				DoraUtil.logInfo("Dora says: Modified by sync");
 			} else {
-				System.out.println("Dora says: Not Modified by sync");
+				DoraUtil.logInfo("Dora says: Not Modified by sync");
 			}
 
-			System.out.println("timestamp is x");
+			DoraUtil.logInfo("timestamp is x");
 
 			this.doraAction.designerProject = this.designerProject;
 
