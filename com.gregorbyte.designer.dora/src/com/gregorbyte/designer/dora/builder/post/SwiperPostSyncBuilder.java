@@ -109,6 +109,18 @@ public class SwiperPostSyncBuilder extends IncrementalProjectBuilder implements
 
 	private SAXParserFactory parserFactory;
 
+	public static void addMarker(IProject project, String message, int severity) {
+
+		try {
+			IMarker marker = project.createMarker(MARKER_TYPE);
+			marker.setAttribute(IMarker.MESSAGE, message);
+			marker.setAttribute(IMarker.SEVERITY, severity);
+		} catch (CoreException e) {
+
+		}
+
+	}
+
 	public static void addMarker2(IFile file, String message, int lineNumber,
 			int severity) {
 		try {

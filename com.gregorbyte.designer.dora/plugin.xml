@@ -65,7 +65,7 @@
    
    <extension
          id="xmlProblem"
-         name="XML Problem"
+         name="Swiper Problem"
          point="org.eclipse.core.resources.markers">
       <super
             type="org.eclipse.core.resources.problemmarker">
@@ -92,6 +92,11 @@
             class="com.gregorbyte.designer.dora.pref.DoraDesignElementPreferencePage"
             id="com.gregorbyte.designer.dora.designelementpage"
             name="Dora Design Element Preferences">
+      </page>
+      <page
+            class="com.gregorbyte.designer.dora.pref.SwiperPreferencePage"
+            id="com.gregorbyte.designer.dora.swiperPage"
+            name="Swiper">
       </page>
    </extension>
    <extension

@@ -3,12 +3,14 @@ package com.gregorbyte.designer.dora.action;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Source;
+import javax.xml.transform.Templates;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
@@ -45,10 +47,14 @@ import com.ibm.designer.domino.team.builder.ConflictSyncOperation;
 import com.ibm.designer.domino.team.builder.ISyncOperation;
 import com.ibm.designer.domino.team.builder.ImportSyncOperation;
 import com.ibm.designer.domino.team.util.SyncUtil;
+import com.ibm.misc.IOUtils;
 
 public class FilterMetadataAction extends AbstractTeamHandler {
 
+	private static final String DEFAULT_FILTER = "res/filter/DXLClean.xsl";
+
 	private IProject diskProject = null;
+	private Templates cachedXslt = null;
 
 	ArrayList<NotesParentAction> visitedActions = null;
 	ArrayList<IPath> visitedMetadataFiles;
@@ -102,6 +108,52 @@ public class FilterMetadataAction extends AbstractTeamHandler {
 
 	}
 
+	private Transformer getTransformer()
+			throws TransformerConfigurationException, FileNotFoundException {
+
+		if (this.cachedXslt == null) {
+
+			TransformerFactory factory = TransformerFactory.newInstance();
+			// Get Filter
+
+			String filterFile = DoraUtil.getDefaultFilterFilePath();
+
+			InputStream is = null;
+			Source xslt = null;
+
+			if (filterFile != null && !"".equals(filterFile)) {
+
+				File file = new File(filterFile);
+
+				if (!file.exists()) {
+					throw new FileNotFoundException(
+							"Could not Find Swiper XSLT Filter");
+				}
+				xslt = new StreamSource(file);
+
+			} else {
+				is = getClass().getResourceAsStream("DXLClean.xsl");
+				xslt = new StreamSource(is);
+			}
+
+			this.cachedXslt = factory.newTemplates(xslt);
+
+			try {
+
+				if (is != null) {
+					is.close();
+				}
+
+			} catch (IOException e) {
+
+			}
+
+		}
+
+		return cachedXslt.newTransformer();
+
+	}
+
 	private void filter(IFile diskFile, Transformer transformer,
 			IProgressMonitor monitor) throws TransformerException,
 			CoreException, IOException {
@@ -109,8 +161,6 @@ public class FilterMetadataAction extends AbstractTeamHandler {
 		InputStream is = diskFile.getContents();
 
 		Source source = new StreamSource(is);
-
-		// File result = new File("V:\\Projects\\DesignerTools\\Result.view");
 
 		transformer.setOutputProperty(OutputKeys.INDENT, "yes");
 		transformer.setOutputProperty(
@@ -130,20 +180,17 @@ public class FilterMetadataAction extends AbstractTeamHandler {
 
 	}
 
-	public void filterDiskFile(IFile designerFile, IFile diskFile, IProgressMonitor monitor) {
+	public void filterDiskFile(IFile designerFile, IFile diskFile,
+			IProgressMonitor monitor) {
 
 		DoraUtil.logInfo("Filter" + diskFile.getName());
 
 		if (!diskFile.exists())
 			return;
 
-		TransformerFactory factory = TransformerFactory.newInstance();
-
 		try {
 
-			File doraXsl = new File("V:\\Projects\\Budget\\xsl\\DXLClean.xsl");
-			Source xslt = new StreamSource(doraXsl);
-			Transformer transformer = factory.newTransformer(xslt);
+			Transformer transformer = getTransformer();
 
 			if (diskFile != null) {
 				filter(diskFile, transformer, monitor);
@@ -167,6 +214,10 @@ public class FilterMetadataAction extends AbstractTeamHandler {
 			String message = e.getMessage();
 			SwiperPostSyncBuilder.addMarker2(designerFile, "Dora Error "
 					+ message, -1, IMarker.SEVERITY_INFO);
+		} catch (FileNotFoundException e) {
+			String message = e.getMessage();
+			SwiperPostSyncBuilder.addMarker(designerFile.getProject(), message,
+					IMarker.SEVERITY_WARNING);
 		} catch (IOException e) {
 			String message = e.getMessage();
 			SwiperPostSyncBuilder.addMarker2(designerFile, "Dora Error "

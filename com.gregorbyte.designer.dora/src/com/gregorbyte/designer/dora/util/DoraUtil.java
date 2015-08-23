@@ -11,6 +11,7 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.QualifiedName;
 
+import com.gregorbyte.designer.dora.Activator;
 import com.gregorbyte.designer.dora.pref.DoraPreferenceManager;
 import com.ibm.commons.log.Log;
 import com.ibm.commons.log.LogMgr;
@@ -127,6 +128,15 @@ public class DoraUtil {
 
 	}
 
+	public static boolean isUseDefaultFilter() {
+		String key = getPreferenceKey("useDefaultFilter");
+		return DoraPreferenceManager.getInstance().getBooleanValue(key, false);
+	}
+	
+	public static String getDefaultFilterFilePath() {
+		return DoraPreferenceManager.getInstance().getValue("defaultFilter", false);
+	}
+	
 	public static IFile getRelevantDiskFile(IDominoDesignerProject designerProject, IResource designerFile) throws CoreException {
 
 		NotesDesignElement designElement = DominoResourcesPlugin.getNotesDesignElement(designerFile);
