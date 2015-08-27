@@ -1,8 +1,8 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Gregorbyte Dora
-Bundle-SymbolicName: com.gregorbyte.designer.dora;singleton:=true
-Bundle-Version: 1.0.0.qualifier
+Bundle-Name: Gregorbyte Swiper Plugin
+Bundle-SymbolicName: com.gregorbyte.designer.swiper;singleton:=true
+Bundle-Version: 0.1.0.qualifier
 Bundle-Activator: com.gregorbyte.designer.dora.Activator
 Bundle-Vendor: Gregorbyte
 Require-Bundle: org.eclipse.ui,
