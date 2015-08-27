@@ -17,3 +17,4 @@ $RECYCLE.BIN/
 test/result/*
 *.class
 com.gregorbyte.designer.dora/bin/
+com.gregorbyte.designer.swiper/bin/
