@@ -166,6 +166,8 @@ public class FilterMetadataAction extends AbstractTeamHandler {
 		transformer.setOutputProperty(
 				"{http://xml.apache.org/xslt}indent-amount", "2");
 
+		transformer.setOutputProperty(OutputKeys.DOCTYPE_PUBLIC, "yes");
+		
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		StreamResult result = new StreamResult(baos);
 
