@@ -1,4 +1,4 @@
-package com.gregorbyte.designer.dora.pref;
+package com.gregorbyte.designer.swiper.pref;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -10,7 +10,7 @@ import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.PreferenceManager;
 import org.eclipse.swt.widgets.Display;
 
-import com.gregorbyte.designer.dora.Activator;
+import com.gregorbyte.designer.swiper.Activator;
 import com.ibm.commons.util.StringUtil;
 
 public class DoraPreferenceManager extends PreferenceManager {

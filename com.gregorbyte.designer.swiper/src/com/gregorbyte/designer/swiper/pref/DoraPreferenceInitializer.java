@@ -1,8 +1,8 @@
-package com.gregorbyte.designer.dora.pref;
+package com.gregorbyte.designer.swiper.pref;
 
 import org.eclipse.jface.preference.IPreferenceStore;
 
-import com.gregorbyte.designer.dora.Activator;
+import com.gregorbyte.designer.swiper.Activator;
 import com.ibm.designer.domino.preferences.AbstractDominoPreferenceInitializer;
 
 public class DoraPreferenceInitializer extends

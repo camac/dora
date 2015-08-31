@@ -1,4 +1,4 @@
-package com.gregorbyte.designer.dora.builder.pre;
+package com.gregorbyte.designer.swiper.builder.pre;
 
 import java.util.Map;
 
@@ -25,8 +25,8 @@ import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 import org.xml.sax.helpers.DefaultHandler;
 
-import com.gregorbyte.designer.dora.action.FilterMetadataAction;
-import com.gregorbyte.designer.dora.util.DoraUtil;
+import com.gregorbyte.designer.swiper.action.FilterMetadataAction;
+import com.gregorbyte.designer.swiper.util.SwiperUtil;
 import com.ibm.commons.util.StringUtil;
 import com.ibm.designer.domino.ide.resources.DominoResourcesPlugin;
 import com.ibm.designer.domino.ide.resources.NsfException;
@@ -43,8 +43,8 @@ import com.ibm.designer.domino.team.util.SyncUtil;
 public class SwiperPreSyncBuilder extends IncrementalProjectBuilder
 		implements IResourceUpdateListener, IStartup {
 
-	public static final String BUILDER_ID = "com.gregorbyte.designer.dora.SwiperPreSyncBuilder";
-	private static final String MARKER_TYPE = "com.gregorbyte.designer.dora.xmlProblem";
+	public static final String BUILDER_ID = "com.gregorbyte.designer.swiper.SwiperPreSyncBuilder";
+	private static final String MARKER_TYPE = "com.gregorbyte.designer.swiper.xmlProblem";
 
 	IDominoDesignerProject designerProject = null;
 	IProject diskProject = null;
@@ -143,7 +143,7 @@ public class SwiperPreSyncBuilder extends IncrementalProjectBuilder
 	protected IProject[] build(int kind, Map args, IProgressMonitor monitor)
 			throws CoreException {
 
-		DoraUtil.logInfo("Dora: PreSyncBuilder");
+		SwiperUtil.logInfo("Dora: PreSyncBuilder");
 
 		try {
 			this.designerProject = DominoResourcesPlugin
@@ -231,10 +231,10 @@ public class SwiperPreSyncBuilder extends IncrementalProjectBuilder
 
 		if (resource instanceof IFile) {
 
-			if (DoraUtil.isModifiedBySync(resource)) {
-				DoraUtil.logInfo("Dora says: Modified by sync");
+			if (SwiperUtil.isModifiedBySync(resource)) {
+				SwiperUtil.logInfo("Dora says: Modified by sync");
 			} else {
-				DoraUtil.logInfo("Dora says: Not Modified by sync");
+				SwiperUtil.logInfo("Dora says: Not Modified by sync");
 			}
 
 			this.filterAction.performFilter((IFile) resource, file, monitor);

@@ -1,4 +1,4 @@
-package com.gregorbyte.designer.dora.pref;
+package com.gregorbyte.designer.swiper.pref;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -23,7 +23,7 @@ import org.eclipse.swt.widgets.Widget;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 
-import com.gregorbyte.designer.dora.Activator;
+import com.gregorbyte.designer.swiper.Activator;
 import com.ibm.commons.iloader.node.validators.IntegerValidator;
 import com.ibm.commons.swt.SWTACCUtils;
 import com.ibm.commons.swt.SWTLayoutUtils;

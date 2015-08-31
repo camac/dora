@@ -1,4 +1,4 @@
-package com.gregorbyte.designer.dora.builder.pre;
+package com.gregorbyte.designer.swiper.builder.pre;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
@@ -7,7 +7,7 @@ import org.eclipse.core.resources.IResourceDeltaVisitor;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 
-import com.gregorbyte.designer.dora.util.DoraUtil;
+import com.gregorbyte.designer.swiper.util.SwiperUtil;
 import com.ibm.designer.domino.ide.resources.project.IDominoDesignerProject;
 import com.ibm.designer.domino.team.util.SyncUtil;
 
@@ -28,7 +28,7 @@ public class SwiperPreVisitor implements IResourceDeltaVisitor {
 
 	private boolean processAdded(IResourceDelta delta) {
 
-		DoraUtil.logInfo("Processing Added");
+		SwiperUtil.logInfo("Processing Added");
 
 		/*
 		 * If the physical file is not found, then save the current timestamp
@@ -52,7 +52,7 @@ public class SwiperPreVisitor implements IResourceDeltaVisitor {
 
 	private boolean processChanged(IResourceDelta delta) throws CoreException {
 
-		DoraUtil.logInfo("Processing Changed");
+		SwiperUtil.logInfo("Processing Changed");
 
 		if ((delta.getResource() instanceof IFolder)) {
 			
@@ -71,10 +71,10 @@ public class SwiperPreVisitor implements IResourceDeltaVisitor {
 				System.out.println(designerFile.getName());
 			}
 			
-			IFile diskFile = DoraUtil.getRelevantDiskFile(designerProject, designerFile);
+			IFile diskFile = SwiperUtil.getRelevantDiskFile(designerProject, designerFile);
 			
 			if (diskFile != null && diskFile.exists()) {
-				DoraUtil.setSyncTimestamp(diskFile);
+				SwiperUtil.setSyncTimestamp(diskFile);
 			}
 
 		}
@@ -84,7 +84,7 @@ public class SwiperPreVisitor implements IResourceDeltaVisitor {
 	@Override
 	public boolean visit(IResourceDelta delta) throws CoreException {
 
-		DoraUtil.logInfo("Visiting: " + delta.getResource().getName());
+		SwiperUtil.logInfo("Visiting: " + delta.getResource().getName());
 
 		switch (delta.getKind()) {
 		case IResourceDelta.ADDED:

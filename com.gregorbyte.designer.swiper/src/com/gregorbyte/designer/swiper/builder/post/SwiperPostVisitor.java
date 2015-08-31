@@ -1,4 +1,4 @@
-package com.gregorbyte.designer.dora.builder.post;
+package com.gregorbyte.designer.swiper.builder.post;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
@@ -7,7 +7,7 @@ import org.eclipse.core.resources.IResourceDeltaVisitor;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 
-import com.gregorbyte.designer.dora.util.DoraUtil;
+import com.gregorbyte.designer.swiper.util.SwiperUtil;
 import com.ibm.designer.domino.ide.resources.project.IDominoDesignerProject;
 import com.ibm.designer.domino.team.util.SyncUtil;
 
@@ -27,7 +27,7 @@ public class SwiperPostVisitor implements IResourceDeltaVisitor {
 	private boolean processAdded(IResourceDelta delta) {
 		try {
 
-			DoraUtil.logInfo("Processing Added");
+			SwiperUtil.logInfo("Processing Added");
 
 			if ((delta.getResource() instanceof IFolder)) {
 				IFolder folder = (IFolder) delta.getResource();
@@ -53,7 +53,7 @@ public class SwiperPostVisitor implements IResourceDeltaVisitor {
 
 	private boolean processChanged(IResourceDelta delta) {
 
-		DoraUtil.logInfo("Processing Changed");
+		SwiperUtil.logInfo("Processing Changed");
 
 		try {
 
@@ -73,28 +73,28 @@ public class SwiperPostVisitor implements IResourceDeltaVisitor {
 					System.out.println(designerFile.getName());
 				}
 				
-				IFile diskFile = DoraUtil.getRelevantDiskFile(designerProject,
+				IFile diskFile = SwiperUtil.getRelevantDiskFile(designerProject,
 						designerFile);
 
 				if (diskFile != null && diskFile.exists()) {
 
-					if (DoraUtil.isModifiedBySync(diskFile)) {
+					if (SwiperUtil.isModifiedBySync(diskFile)) {
 
-						DoraUtil.logInfo(diskFile.getName()
+						SwiperUtil.logInfo(diskFile.getName()
 								+ " was modified by sync - Filter It");
 
-						if (DoraUtil.shouldFilter(designerFile)) {
+						if (SwiperUtil.shouldFilter(designerFile)) {
 
 							builder.filterDiskFile(designerFile, diskFile,
 									monitor);
 
 						} else {
-							DoraUtil.logInfo("Not Configured to filter "
+							SwiperUtil.logInfo("Not Configured to filter "
 									+ designerFile.getName());
 						}
 
 					} else {
-						DoraUtil.logInfo(diskFile.getName() + " untouched");
+						SwiperUtil.logInfo(diskFile.getName() + " untouched");
 					}
 
 				}
@@ -120,7 +120,7 @@ public class SwiperPostVisitor implements IResourceDeltaVisitor {
 	@Override
 	public boolean visit(IResourceDelta delta) throws CoreException {
 
-		DoraUtil.logInfo("Visiting: " + delta.getResource().getName());
+		SwiperUtil.logInfo("Visiting: " + delta.getResource().getName());
 
 		switch (delta.getKind()) {
 		case IResourceDelta.ADDED:

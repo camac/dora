@@ -1,4 +1,4 @@
-package com.gregorbyte.designer.dora.pref;
+package com.gregorbyte.designer.swiper.pref;
 
 import java.util.Map;
 

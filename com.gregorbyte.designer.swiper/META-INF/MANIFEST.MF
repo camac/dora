@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Gregorbyte Swiper Plugin
 Bundle-SymbolicName: com.gregorbyte.designer.swiper;singleton:=true
 Bundle-Version: 0.1.0.qualifier
-Bundle-Activator: com.gregorbyte.designer.dora.Activator
+Bundle-Activator: com.gregorbyte.designer.swiper.Activator
 Bundle-Vendor: Gregorbyte
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
@@ -21,6 +21,6 @@ Require-Bundle: org.eclipse.ui,
  com.ibm.commons
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ActivationPolicy: lazy
-Export-Package: com.gregorbyte.designer.dora,
- com.gregorbyte.designer.dora.builder
+Export-Package: com.gregorbyte.designer.swiper.builder,
+ com.gregorbyte.designer.swiper
 Import-Package: com.ibm.commons.util

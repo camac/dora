@@ -1,4 +1,4 @@
-package com.gregorbyte.designer.dora.pref;
+package com.gregorbyte.designer.swiper.pref;
 
 public abstract interface IDoraPreferenceListener {
 

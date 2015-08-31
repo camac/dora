@@ -9,7 +9,7 @@
       <builder
             hasNature="true">
          <run
-               class="com.gregorbyte.designer.dora.builder.post.SwiperPostSyncBuilder">
+               class="com.gregorbyte.designer.swiper.builder.post.SwiperPostSyncBuilder">
          </run>
       </builder>
    </extension>
@@ -20,24 +20,24 @@
       <builder
             hasNature="true">
          <run
-               class="com.gregorbyte.designer.dora.builder.pre.SwiperPreSyncBuilder">
+               class="com.gregorbyte.designer.swiper.builder.pre.SwiperPreSyncBuilder">
          </run>
       </builder>
    </extension>
    <extension
-         id="doraNature"
-         name="Dora Metadata Filter Nature"
+         id="swiperNature"
+         name="Swiper Metadata Filter Nature"
          point="org.eclipse.core.resources.natures">
       <runtime>
          <run
-               class="com.gregorbyte.designer.dora.builder.DoraNature">
+               class="com.gregorbyte.designer.swiper.builder.SwiperNature">
          </run>
       </runtime>
       <builder
-            id="com.gregorbyte.designer.dora.SwiperPostSyncBuilder">
+            id="com.gregorbyte.designer.swiper.SwiperPostSyncBuilder">
       </builder>
       <builder
-            id="com.gregorbyte.designer.dora.SwiperPreSyncBuilder">
+            id="com.gregorbyte.designer.swiper.SwiperPreSyncBuilder">
       </builder>
    </extension>
    
@@ -48,13 +48,13 @@
 			adaptable="true"
 			objectClass="org.eclipse.core.resources.IProject"
 			nameFilter="*"
-			id="com.gregorbyte.designer.dora.builder.contribution1">
+			id="com.gregorbyte.designer.swiper.builder.contribution1">
 			<action
-				label="Add/Remove Dora Nature"
-				class="com.gregorbyte.designer.dora.builder.ToggleNatureAction"
+				label="Add/Remove Swiper Nature"
+				class="com.gregorbyte.designer.swiper.builder.ToggleNatureAction"
 				menubarPath="additions"
 				enablesFor="+"
-				id="com.gregorbyte.designer.dora.builder.addRemoveNatureAction"/>
+				id="com.gregorbyte.designer.swiper.builder.addRemoveNatureAction"/>
 		</objectContribution>
 	</extension>
    
@@ -77,33 +77,33 @@
    <extension
          point="org.eclipse.core.runtime.preferences">
       <initializer
-            class="com.gregorbyte.designer.dora.pref.DoraPreferenceInitializer">
+            class="com.gregorbyte.designer.swiper.pref.DoraPreferenceInitializer">
       </initializer>
    </extension>
    <extension
          point="org.eclipse.ui.preferencePages">
       <page
-            class="com.gregorbyte.designer.dora.pref.DoraMainPreferencePage"
-            id="com.gregorbyte.designer.dora.prefpage"
+            class="com.gregorbyte.designer.swiper.pref.DoraMainPreferencePage"
+            id="com.gregorbyte.designer.swiper.prefpage"
             name="Dora Preferences">
       </page>
       <page
-            category="com.gregorbyte.designer.dora.prefpage"
-            class="com.gregorbyte.designer.dora.pref.DoraDesignElementPreferencePage"
-            id="com.gregorbyte.designer.dora.designelementpage"
+            category="com.gregorbyte.designer.swiper.prefpage"
+            class="com.gregorbyte.designer.swiper.pref.DoraDesignElementPreferencePage"
+            id="com.gregorbyte.designer.swiper.designelementpage"
             name="Dora Design Element Preferences">
       </page>
       <page
-            class="com.gregorbyte.designer.dora.pref.SwiperPreferencePage"
-            id="com.gregorbyte.designer.dora.swiperPage"
+            class="com.gregorbyte.designer.swiper.pref.SwiperPreferencePage"
+            id="com.gregorbyte.designer.swiper.swiperPage"
             name="Swiper">
       </page>
    </extension>
    <extension
          point="org.eclipse.ui.propertyPages">
       <page
-            class="com.gregorbyte.designer.dora.pref.DoraDesignElementPreferencePage"
-            id="com.gregorbyte.designer.dora.propertypage"
+            class="com.gregorbyte.designer.swiper.pref.DoraDesignElementPreferencePage"
+            id="com.gregorbyte.designer.swiper.propertypage"
             name="Dora">
          <enabledWhen>
             <and>
@@ -114,7 +114,7 @@
                      type="org.eclipse.core.resources.IResource">
                   <test
                         property="org.eclipse.core.resources.projectNature"
-                        value="com.gregorbyte.designer.dora.doraNature">
+                        value="com.gregorbyte.designer.swiper.swiperNature">
                   </test>
                </adapt>
             </and>

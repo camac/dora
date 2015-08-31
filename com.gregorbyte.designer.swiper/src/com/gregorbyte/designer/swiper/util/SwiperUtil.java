@@ -1,4 +1,4 @@
-package com.gregorbyte.designer.dora.util;
+package com.gregorbyte.designer.swiper.util;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -11,8 +11,8 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.QualifiedName;
 
-import com.gregorbyte.designer.dora.Activator;
-import com.gregorbyte.designer.dora.pref.DoraPreferenceManager;
+import com.gregorbyte.designer.swiper.pref.DoraPreferenceManager;
+import com.gregorbyte.designer.swiper.Activator;
 import com.ibm.commons.log.Log;
 import com.ibm.commons.log.LogMgr;
 import com.ibm.commons.util.StringUtil;
@@ -23,9 +23,9 @@ import com.ibm.designer.domino.ide.resources.project.IDominoDesignerProject;
 import com.ibm.designer.domino.team.util.SyncUtil;
 import com.ibm.designer.prj.resources.commons.IMetaModelDescriptor;
 
-public class DoraUtil {
+public class SwiperUtil {
 
-	public static LogMgr DORA_LOG = Log.load("com.gregorbyte.designer.dora",
+	public static LogMgr DORA_LOG = Log.load("com.gregorbyte.designer.swiper",
 			"Logger used for Dora");
 
 	public static Set<String> getCanFilterIds() {
@@ -147,14 +147,14 @@ public class DoraUtil {
 		
 		if (SyncUtil.hasMetadataFile(designElement)) {
 
-			DoraUtil.logInfo("Metadata file needed " + designerFile.getName());
+			SwiperUtil.logInfo("Metadata file needed " + designerFile.getName());
 			
 			IPath localPath = designerFile.getProjectRelativePath().addFileExtension("metadata");
 			diskFile = diskProject.getFile(localPath);
 
 		} else {
 			
-			DoraUtil.logInfo("No Metadata file needed for " + designerFile.getName());
+			SwiperUtil.logInfo("No Metadata file needed for " + designerFile.getName());
 			diskFile = SyncUtil.getPhysicalFile(designerProject, designerFile);
 			
 		}
@@ -166,7 +166,7 @@ public class DoraUtil {
 	public static QualifiedName getSyncModifiedQualifiedName(
 			IResource paramIResource) {
 		QualifiedName localQualifiedName = new QualifiedName(
-				"com.gregorbyte.designer.dora", paramIResource
+				"com.gregorbyte.designer.swiper", paramIResource
 						.getProjectRelativePath().toString());
 		return localQualifiedName;
 

@@ -1,4 +1,4 @@
-package com.gregorbyte.designer.dora;
+package com.gregorbyte.designer.swiper;
 
 import java.util.logging.Level;
 
@@ -6,7 +6,7 @@ import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
-import com.gregorbyte.designer.dora.util.DoraUtil;
+import com.gregorbyte.designer.swiper.util.SwiperUtil;
 import com.ibm.designer.domino.team.util.SyncUtil;
 
 /**
@@ -15,7 +15,7 @@ import com.ibm.designer.domino.team.util.SyncUtil;
 public class Activator extends AbstractUIPlugin {
 
 	// The plug-in ID
-	public static final String PLUGIN_ID = "com.gregorbyte.designer.dora"; //$NON-NLS-1$
+	public static final String PLUGIN_ID = "com.gregorbyte.designer.swiper"; //$NON-NLS-1$
 
 	// The shared instance
 	private static Activator plugin;
@@ -36,8 +36,8 @@ public class Activator extends AbstractUIPlugin {
 		
 		System.out.println("Dora Activated");
 		
-		SyncUtil.SYNC_LOG.getLogger().setLevel(Level.FINEST);
-		DoraUtil.DORA_LOG.getLogger().setLevel(Level.INFO);
+		//SyncUtil.SYNC_LOG.getLogger().setLevel(Level.FINEST);
+		SwiperUtil.DORA_LOG.getLogger().setLevel(Level.INFO);
 		
 		
 	}

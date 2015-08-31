@@ -1,4 +1,4 @@
-package com.gregorbyte.designer.dora.action;
+package com.gregorbyte.designer.swiper.action;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -33,8 +33,8 @@ import org.eclipse.core.runtime.MultiStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.swt.widgets.Display;
 
-import com.gregorbyte.designer.dora.builder.post.SwiperPostSyncBuilder;
-import com.gregorbyte.designer.dora.util.DoraUtil;
+import com.gregorbyte.designer.swiper.builder.post.SwiperPostSyncBuilder;
+import com.gregorbyte.designer.swiper.util.SwiperUtil;
 import com.ibm.commons.swt.dialog.LWPDMessageDialog;
 import com.ibm.commons.swt.util.EclipseUtils;
 import com.ibm.designer.domino.ide.resources.DominoResourcesPlugin;
@@ -116,7 +116,7 @@ public class FilterMetadataAction extends AbstractTeamHandler {
 			TransformerFactory factory = TransformerFactory.newInstance();
 			// Get Filter
 
-			String filterFile = DoraUtil.getDefaultFilterFilePath();
+			String filterFile = SwiperUtil.getDefaultFilterFilePath();
 
 			InputStream is = null;
 			Source xslt = null;
@@ -183,7 +183,7 @@ public class FilterMetadataAction extends AbstractTeamHandler {
 	public void filterDiskFile(IFile designerFile, IFile diskFile,
 			IProgressMonitor monitor) {
 
-		DoraUtil.logInfo("Filter" + diskFile.getName());
+		SwiperUtil.logInfo("Filter" + diskFile.getName());
 
 		if (!diskFile.exists())
 			return;
@@ -231,7 +231,7 @@ public class FilterMetadataAction extends AbstractTeamHandler {
 	public void performFilter(IFile designerFile, IFile diskFile,
 			IProgressMonitor monitor) {
 
-		DoraUtil.logInfo("Filter" + designerFile.getName());
+		SwiperUtil.logInfo("Filter" + designerFile.getName());
 
 		if (!diskFile.exists())
 			return;
@@ -243,7 +243,7 @@ public class FilterMetadataAction extends AbstractTeamHandler {
 
 		if (SyncUtil.hasMetadataFile(designElement)) {
 
-			DoraUtil.logInfo("Metadata file needed " + designerFile.getName());
+			SwiperUtil.logInfo("Metadata file needed " + designerFile.getName());
 
 			IPath localPath = designerFile.getProjectRelativePath()
 					.addFileExtension("metadata");
@@ -300,7 +300,7 @@ public class FilterMetadataAction extends AbstractTeamHandler {
 	public void performFilter(IFolder paramIFolder, IFile paramIFile,
 			IProgressMonitor paramIProgressMonitor) {
 
-		DoraUtil.logInfo("I would perform filter 2");
+		SwiperUtil.logInfo("I would perform filter 2");
 
 	}
 
@@ -356,7 +356,7 @@ public class FilterMetadataAction extends AbstractTeamHandler {
 
 	protected void performFilter(IProgressMonitor paramIProgressMonitor) {
 
-		DoraUtil.logInfo("I would perform filter 3");
+		SwiperUtil.logInfo("I would perform filter 3");
 
 	}
 

@@ -1,4 +1,4 @@
-package com.gregorbyte.designer.dora.pref;
+package com.gregorbyte.designer.swiper.pref;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -21,9 +21,9 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.swt.widgets.Widget;
 
-import com.gregorbyte.designer.dora.ResourceHandler;
-import com.gregorbyte.designer.dora.property.DoraPropertyPage;
-import com.gregorbyte.designer.dora.util.DoraUtil;
+import com.gregorbyte.designer.swiper.property.DoraPropertyPage;
+import com.gregorbyte.designer.swiper.util.SwiperUtil;
+import com.gregorbyte.designer.swiper.ResourceHandler;
 import com.ibm.commons.iloader.node.lookups.api.StringLookup;
 import com.ibm.commons.swt.SWTLayoutUtils;
 import com.ibm.commons.swt.controls.LookupComboBox;
@@ -346,7 +346,7 @@ public class DoraDesignElementPreferencePage extends DoraPropertyPage {
 			
 			DoraPreferenceWidget widget = null;
 						
-			metaModelId = DoraUtil.getPreferenceKey(metaModelId);
+			metaModelId = SwiperUtil.getPreferenceKey(metaModelId);
 			
 			widget = (DoraPreferenceWidget) this.idToWidget
 					.get(metaModelId);

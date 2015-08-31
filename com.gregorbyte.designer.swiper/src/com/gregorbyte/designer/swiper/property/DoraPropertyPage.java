@@ -1,9 +1,9 @@
-package com.gregorbyte.designer.dora.property;
+package com.gregorbyte.designer.swiper.property;
 
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.ui.IWorkbenchPropertyPage;
 
-import com.gregorbyte.designer.dora.pref.DoraPreferencePage;
+import com.gregorbyte.designer.swiper.pref.DoraPreferencePage;
 
 public abstract class DoraPropertyPage extends DoraPreferencePage implements
 		IWorkbenchPropertyPage {

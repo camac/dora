@@ -1,4 +1,4 @@
-package com.gregorbyte.designer.dora.builder;
+package com.gregorbyte.designer.swiper.builder;
 
 import java.util.Iterator;
 
@@ -12,11 +12,16 @@ import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.ui.IObjectActionDelegate;
 import org.eclipse.ui.IWorkbenchPart;
 
+import com.gregorbyte.designer.swiper.util.SwiperUtil;
+
 public class ToggleNatureAction implements IObjectActionDelegate {
 	private ISelection selection_;
 
 	@Override
 	public void run(IAction action) {
+		
+		SwiperUtil.logInfo("Running Toggle Nature Action");
+		
 		if (selection_ instanceof IStructuredSelection) {
 			for (Iterator<?> it = ((IStructuredSelection) selection_).iterator(); it.hasNext();) {
 				Object element = it.next();
@@ -28,6 +33,8 @@ public class ToggleNatureAction implements IObjectActionDelegate {
 				}
 				if (project != null) {
 					toggleNature(project);
+				} else {
+					SwiperUtil.logInfo("Project was null");
 				}
 			}
 		}
@@ -50,12 +57,14 @@ public class ToggleNatureAction implements IObjectActionDelegate {
 	 *            to have sample nature added or removed
 	 */
 	private void toggleNature(IProject project) {
-		try {
+		
+		SwiperUtil.logInfo("Attempt to toggle Nature");
+		try {					
 			IProjectDescription description = project.getDescription();
 			String[] natures = description.getNatureIds();
 
 			for (int i = 0; i < natures.length; ++i) {
-				if (DoraNature.NATURE_ID.equals(natures[i])) {
+				if (SwiperNature.NATURE_ID.equals(natures[i])) {
 					// Remove the nature
 					String[] newNatures = new String[natures.length - 1];
 					System.arraycopy(natures, 0, newNatures, 0, i);
@@ -69,10 +78,19 @@ public class ToggleNatureAction implements IObjectActionDelegate {
 			// Add the nature
 			String[] newNatures = new String[natures.length + 1];
 			System.arraycopy(natures, 0, newNatures, 0, natures.length);
-			newNatures[natures.length] = DoraNature.NATURE_ID;
+			newNatures[natures.length] = SwiperNature.NATURE_ID;
 			description.setNatureIds(newNatures);
 			project.setDescription(description, null);
 		} catch (CoreException e) {
+			
+			SwiperUtil.logInfo(e.getMessage());
+			e.printStackTrace();
+			
+		} catch (Exception e) {
+			
+			SwiperUtil.logInfo(e.getMessage());
+			e.printStackTrace();
+			
 		}
 	}
 }

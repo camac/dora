@@ -1,4 +1,4 @@
-package com.gregorbyte.designer.dora;
+package com.gregorbyte.designer.swiper;
 
 import java.text.MessageFormat;
 import java.util.MissingResourceException;

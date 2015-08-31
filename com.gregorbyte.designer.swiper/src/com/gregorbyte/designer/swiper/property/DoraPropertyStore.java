@@ -1,4 +1,4 @@
-package com.gregorbyte.designer.dora.property;
+package com.gregorbyte.designer.swiper.property;
 
 import org.eclipse.core.resources.IResource;
 import org.eclipse.jface.preference.IPreferenceStore;

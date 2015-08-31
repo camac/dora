@@ -1,4 +1,4 @@
-package com.gregorbyte.designer.dora.builder;
+package com.gregorbyte.designer.swiper.builder;
 
 import org.eclipse.core.resources.ICommand;
 import org.eclipse.core.resources.IProject;
@@ -6,21 +6,21 @@ import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.resources.IProjectNature;
 import org.eclipse.core.runtime.CoreException;
 
-import com.gregorbyte.designer.dora.builder.post.SwiperPostSyncBuilder;
-import com.gregorbyte.designer.dora.builder.pre.SwiperPreSyncBuilder;
-import com.gregorbyte.designer.dora.util.DoraUtil;
+import com.gregorbyte.designer.swiper.builder.post.SwiperPostSyncBuilder;
+import com.gregorbyte.designer.swiper.builder.pre.SwiperPreSyncBuilder;
+import com.gregorbyte.designer.swiper.util.SwiperUtil;
 import com.ibm.designer.domino.ide.resources.DominoResourcesPlugin;
 import com.ibm.designer.domino.ide.resources.NsfException;
 import com.ibm.designer.domino.ide.resources.project.IDominoDesignerProject;
 import com.ibm.designer.domino.team.builder.NsfToPhysicalSynBuilder;
 import com.ibm.designer.domino.team.util.SyncUtil;
 
-public class DoraNature implements IProjectNature {
+public class SwiperNature implements IProjectNature {
 
 	/**
 	 * ID of this project nature
 	 */
-	public static final String NATURE_ID = "com.gregorbyte.designer.dora.doraNature";
+	public static final String NATURE_ID = "com.gregorbyte.designer.swiper.swiperNature";
 
 	private IProject project;
 
@@ -65,7 +65,7 @@ public class DoraNature implements IProjectNature {
 		}
 
 		if (refBuilderPos == null) {
-			DoraUtil.logInfo("Could not find the reference builder " + refBuilderId );
+			SwiperUtil.logInfo("Could not find the reference builder " + refBuilderId );
 			return;
 		}
 		
