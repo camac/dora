@@ -17,11 +17,33 @@ public class SwiperPostVisitor implements IResourceDeltaVisitor {
 	private SwiperPostSyncBuilder builder = null;
 	private IDominoDesignerProject designerProject = null;
 
-	public SwiperPostVisitor(IProgressMonitor monitor,
-			SwiperPostSyncBuilder builder) {
+	public SwiperPostVisitor(IProgressMonitor monitor, SwiperPostSyncBuilder builder) {
 		this.monitor = monitor;
 		this.builder = builder;
 		this.designerProject = builder.getDesignerProject();
+	}
+
+	private void processDesignerFile(IFile designerFile) throws CoreException {
+		
+		IFile diskFile = SwiperUtil.getRelevantDiskFile(designerProject, designerFile);
+
+		if (diskFile != null && diskFile.exists()) {
+
+			if (SwiperUtil.isModifiedBySync(diskFile)) {
+
+				SwiperUtil.logInfo(diskFile.getName() + " was modified by sync - Filter It");
+
+				if (SwiperUtil.shouldFilter(designerFile)) {
+					builder.filterDiskFile(designerFile, diskFile, monitor);
+				} else {
+					SwiperUtil.logInfo("Not Configured to filter " + designerFile.getName());
+				}
+
+			} else {
+				SwiperUtil.logInfo(diskFile.getName() + " untouched");
+			}
+
+		}
 	}
 
 	private boolean processAdded(IResourceDelta delta) {
@@ -32,16 +54,14 @@ public class SwiperPostVisitor implements IResourceDeltaVisitor {
 			if ((delta.getResource() instanceof IFolder)) {
 				IFolder folder = (IFolder) delta.getResource();
 
-				if (SyncUtil.isSharedAction(folder.getParent()
-						.getProjectRelativePath())) {
-					builder.updatePhysicalLocation(folder, monitor);
+				if (SyncUtil.isSharedAction(folder.getParent().getProjectRelativePath())) {
+					System.out.println("Haven't quite figured Shared Actions out yet");
 					return false;
 				}
 			} else if (delta.getResource() instanceof IFile) {
 
-				IFile file = (IFile) delta.getResource();
-
-				builder.updatePhysicalLocation(file, monitor);
+				IFile designerFile = (IFile) delta.getResource();
+				processDesignerFile(designerFile);
 
 			}
 
@@ -60,54 +80,14 @@ public class SwiperPostVisitor implements IResourceDeltaVisitor {
 			if ((delta.getResource() instanceof IFolder)) {
 				IFolder folder = (IFolder) delta.getResource();
 
-				if (SyncUtil.isSharedAction(folder.getParent()
-						.getProjectRelativePath())) {
-					builder.updatePhysicalLocation(folder, monitor);
+				if (SyncUtil.isSharedAction(folder.getParent().getProjectRelativePath())) {
+					System.out.println("Haven't quite figured Shared Actions out yet");
 					return false;
 				}
 			} else if (delta.getResource() instanceof IFile) {
 
 				IFile designerFile = (IFile) delta.getResource();
-
-				if (designerFile.getName().contains("ccCustomControl.xsp")){
-					System.out.println(designerFile.getName());
-				}
-				
-				IFile diskFile = SwiperUtil.getRelevantDiskFile(designerProject,
-						designerFile);
-
-				if (diskFile != null && diskFile.exists()) {
-
-					if (SwiperUtil.isModifiedBySync(diskFile)) {
-
-						SwiperUtil.logInfo(diskFile.getName()
-								+ " was modified by sync - Filter It");
-
-						if (SwiperUtil.shouldFilter(designerFile)) {
-
-							builder.filterDiskFile(designerFile, diskFile,
-									monitor);
-
-						} else {
-							SwiperUtil.logInfo("Not Configured to filter "
-									+ designerFile.getName());
-						}
-
-					} else {
-						SwiperUtil.logInfo(diskFile.getName() + " untouched");
-					}
-
-				}
-
-				// if (DoraUtil.shouldFilter(file)) {
-				// DoraUtil.logInfo("Would have filtered "
-				// + file.getName());
-				// DoraPostNsfToPhysicalBuilder.this.updatePhysicalLocation(
-				// file, monitor);
-				// } else {
-				// DoraUtil.logInfo("Would Not have filtered "
-				// + file.getName());
-				// }
+				processDesignerFile(designerFile);
 
 			}
 
