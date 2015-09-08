@@ -172,13 +172,14 @@ public class SwiperUtil {
 
 	}
 
-	public static boolean isModifiedBySync(IResource paramIResource) {
-		if (paramIResource.exists()) {
-			try {
-				paramIResource.refreshLocal(1, new NullProgressMonitor());
+	public static boolean isModifiedBySync(IResource resource) {
 
-				long l1 = paramIResource.getLocalTimeStamp();
-				String str = getPersistentSyncTimestamp(paramIResource);
+		if (resource.exists()) {
+			try {
+				resource.refreshLocal(1, new NullProgressMonitor());
+
+				long l1 = resource.getLocalTimeStamp();
+				String str = getPersistentSyncTimestamp(resource);
 				if (StringUtil.equals(str, String.valueOf(l1))) {
 					return false;
 				}
