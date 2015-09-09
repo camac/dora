@@ -18,7 +18,8 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.swt,
  com.ibm.commons.iloader,
  com.ibm.commons.swt.data,
- com.ibm.commons
+ com.ibm.commons,
+ org.eclipse.core.expressions
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ActivationPolicy: lazy
 Export-Package: com.gregorbyte.designer.swiper.builder,

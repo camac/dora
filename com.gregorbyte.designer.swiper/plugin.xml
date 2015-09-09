@@ -40,28 +40,7 @@
             id="com.gregorbyte.designer.swiper.SwiperPreSyncBuilder">
       </builder>
    </extension>
-   
       
-   
-   <extension point="org.eclipse.ui.popupMenus">
-		<objectContribution
-			adaptable="true"
-			objectClass="org.eclipse.core.resources.IProject"
-			nameFilter="*"
-			id="com.gregorbyte.designer.swiper.builder.contribution1">
-			<action
-				label="Add/Remove Swiper Nature"
-				class="com.gregorbyte.designer.swiper.builder.ToggleNatureAction"
-				menubarPath="additions"
-				enablesFor="+"
-				id="com.gregorbyte.designer.swiper.builder.addRemoveNatureAction"/>
-		</objectContribution>
-	</extension>
-   
-
-   
-   
-   
    
    <extension
          id="xmlProblem"
@@ -121,5 +100,123 @@
          </enabledWhen>
       </page>
    </extension>
+
+   <extension
+         point="org.eclipse.ui.menus">
+      <menuContribution
+            locationURI="popup:org.eclipse.ui.popup.any?after=additions">
+         <menu
+               id="com.gregorbyte.designer.swiper.menu1"
+               label="Swiper1">
+            <command
+                  commandId="com.gregorbyte.designer.swiper.commands.addswiper"
+                  mode="FORCE_TEXT"
+                  style="push">
+            </command>
+            <command
+                  commandId="com.gregorbyte.designer.swiper.commands.removeswiper"
+                  mode="FORCE_TEXT"
+                  style="push">
+            </command>
+         </menu>
+         <menu
+               id="com.gregorbyte.designer.swiper.menu2"
+               label="Swiper2">
+            <command
+                  commandId="com.gregorbyte.designer.swiper.commands.addswiper"
+                  mode="FORCE_TEXT"
+                  style="push">
+            </command>
+            <command
+                  commandId="com.gregorbyte.designer.swiper.commands.removeswiper"
+                  mode="FORCE_TEXT"
+                  style="push">
+            </command>
+         </menu>
+      </menuContribution>
+      <menuContribution
+            locationURI="menu:file?after=additions2">
+         <menu
+               id="com.gregorbyte.designer.swiper.menu3"
+               label="Swiper3">
+            <command
+                  commandId="com.gregorbyte.designer.swiper.commands.addswiper"
+                  mode="FORCE_TEXT"
+                  style="push">
+            </command>
+            <command
+                  commandId="com.gregorbyte.designer.swiper.commands.removeswiper"
+                  mode="FORCE_TEXT"
+                  style="push">
+            </command>
+         </menu>
+         <menu
+               id="com.gregorbyte.designer.swiper.menu4"
+               label="Swiper4">
+            <command
+                  commandId="com.gregorbyte.designer.swiper.commands.addswiper"
+                  mode="FORCE_TEXT"
+                  style="push">
+            </command>
+            <command
+                  commandId="com.gregorbyte.designer.swiper.commands.removeswiper"
+                  mode="FORCE_TEXT"
+                  style="push">
+            </command>
+         </menu>
+      </menuContribution>
+   </extension>
+   <extension
+         point="org.eclipse.ui.commands">
+      <command
+            id="com.gregorbyte.designer.swiper.commands.addswiper"
+            name="Add Swiper">
+      </command>
+      <command
+            id="com.gregorbyte.designer.swiper.commands.removeswiper"
+            name="Remove Swiper">
+      </command>
+   </extension>
+   <extension
+         point="org.eclipse.ui.handlers">
+      <handler
+            class="com.gregorbyte.designer.swiper.handlers.AddSwiperHandler"
+            commandId="com.gregorbyte.designer.swiper.commands.addswiper">
+         <enabledWhen>
+         
+          <with variable="selection">
+      <iterate ifEmpty="true" operator="and">
+         <adapt type="org.eclipse.core.resources.IResource">
+            <not>
+               <test
+                     property="org.eclipse.core.resources.projectNature"
+                     value="com.gregorbyte.designer.swiper.swiperNature" />
+            </not>
+         </adapt>
+      </iterate>
+   </with>
+         
+         </enabledWhen>
+      </handler>
+      <handler
+            class="com.gregorbyte.designer.swiper.handlers.RemoveSwiperHandler"
+            commandId="com.gregorbyte.designer.swiper.commands.removeswiper">
+                     <enabledWhen>
+                     
+                     <with variable="selection">
+      <iterate ifEmpty="false" operator="or">
+         <adapt type="org.eclipse.core.resources.IResource">
+            <test
+                  property="org.eclipse.core.resources.projectNature"
+                  value="com.gregorbyte.designer.swiper.swiperNature" />
+         </adapt>
+      </iterate>
+   </with>
+                     
+         </enabledWhen>
+            
+      </handler>
+   </extension>
+
 
 </plugin>
