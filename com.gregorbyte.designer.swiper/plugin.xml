@@ -106,22 +106,8 @@
       <menuContribution
             locationURI="popup:org.eclipse.ui.popup.any?after=additions">
          <menu
-               id="com.gregorbyte.designer.swiper.menu1"
-               label="Swiper1">
-            <command
-                  commandId="com.gregorbyte.designer.swiper.commands.addswiper"
-                  mode="FORCE_TEXT"
-                  style="push">
-            </command>
-            <command
-                  commandId="com.gregorbyte.designer.swiper.commands.removeswiper"
-                  mode="FORCE_TEXT"
-                  style="push">
-            </command>
-         </menu>
-         <menu
-               id="com.gregorbyte.designer.swiper.menu2"
-               label="Swiper2">
+               id="com.gregorbyte.designer.swiper.menuPopupNsf"
+               label="Swiper">
             <command
                   commandId="com.gregorbyte.designer.swiper.commands.addswiper"
                   mode="FORCE_TEXT"
@@ -137,22 +123,8 @@
       <menuContribution
             locationURI="menu:file?after=additions2">
          <menu
-               id="com.gregorbyte.designer.swiper.menu3"
-               label="Swiper3">
-            <command
-                  commandId="com.gregorbyte.designer.swiper.commands.addswiper"
-                  mode="FORCE_TEXT"
-                  style="push">
-            </command>
-            <command
-                  commandId="com.gregorbyte.designer.swiper.commands.removeswiper"
-                  mode="FORCE_TEXT"
-                  style="push">
-            </command>
-         </menu>
-         <menu
-               id="com.gregorbyte.designer.swiper.menu4"
-               label="Swiper4">
+               id="com.gregorbyte.designer.swiper.menuFileNsf"
+               label="Swiper">
             <command
                   commandId="com.gregorbyte.designer.swiper.commands.addswiper"
                   mode="FORCE_TEXT"
