@@ -2,13 +2,7 @@ package com.gregorbyte.designer.swiper.builder.pre;
 
 import java.util.Map;
 
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.parsers.SAXParser;
-import javax.xml.parsers.SAXParserFactory;
-
 import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IFolder;
-import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceDelta;
@@ -21,9 +15,6 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.ui.IStartup;
-import org.xml.sax.SAXException;
-import org.xml.sax.SAXParseException;
-import org.xml.sax.helpers.DefaultHandler;
 
 import com.gregorbyte.designer.swiper.action.FilterMetadataAction;
 import com.gregorbyte.designer.swiper.util.SwiperUtil;
@@ -44,7 +35,6 @@ public class SwiperPreSyncBuilder extends IncrementalProjectBuilder
 		implements IResourceUpdateListener, IStartup {
 
 	public static final String BUILDER_ID = "com.gregorbyte.designer.swiper.SwiperPreSyncBuilder";
-	private static final String MARKER_TYPE = "com.gregorbyte.designer.swiper.xmlProblem";
 
 	IDominoDesignerProject designerProject = null;
 	IProject diskProject = null;
@@ -81,69 +71,12 @@ public class SwiperPreSyncBuilder extends IncrementalProjectBuilder
 
 	}
 
-	
-
-	class XMLErrorHandler extends DefaultHandler {
-
-		private IFile file;
-
-		public XMLErrorHandler(IFile file) {
-			this.file = file;
-		}
-
-		private void addMarker(SAXParseException e, int severity) {
-			SwiperPreSyncBuilder.this.addMarker(file, e.getMessage(),
-					e.getLineNumber(), severity);
-		}
-
-		public void error(SAXParseException exception) throws SAXException {
-			addMarker(exception, IMarker.SEVERITY_ERROR);
-		}
-
-		public void fatalError(SAXParseException exception) throws SAXException {
-			addMarker(exception, IMarker.SEVERITY_ERROR);
-		}
-
-		public void warning(SAXParseException exception) throws SAXException {
-			addMarker(exception, IMarker.SEVERITY_WARNING);
-		}
-	}
-
-	private SAXParserFactory parserFactory;
-
-	public static void addMarker2(IFile file, String message, int lineNumber,
-			int severity) {
-		try {
-			IMarker marker = file.createMarker(MARKER_TYPE);
-			marker.setAttribute(IMarker.MESSAGE, message);
-			marker.setAttribute(IMarker.SEVERITY, severity);
-			if (lineNumber == -1) {
-				lineNumber = 1;
-			}
-			marker.setAttribute(IMarker.LINE_NUMBER, lineNumber);
-		} catch (CoreException e) {
-		}
-	}
-
-	private void addMarker(IFile file, String message, int lineNumber,
-			int severity) {
-		try {
-			IMarker marker = file.createMarker(MARKER_TYPE);
-			marker.setAttribute(IMarker.MESSAGE, message);
-			marker.setAttribute(IMarker.SEVERITY, severity);
-			if (lineNumber == -1) {
-				lineNumber = 1;
-			}
-			marker.setAttribute(IMarker.LINE_NUMBER, lineNumber);
-		} catch (CoreException e) {
-		}
-	}
 
 	@SuppressWarnings("rawtypes")
 	protected IProject[] build(int kind, Map args, IProgressMonitor monitor)
 			throws CoreException {
 
-		SwiperUtil.logInfo("Dora: PreSyncBuilder");
+		SwiperUtil.logInfo("Swiper: PreSyncBuilder");
 
 		try {
 			this.designerProject = DominoResourcesPlugin
@@ -175,7 +108,7 @@ public class SwiperPreSyncBuilder extends IncrementalProjectBuilder
 					return null;
 				}
 
-				SyncUtil.logToConsole("--GO DORA---");
+				SyncUtil.logToConsole("--GO Swiper---");
 				SyncUtil.logToConsole("Starting MetaData filter");
 		
 				delta.accept(new SwiperPreVisitor(monitor, this));
@@ -224,62 +157,9 @@ public class SwiperPreSyncBuilder extends IncrementalProjectBuilder
 		return arrayOfBoolean[0];
 	}
 
-	public void updatePhysicalLocation(IResource resource,
-			IProgressMonitor monitor) throws CoreException {
-
-		IFile file = SyncUtil.getPhysicalFile(this.designerProject, resource);
-
-		if (resource instanceof IFile) {
-
-			if (SwiperUtil.isModifiedBySync(resource)) {
-				SwiperUtil.logInfo("Dora says: Modified by sync");
-			} else {
-				SwiperUtil.logInfo("Dora says: Not Modified by sync");
-			}
-
-			this.filterAction.performFilter((IFile) resource, file, monitor);
-		} else {
-			this.filterAction.performFilter((IFolder) resource, file, monitor);
-		}
-	}
-
-	protected void clean(IProgressMonitor monitor) throws CoreException {
-		// delete markers set and files created
-		getProject().deleteMarkers(MARKER_TYPE, true, IResource.DEPTH_INFINITE);
-	}
-
-	void checkXML(IResource resource) {
-		if (resource instanceof IFile && resource.getName().endsWith(".xml")) {
-			IFile file = (IFile) resource;
-			deleteMarkers(file);
-			XMLErrorHandler reporter = new XMLErrorHandler(file);
-			try {
-				getParser().parse(file.getContents(), reporter);
-			} catch (Exception e1) {
-			}
-		}
-	}
-
-	private void deleteMarkers(IFile file) {
-		try {
-			file.deleteMarkers(MARKER_TYPE, false, IResource.DEPTH_ZERO);
-		} catch (CoreException ce) {
-		}
-	}
-
-	private SAXParser getParser() throws ParserConfigurationException,
-			SAXException {
-		if (parserFactory == null) {
-			parserFactory = SAXParserFactory.newInstance();
-		}
-		return parserFactory.newSAXParser();
-	}
-
 	@Override
 	public void earlyStartup() {
-
 		NResourceUpdateTracker.getInstance().addListener(this);
-
 	}
 
 	@Override

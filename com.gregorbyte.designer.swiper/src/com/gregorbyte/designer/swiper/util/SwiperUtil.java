@@ -4,6 +4,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.resources.IResource;
@@ -14,7 +15,6 @@ import org.eclipse.core.runtime.QualifiedName;
 
 import com.gregorbyte.designer.swiper.builder.SwiperNature;
 import com.gregorbyte.designer.swiper.pref.DoraPreferenceManager;
-import com.gregorbyte.designer.swiper.Activator;
 import com.ibm.commons.log.Log;
 import com.ibm.commons.log.LogMgr;
 import com.ibm.commons.util.StringUtil;
@@ -27,8 +27,8 @@ import com.ibm.designer.prj.resources.commons.IMetaModelDescriptor;
 
 public class SwiperUtil {
 
-	public static LogMgr DORA_LOG = Log.load("com.gregorbyte.designer.swiper",
-			"Logger used for Dora");
+	public static LogMgr SWIPER_LOG = Log.load("com.gregorbyte.designer.swiper", "Logger used for Swiper");
+	private static final String MARKER_TYPE = "com.gregorbyte.designer.swiper.xmlProblem";
 
 	public static Set<String> getCanFilterIds() {
 
@@ -64,11 +64,11 @@ public class SwiperUtil {
 	}
 
 	public static String getPreferenceKey(IMetaModelDescriptor mmd) {
-		return "dora.filter." + mmd.getID();
+		return "swiper.filter." + mmd.getID();
 	}
 
 	public static String getPreferenceKey(String id) {
-		return "dora.filter." + id;
+		return "swiper.filter." + id;
 	}
 
 	public static boolean isSetToFilter(IMetaModelDescriptor mmd) {
@@ -77,8 +77,7 @@ public class SwiperUtil {
 
 		logInfo("Checking preference for " + mmd.getName());
 
-		boolean isset = DoraPreferenceManager.getInstance().getBooleanValue(
-				prefKey, false);
+		boolean isset = DoraPreferenceManager.getInstance().getBooleanValue(prefKey, false);
 
 		if (isset) {
 			logInfo(prefKey + " is currently set to True");
@@ -91,8 +90,7 @@ public class SwiperUtil {
 
 	public static boolean shouldFilter(IResource resource) {
 
-		NotesDesignElement element = DominoResourcesPlugin
-				.getNotesDesignElement(resource);
+		NotesDesignElement element = DominoResourcesPlugin.getNotesDesignElement(resource);
 
 		if (element == null) {
 			return false;
@@ -101,11 +99,9 @@ public class SwiperUtil {
 		boolean hasMetadata = SyncUtil.hasMetadataFile(element);
 
 		if (hasMetadata) {
-			logInfo("Design Element Name: " + element.getName()
-					+ "Has Metadata");
+			logInfo("Design Element Name: " + element.getName() + "Has Metadata");
 		} else {
-			logInfo("Design Element Name: " + element.getName()
-					+ "Does not have metadata");
+			logInfo("Design Element Name: " + element.getName() + "Does not have metadata");
 		}
 
 		IMetaModelDescriptor mmd = element.getMetaModel();
@@ -134,42 +130,41 @@ public class SwiperUtil {
 		String key = getPreferenceKey("useDefaultFilter");
 		return DoraPreferenceManager.getInstance().getBooleanValue(key, false);
 	}
-	
+
 	public static String getDefaultFilterFilePath() {
 		return DoraPreferenceManager.getInstance().getValue("defaultFilter", false);
 	}
-	
-	public static IFile getRelevantDiskFile(IDominoDesignerProject designerProject, IResource designerFile) throws CoreException {
+
+	public static IFile getRelevantDiskFile(IDominoDesignerProject designerProject, IResource designerFile)
+			throws CoreException {
 
 		NotesDesignElement designElement = DominoResourcesPlugin.getNotesDesignElement(designerFile);
-		
+
 		IProject diskProject = SyncUtil.getAssociatedDiskProject(designerProject, false);
-		
+
 		IFile diskFile = null;
-		
+
 		if (SyncUtil.hasMetadataFile(designElement)) {
 
 			SwiperUtil.logInfo("Metadata file needed " + designerFile.getName());
-			
+
 			IPath localPath = designerFile.getProjectRelativePath().addFileExtension("metadata");
 			diskFile = diskProject.getFile(localPath);
 
 		} else {
-			
+
 			SwiperUtil.logInfo("No Metadata file needed for " + designerFile.getName());
 			diskFile = SyncUtil.getPhysicalFile(designerProject, designerFile);
-			
+
 		}
 
 		return diskFile;
-		
+
 	}
-	
-	public static QualifiedName getSyncModifiedQualifiedName(
-			IResource paramIResource) {
-		QualifiedName localQualifiedName = new QualifiedName(
-				"com.gregorbyte.designer.swiper", paramIResource
-						.getProjectRelativePath().toString());
+
+	public static QualifiedName getSyncModifiedQualifiedName(IResource paramIResource) {
+		QualifiedName localQualifiedName = new QualifiedName("com.gregorbyte.designer.swiper",
+				paramIResource.getProjectRelativePath().toString());
 		return localQualifiedName;
 
 	}
@@ -203,11 +198,9 @@ public class SwiperUtil {
 		return false;
 	}
 
-	public static String getPersistentSyncTimestamp(IResource paramIResource)
-			throws CoreException {
+	public static String getPersistentSyncTimestamp(IResource paramIResource) throws CoreException {
 		QualifiedName localQualifiedName = getSyncModifiedQualifiedName(paramIResource);
-		return paramIResource.getProject().getPersistentProperty(
-				localQualifiedName);
+		return paramIResource.getProject().getPersistentProperty(localQualifiedName);
 	}
 
 	public static void setSyncTimestamp(IResource paramIResource) {
@@ -222,8 +215,7 @@ public class SwiperUtil {
 			if (paramIResource.exists()) {
 				long l = paramIResource.getLocalTimeStamp();
 				QualifiedName localQualifiedName = getSyncModifiedQualifiedName(paramIResource);
-				paramIResource.getProject().setPersistentProperty(
-						localQualifiedName, String.valueOf(l));
+				paramIResource.getProject().setPersistentProperty(localQualifiedName, String.valueOf(l));
 			}
 		} catch (CoreException localCoreException) {
 			localCoreException.printStackTrace();
@@ -232,21 +224,21 @@ public class SwiperUtil {
 	}
 
 	public static void logInfo(String message) {
-		if (DORA_LOG.isInfoEnabled()) {
-			DORA_LOG.infop("DoraUtil", "", "Dora: " + message, new Object[0]);
+		if (SWIPER_LOG.isInfoEnabled()) {
+			SWIPER_LOG.infop("SwiperUtil", "", "Swiper: " + message, new Object[0]);
 		}
 	}
-	
+
 	public static void addNature(IProject project) {
-		
+
 		SwiperUtil.logInfo("Attempt to Add Nature");
-		
-		try {					
+
+		try {
 			IProjectDescription description = project.getDescription();
 			String[] natures = description.getNatureIds();
 
 			for (int i = 0; i < natures.length; ++i) {
-		
+
 				if (SwiperNature.NATURE_ID.equals(natures[i])) {
 					SwiperUtil.logInfo("Swiper Nature already exists");
 					return;
@@ -259,26 +251,26 @@ public class SwiperUtil {
 			newNatures[natures.length] = SwiperNature.NATURE_ID;
 			description.setNatureIds(newNatures);
 			project.setDescription(description, null);
-			
+
 		} catch (CoreException e) {
-			
+
 			SwiperUtil.logInfo(e.getMessage());
 			e.printStackTrace();
-			
+
 		} catch (Exception e) {
-			
+
 			SwiperUtil.logInfo(e.getMessage());
 			e.printStackTrace();
-			
+
 		}
-		
+
 	}
 
 	public static void removeNature(IProject project) {
 
 		SwiperUtil.logInfo("Attempt to Remove Nature");
-		
-		try {					
+
+		try {
 			IProjectDescription description = project.getDescription();
 			String[] natures = description.getNatureIds();
 
@@ -295,16 +287,55 @@ public class SwiperUtil {
 			}
 
 		} catch (CoreException e) {
-			
+
 			SwiperUtil.logInfo(e.getMessage());
 			e.printStackTrace();
-			
+
 		} catch (Exception e) {
-			
+
 			SwiperUtil.logInfo(e.getMessage());
 			e.printStackTrace();
-			
+
 		}
 	}
+
+	public static void addMarker(IProject project, String message, int severity) {
+
+		try {
+			IMarker marker = project.createMarker(MARKER_TYPE);
+			marker.setAttribute(IMarker.MESSAGE, message);
+			marker.setAttribute(IMarker.SEVERITY, severity);
+		} catch (CoreException e) {
+
+		}
+
+	}
+	
+	public static void addMarker(IFile file, String message, int lineNumber, int severity) {
+		try {
+			IMarker marker = file.createMarker(MARKER_TYPE);
+			marker.setAttribute(IMarker.MESSAGE, message);
+			marker.setAttribute(IMarker.SEVERITY, severity);
+			if (lineNumber == -1) {
+				lineNumber = 1;
+			}
+			marker.setAttribute(IMarker.LINE_NUMBER, lineNumber);
+		} catch (CoreException e) {
+		}
+	}
+
+	public static void cleanMarkers(IProject project) throws CoreException {
+
+		project.deleteMarkers(MARKER_TYPE, true, IResource.DEPTH_INFINITE);
+
+	}
+	
+	public static void deleteMarkers(IFile file) {
+		try {
+			file.deleteMarkers(MARKER_TYPE, false, IResource.DEPTH_ZERO);
+		} catch (CoreException ce) {
+		}
+	}
+
 	
 }

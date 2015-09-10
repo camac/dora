@@ -34,10 +34,9 @@ public class Activator extends AbstractUIPlugin {
 		super.start(context);
 		plugin = this;
 		
-		System.out.println("Dora Activated");
+		System.out.println("Swiper Activated");
 		
-		//SyncUtil.SYNC_LOG.getLogger().setLevel(Level.FINEST);
-		SwiperUtil.DORA_LOG.getLogger().setLevel(Level.INFO);
+		SwiperUtil.SWIPER_LOG.getLogger().setLevel(Level.INFO);
 		
 		
 	}
