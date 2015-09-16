@@ -2,6 +2,7 @@ package com.gregorbyte.designer.swiper.builder.post;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceDelta;
 import org.eclipse.core.resources.IResourceDeltaVisitor;
 import org.eclipse.core.runtime.CoreException;
@@ -23,7 +24,16 @@ public class SwiperPostVisitor implements IResourceDeltaVisitor {
 		this.designerProject = builder.getDesignerProject();
 	}
 
-	private void processDesignerFile(IFile designerFile) throws CoreException {
+	private void processSharedAction(IFolder sharedActionFolder) throws CoreException {
+		
+		System.out.println("Going to process the shared action folder");
+		
+		processDesignerFile(sharedActionFolder);
+		
+		
+	}
+	
+	private void processDesignerFile(IResource designerFile) throws CoreException {
 		
 		IFile diskFile = SwiperUtil.getRelevantDiskFile(designerProject, designerFile);
 
@@ -55,7 +65,7 @@ public class SwiperPostVisitor implements IResourceDeltaVisitor {
 				IFolder folder = (IFolder) delta.getResource();
 
 				if (SyncUtil.isSharedAction(folder.getParent().getProjectRelativePath())) {
-					System.out.println("Haven't quite figured Shared Actions out yet");
+					processSharedAction(folder);
 					return false;
 				}
 			} else if (delta.getResource() instanceof IFile) {
@@ -81,7 +91,7 @@ public class SwiperPostVisitor implements IResourceDeltaVisitor {
 				IFolder folder = (IFolder) delta.getResource();
 
 				if (SyncUtil.isSharedAction(folder.getParent().getProjectRelativePath())) {
-					System.out.println("Haven't quite figured Shared Actions out yet");
+					processSharedAction(folder);
 					return false;
 				}
 			} else if (delta.getResource() instanceof IFile) {

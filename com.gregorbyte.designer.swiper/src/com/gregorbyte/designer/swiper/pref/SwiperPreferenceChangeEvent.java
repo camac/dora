@@ -3,12 +3,12 @@ package com.gregorbyte.designer.swiper.pref;
 import java.util.HashMap;
 import java.util.Map;
 
-public class DoraPreferenceChangeEvent {
+public class SwiperPreferenceChangeEvent {
 	protected int type;
 	protected Map<Object, Object> properties = new HashMap<Object, Object>();
 	private Object sender;
 
-	public DoraPreferenceChangeEvent(int type, Object sender) {
+	public SwiperPreferenceChangeEvent(int type, Object sender) {
 		this.type = type;
 		this.sender = sender;
 	}

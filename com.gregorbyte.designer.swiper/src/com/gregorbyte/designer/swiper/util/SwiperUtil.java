@@ -4,6 +4,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
@@ -14,7 +15,7 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.QualifiedName;
 
 import com.gregorbyte.designer.swiper.builder.SwiperNature;
-import com.gregorbyte.designer.swiper.pref.DoraPreferenceManager;
+import com.gregorbyte.designer.swiper.pref.SwiperPreferenceManager;
 import com.ibm.commons.log.Log;
 import com.ibm.commons.log.LogMgr;
 import com.ibm.commons.util.StringUtil;
@@ -22,6 +23,7 @@ import com.ibm.designer.domino.ide.resources.DominoResourcesPlugin;
 import com.ibm.designer.domino.ide.resources.jni.NotesDesignElement;
 import com.ibm.designer.domino.ide.resources.metamodel.IMetaModelConstants;
 import com.ibm.designer.domino.ide.resources.project.IDominoDesignerProject;
+import com.ibm.designer.domino.preferences.DominoPreferenceManager;
 import com.ibm.designer.domino.team.util.SyncUtil;
 import com.ibm.designer.prj.resources.commons.IMetaModelDescriptor;
 
@@ -30,6 +32,8 @@ public class SwiperUtil {
 	public static LogMgr SWIPER_LOG = Log.load("com.gregorbyte.designer.swiper", "Logger used for Swiper");
 	private static final String MARKER_TYPE = "com.gregorbyte.designer.swiper.xmlProblem";
 
+	private static boolean filterEverything = true;
+	
 	public static Set<String> getCanFilterIds() {
 
 		HashSet<String> things = new HashSet<String>();
@@ -73,11 +77,13 @@ public class SwiperUtil {
 
 	public static boolean isSetToFilter(IMetaModelDescriptor mmd) {
 
+		if (filterEverything) return true;
+		
 		String prefKey = getPreferenceKey(mmd);
 
 		logInfo("Checking preference for " + mmd.getName());
 
-		boolean isset = DoraPreferenceManager.getInstance().getBooleanValue(prefKey, false);
+		boolean isset = SwiperPreferenceManager.getInstance().getBooleanValue(prefKey, false);
 
 		if (isset) {
 			logInfo(prefKey + " is currently set to True");
@@ -115,6 +121,7 @@ public class SwiperUtil {
 		if (getCanFilterIds().contains(id)) {
 
 			logInfo("Yes we can filter" + mmd.getName());
+			
 			return isSetToFilter(mmd);
 
 		} else {
@@ -128,11 +135,11 @@ public class SwiperUtil {
 
 	public static boolean isUseDefaultFilter() {
 		String key = getPreferenceKey("useDefaultFilter");
-		return DoraPreferenceManager.getInstance().getBooleanValue(key, false);
+		return SwiperPreferenceManager.getInstance().getBooleanValue(key, false);
 	}
 
 	public static String getDefaultFilterFilePath() {
-		return DoraPreferenceManager.getInstance().getValue("defaultFilter", false);
+		return SwiperPreferenceManager.getInstance().getValue("defaultFilter", false);
 	}
 
 	public static IFile getRelevantDiskFile(IDominoDesignerProject designerProject, IResource designerFile)
@@ -310,6 +317,31 @@ public class SwiperUtil {
 		}
 
 	}
+
+	public static void addMarker(IResource resource, String message, int severity) {
+		
+		try {
+			IMarker marker = resource.createMarker(MARKER_TYPE);
+			marker.setAttribute(IMarker.MESSAGE, message);
+			marker.setAttribute(IMarker.SEVERITY, severity);
+		} catch (CoreException e) {
+			
+		}
+		
+	}
+
+	
+	public static void addMarker(IFolder folder, String message, int severity) {
+		
+		try {
+			IMarker marker = folder.createMarker(MARKER_TYPE);
+			marker.setAttribute(IMarker.MESSAGE, message);
+			marker.setAttribute(IMarker.SEVERITY, severity);
+		} catch (CoreException e) {
+			
+		}
+		
+	}
 	
 	public static void addMarker(IFile file, String message, int lineNumber, int severity) {
 		try {
@@ -335,6 +367,11 @@ public class SwiperUtil {
 			file.deleteMarkers(MARKER_TYPE, false, IResource.DEPTH_ZERO);
 		} catch (CoreException ce) {
 		}
+	}
+	
+	public static boolean isAutoExportEnabled() {
+		return DominoPreferenceManager.getInstance().getBooleanValue(
+				"domino.prefs.keys.team.export.auto", false);
 	}
 
 	

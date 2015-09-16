@@ -54,50 +54,11 @@
       </persistent>
    </extension>
    <extension
-         point="org.eclipse.core.runtime.preferences">
-      <initializer
-            class="com.gregorbyte.designer.swiper.pref.DoraPreferenceInitializer">
-      </initializer>
-   </extension>
-   <extension
          point="org.eclipse.ui.preferencePages">
-      <page
-            class="com.gregorbyte.designer.swiper.pref.DoraMainPreferencePage"
-            id="com.gregorbyte.designer.swiper.prefpage"
-            name="Dora Preferences">
-      </page>
-      <page
-            category="com.gregorbyte.designer.swiper.prefpage"
-            class="com.gregorbyte.designer.swiper.pref.DoraDesignElementPreferencePage"
-            id="com.gregorbyte.designer.swiper.designelementpage"
-            name="Dora Design Element Preferences">
-      </page>
       <page
             class="com.gregorbyte.designer.swiper.pref.SwiperPreferencePage"
             id="com.gregorbyte.designer.swiper.swiperPage"
             name="Swiper">
-      </page>
-   </extension>
-   <extension
-         point="org.eclipse.ui.propertyPages">
-      <page
-            class="com.gregorbyte.designer.swiper.pref.DoraDesignElementPreferencePage"
-            id="com.gregorbyte.designer.swiper.propertypage"
-            name="Dora">
-         <enabledWhen>
-            <and>
-               <instanceof
-                     value="org.eclipse.core.resources.IProject">
-               </instanceof>
-               <adapt
-                     type="org.eclipse.core.resources.IResource">
-                  <test
-                        property="org.eclipse.core.resources.projectNature"
-                        value="com.gregorbyte.designer.swiper.swiperNature">
-                  </test>
-               </adapt>
-            </and>
-         </enabledWhen>
       </page>
    </extension>
 

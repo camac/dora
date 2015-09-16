@@ -26,19 +26,27 @@ public class SwiperPreVisitor implements IResourceDeltaVisitor {
 		this.designerProject = builder.getDesignerProject();
 	}
 
-	private boolean processAdded(IResourceDelta delta) {
+	private boolean processAdded(IResourceDelta delta) throws CoreException {
 
 		SwiperUtil.logInfo("Processing Added");
 
 		/*
 		 * If the physical file is not found, then save the current timestamp
 		 */
-		
+
 		if ((delta.getResource() instanceof IFolder)) {
 			IFolder folder = (IFolder) delta.getResource();
 
 			if (SyncUtil.isSharedAction(folder.getParent()
 					.getProjectRelativePath())) {
+		
+				IFile diskFile = SwiperUtil.getRelevantDiskFile(
+						designerProject, folder);
+
+				if (diskFile != null && diskFile.exists()) {
+					SwiperUtil.setSyncTimestamp(diskFile);
+				}
+
 				return false;
 			}
 		} else if (delta.getResource() instanceof IFile) {
@@ -55,24 +63,29 @@ public class SwiperPreVisitor implements IResourceDeltaVisitor {
 		SwiperUtil.logInfo("Processing Changed");
 
 		if ((delta.getResource() instanceof IFolder)) {
-			
+
 			IFolder folder = (IFolder) delta.getResource();
 
 			if (SyncUtil.isSharedAction(folder.getParent()
 					.getProjectRelativePath())) {
+
+				IFile diskFile = SwiperUtil.getRelevantDiskFile(
+						designerProject, folder);
+
+				if (diskFile != null && diskFile.exists()) {
+					SwiperUtil.setSyncTimestamp(diskFile);
+				}
+
 				return false;
 			}
-			
+
 		} else if (delta.getResource() instanceof IFile) {
 
 			IFile designerFile = (IFile) delta.getResource();
-			
-			if (designerFile.getName().contains("CustomControl.xsp")) {
-				System.out.println(designerFile.getName());
-			}
-			
-			IFile diskFile = SwiperUtil.getRelevantDiskFile(designerProject, designerFile);
-			
+
+			IFile diskFile = SwiperUtil.getRelevantDiskFile(designerProject,
+					designerFile);
+
 			if (diskFile != null && diskFile.exists()) {
 				SwiperUtil.setSyncTimestamp(diskFile);
 			}

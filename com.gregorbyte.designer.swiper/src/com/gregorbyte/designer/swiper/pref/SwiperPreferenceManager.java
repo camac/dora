@@ -13,17 +13,17 @@ import org.eclipse.swt.widgets.Display;
 import com.gregorbyte.designer.swiper.Activator;
 import com.ibm.commons.util.StringUtil;
 
-public class DoraPreferenceManager extends PreferenceManager {
+public class SwiperPreferenceManager extends PreferenceManager {
 
 	private IPreferenceStore store;
-	private List<IDoraPreferenceListener> listeners = new ArrayList<IDoraPreferenceListener>();
-	private static DoraPreferenceManager instance = new DoraPreferenceManager();
+	private List<ISwiperPreferenceListener> listeners = new ArrayList<ISwiperPreferenceListener>();
+	private static SwiperPreferenceManager instance = new SwiperPreferenceManager();
 
-	public static DoraPreferenceManager getInstance() {
+	public static SwiperPreferenceManager getInstance() {
 		return instance;
 	}
 
-	protected DoraPreferenceManager() {
+	protected SwiperPreferenceManager() {
 		this.store = Activator.getDefault().getPreferenceStore();
 	}
 
@@ -52,7 +52,7 @@ public class DoraPreferenceManager extends PreferenceManager {
 		if (!StringUtil.equals(oldVal, newValue)) {
 
 			if (notifyListeners) {
-				DoraPreferenceChangeEvent event = new DoraPreferenceChangeEvent(
+				SwiperPreferenceChangeEvent event = new SwiperPreferenceChangeEvent(
 						paramInt, prefKey);
 				event.addProperty("old.value", oldVal);
 				event.addProperty("new.value", newValue);
@@ -82,7 +82,7 @@ public class DoraPreferenceManager extends PreferenceManager {
 		this.store.setValue(prefKey, value);
 	}
 
-	protected void notifyListeners(final DoraPreferenceChangeEvent event) {
+	protected void notifyListeners(final SwiperPreferenceChangeEvent event) {
 
 		Runnable local1 = new Runnable() {
 
@@ -90,7 +90,7 @@ public class DoraPreferenceManager extends PreferenceManager {
 
 				for (int i = 0; i < listeners.size(); i++) {
 
-					IDoraPreferenceListener listener = listeners.get(i);
+					ISwiperPreferenceListener listener = listeners.get(i);
 
 					if (listener != null) {
 						listener.preferenceChanged(event);
@@ -103,13 +103,13 @@ public class DoraPreferenceManager extends PreferenceManager {
 		Display.getDefault().syncExec(local1);
 	}
 
-	public void addPreferenceListener(IDoraPreferenceListener listener) {
+	public void addPreferenceListener(ISwiperPreferenceListener listener) {
 		if (!this.listeners.contains(listener)) {
 			this.listeners.add(listener);
 		}
 	}
 
-	public void removePreferenceListener(IDoraPreferenceListener listener) {
+	public void removePreferenceListener(ISwiperPreferenceListener listener) {
 		this.listeners.remove(listener);
 	}
 
