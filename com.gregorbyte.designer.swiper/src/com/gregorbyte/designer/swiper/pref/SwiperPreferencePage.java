@@ -1,5 +1,6 @@
 package com.gregorbyte.designer.swiper.pref;
 
+import org.eclipse.jface.preference.BooleanFieldEditor;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
 import org.eclipse.jface.preference.FileFieldEditor;
 import org.eclipse.jface.preference.IPreferenceStore;
@@ -8,9 +9,11 @@ import org.eclipse.ui.IWorkbenchPreferencePage;
 
 import com.gregorbyte.designer.swiper.Activator;
 
-public class SwiperPreferencePage extends FieldEditorPreferencePage implements
-		IWorkbenchPreferencePage {
+public class SwiperPreferencePage extends FieldEditorPreferencePage implements IWorkbenchPreferencePage {
 
+	public static final String PREF_DEFFILTER = "defaultFilter";
+	public static final String PREF_MIMICXMLDECL = "mimicXmlDeclaration"; 
+	
 	public SwiperPreferencePage() {
 		super(FieldEditorPreferencePage.GRID);
 	}
@@ -27,9 +30,13 @@ public class SwiperPreferencePage extends FieldEditorPreferencePage implements
 	@Override
 	protected void createFieldEditors() {
 
-		FileFieldEditor defaultFilter = new FileFieldEditor("defaultFilter",
-				"Default XSLT Filter", getFieldEditorParent());		
+		FileFieldEditor defaultFilter = new FileFieldEditor(PREF_DEFFILTER, "Default XSLT Filter",
+				getFieldEditorParent());
 		addField(defaultFilter);
+
+		BooleanFieldEditor mimcXmlDeclaration = new BooleanFieldEditor(PREF_MIMICXMLDECL,
+				"Mimic the XML Declaration From Dora", getFieldEditorParent());
+		addField(mimcXmlDeclaration);
 
 	}
 }

@@ -16,6 +16,7 @@ import org.eclipse.core.runtime.QualifiedName;
 
 import com.gregorbyte.designer.swiper.builder.SwiperNature;
 import com.gregorbyte.designer.swiper.pref.SwiperPreferenceManager;
+import com.gregorbyte.designer.swiper.pref.SwiperPreferencePage;
 import com.ibm.commons.log.Log;
 import com.ibm.commons.log.LogMgr;
 import com.ibm.commons.util.StringUtil;
@@ -33,7 +34,7 @@ public class SwiperUtil {
 	private static final String MARKER_TYPE = "com.gregorbyte.designer.swiper.xmlProblem";
 
 	private static boolean filterEverything = true;
-	
+
 	public static Set<String> getCanFilterIds() {
 
 		HashSet<String> things = new HashSet<String>();
@@ -77,8 +78,9 @@ public class SwiperUtil {
 
 	public static boolean isSetToFilter(IMetaModelDescriptor mmd) {
 
-		if (filterEverything) return true;
-		
+		if (filterEverything)
+			return true;
+
 		String prefKey = getPreferenceKey(mmd);
 
 		logInfo("Checking preference for " + mmd.getName());
@@ -121,7 +123,7 @@ public class SwiperUtil {
 		if (getCanFilterIds().contains(id)) {
 
 			logInfo("Yes we can filter" + mmd.getName());
-			
+
 			return isSetToFilter(mmd);
 
 		} else {
@@ -139,7 +141,11 @@ public class SwiperUtil {
 	}
 
 	public static String getDefaultFilterFilePath() {
-		return SwiperPreferenceManager.getInstance().getValue("defaultFilter", false);
+		return SwiperPreferenceManager.getInstance().getValue(SwiperPreferencePage.PREF_DEFFILTER, false);
+	}
+
+	public static Boolean isMimicXmlDeclaration() {
+		return SwiperPreferenceManager.getInstance().getBooleanValue(SwiperPreferencePage.PREF_MIMICXMLDECL, false);
 	}
 
 	public static IFile getRelevantDiskFile(IDominoDesignerProject designerProject, IResource designerFile)
@@ -319,30 +325,29 @@ public class SwiperUtil {
 	}
 
 	public static void addMarker(IResource resource, String message, int severity) {
-		
+
 		try {
 			IMarker marker = resource.createMarker(MARKER_TYPE);
 			marker.setAttribute(IMarker.MESSAGE, message);
 			marker.setAttribute(IMarker.SEVERITY, severity);
 		} catch (CoreException e) {
-			
+
 		}
-		
+
 	}
 
-	
 	public static void addMarker(IFolder folder, String message, int severity) {
-		
+
 		try {
 			IMarker marker = folder.createMarker(MARKER_TYPE);
 			marker.setAttribute(IMarker.MESSAGE, message);
 			marker.setAttribute(IMarker.SEVERITY, severity);
 		} catch (CoreException e) {
-			
+
 		}
-		
+
 	}
-	
+
 	public static void addMarker(IFile file, String message, int lineNumber, int severity) {
 		try {
 			IMarker marker = file.createMarker(MARKER_TYPE);
@@ -361,18 +366,16 @@ public class SwiperUtil {
 		project.deleteMarkers(MARKER_TYPE, true, IResource.DEPTH_INFINITE);
 
 	}
-	
+
 	public static void deleteMarkers(IFile file) {
 		try {
 			file.deleteMarkers(MARKER_TYPE, false, IResource.DEPTH_ZERO);
 		} catch (CoreException ce) {
 		}
 	}
-	
+
 	public static boolean isAutoExportEnabled() {
-		return DominoPreferenceManager.getInstance().getBooleanValue(
-				"domino.prefs.keys.team.export.auto", false);
+		return DominoPreferenceManager.getInstance().getBooleanValue("domino.prefs.keys.team.export.auto", false);
 	}
 
-	
 }
