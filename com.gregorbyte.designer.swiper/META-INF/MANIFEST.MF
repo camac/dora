@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Gregorbyte Swiper Plugin
 Bundle-SymbolicName: com.gregorbyte.designer.swiper;singleton:=true
-Bundle-Version: 0.1.0.qualifier
+Bundle-Version: 0.1.2.qualifier
 Bundle-Activator: com.gregorbyte.designer.swiper.Activator
 Bundle-Vendor: Gregorbyte
 Require-Bundle: org.eclipse.ui,

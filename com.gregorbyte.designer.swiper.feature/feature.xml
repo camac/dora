@@ -2,7 +2,7 @@
 <feature
       id="com.gregorbyte.designer.swiper.feature"
       label="Gregorbyte Swiper Feature"
-      version="0.1.0.qualifier"
+      version="0.1.2.qualifier"
       provider-name="Gregorbyte">
 
    <description url="http://www.example.com/description">
