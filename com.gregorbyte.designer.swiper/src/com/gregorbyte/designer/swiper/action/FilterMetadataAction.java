@@ -33,6 +33,8 @@ public class FilterMetadataAction extends AbstractTeamHandler {
 
 	private static final String DEFAULT_FILTER = "DXLClean.xsl";
 
+	private static final byte[] XML_DECL = "<?xml version=\"1.0\"?>\n".getBytes();
+
 	private Templates cachedXslt = null;
 
 	public FilterMetadataAction() {
@@ -92,26 +94,34 @@ public class FilterMetadataAction extends AbstractTeamHandler {
 
 	}
 
-	private void filter(IFile diskFile, Transformer transformer,
-			IProgressMonitor monitor) throws TransformerException,
-			CoreException, IOException {
+	private void filter(IFile diskFile, Transformer transformer, IProgressMonitor monitor)
+			throws TransformerException, CoreException, IOException {
 
 		InputStream is = diskFile.getContents();
-
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		Source source = new StreamSource(is);
 
 		transformer.setOutputProperty(OutputKeys.INDENT, "yes");
-		transformer.setOutputProperty(
-				"{http://xml.apache.org/xslt}indent-amount", "2");
+		transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
 
 		transformer.setOutputProperty(OutputKeys.DOCTYPE_PUBLIC, "yes");
 
-		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		/*
+		 * If we want to match the existing DXL as close as possible we omit the
+		 * transformer's declaration as it includes the encoding='UTF-8'
+		 * attribute that is not included in normal DXL Export
+		 */
+		if (SwiperUtil.isMimicXmlDeclaration()) {
+			transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
+			baos.write(XML_DECL);
+		}
+
 		StreamResult result = new StreamResult(baos);
 
 		transformer.transform(source, result);
 
 		ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
+
 		diskFile.setContents(bais, 0, monitor);
 
 		is.close();
